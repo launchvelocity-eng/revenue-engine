@@ -1,15 +1,52 @@
 const http = require('http');
+const { Pool } = require('pg');
 
-const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+// Automatically create the users table on startup
+async function initDB() {
+  const query = `
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      subscription_status VARCHAR(50) DEFAULT 'inactive',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+  try {
+    await pool.query(query);
+    console.log('Users table verified/created successfully.');
+  } catch (err) {
+    console.error('Error creating users table:', err.message);
+  }
+}
+
+initDB();
+
+const server = http.createServer(async (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  
+  try {
+    const dbResult = await pool.query('SELECT NOW()');
+    
     const systemData = {
-        status: 'success',
-        message: 'Private production engine initialized successfully.'
+      status: 'success',
+      message: 'Revenue Engine database & users table active!',
+      timestamp: dbResult.rows[0].now
     };
+    
+    res.writeHead(200);
     res.end(JSON.stringify(systemData, null, 2));
+  } catch (err) {
+    res.writeHead(500);
+    res.end(JSON.stringify({ status: 'error', message: err.message }, null, 2));
+  }
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
