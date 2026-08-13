@@ -1,8 +1,7 @@
-import express from 'express';
-import { Resend } from 'resend';
-import pkg from 'pg';
+const express = require('express');
+const { Resend } = require('resend');
+const { Pool } = require('pg');
 
-const { Pool } = pkg;
 const app = express();
 const port = process.env.PORT || 10000;
 
