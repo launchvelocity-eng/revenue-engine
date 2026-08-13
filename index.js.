@@ -13,6 +13,7 @@ const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url, true);
   const pathname = parsedUrl.pathname;
 
+  // 1. Landing Page / Waitlist Form
   if (req.method === 'GET' && (pathname === '/' || pathname === '')) {
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end(`
@@ -24,13 +25,13 @@ const server = http.createServer(async (req, res) => {
         <title>Revenue Engine</title>
         <style>
           body { background-color: #0d1117; color: #c9d1d9; font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-          .card { background-color: #161b22; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); width: 100%; max-width: 400px; }
+          .card { background-color: #161b22; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; }
           h2 { color: #38bdf8; margin-bottom: 10px; }
           p { font-size: 14px; margin-bottom: 20px; color: #8b949e; }
           input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #30363d; background-color: #0d1117; color: white; box-sizing: border-box; }
           button { width: 100%; padding: 12px; background-color: #38bdf8; border: none; border-radius: 6px; color: #0d1117; font-weight: bold; cursor: pointer; }
           button:hover { background-color: #0ea5e9; }
-          #msg { margin-top: 15px; font-size: 14px; color: #3fb950; }
+          #msg { margin-top: 15px; font-size: 14px; }
         </style>
       </head>
       <body>
@@ -55,6 +56,7 @@ const server = http.createServer(async (req, res) => {
               if (data.status === 'success') {
                 msg.style.color = '#3fb950';
                 msg.innerText = 'Success! You are registered.';
+                document.getElementById('email').value = '';
               } else {
                 msg.style.color = '#f85149';
                 msg.innerText = data.message || 'Something went wrong.';
@@ -71,6 +73,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // 2. Signup Handler API
   if (req.method === 'POST' && pathname === '/signup') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
@@ -82,7 +85,7 @@ const server = http.createServer(async (req, res) => {
           res.end(JSON.stringify({ status: 'error', message: 'Email is required' }));
           return;
         }
-        await pool.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, email TEXT UNIQUE)');
+        await pool.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, email TEXT UNIQUE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)');
         await pool.query('INSERT INTO users (email) VALUES ($1) ON CONFLICT (email) DO NOTHING', [email]);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'success' }));
@@ -94,9 +97,62 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === 'GET' && (pathname === '/users' || pathname === '/users/')) {
+  // 3. Admin Dashboard View Route
+  if (req.method === 'GET' && pathname === '/admin') {
     try {
-      await pool.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, email TEXT UNIQUE)');
+      await pool.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, email TEXT UNIQUE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)');
+      const result = await pool.query('SELECT * FROM users ORDER BY id DESC');
+      const rows = result.rows;
+
+      let tableRows = rows.map(u => `<tr><td>${u.id}</td><td>${u.email}</td><td>${u.created_at || 'N/A'}</td></tr>`).join('');
+      if (tableRows === '') {
+        tableRows = '<tr><td colspan="3" style="text-align:center;">No users registered yet.</td></tr>';
+      }
+
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>Revenue Engine - Admin Dashboard</title>
+          <style>
+            body { background-color: #0d1117; color: #c9d1d9; font-family: Arial, sans-serif; padding: 40px; }
+            h2 { color: #38bdf8; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; background-color: #161b22; border-radius: 8px; overflow: hidden; }
+            th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #30363d; }
+            th { background-color: #21262d; color: #38bdf8; }
+            tr:hover { background-color: #1f242c; }
+          </style>
+        </head>
+        <body>
+          <h2>Revenue Engine Admin Dashboard</h2>
+          <p>Managed User Database Records</p>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Email Address</th>
+                <th>Registered Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `);
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'text/html' });
+      res.end(`<h2>Database Error</h2><p>${err.message}</p>`);
+    }
+    return;
+  }
+
+  // 4. Raw JSON Users API Route
+  if (req.method === 'GET' && pathname === '/users') {
+    try {
       const result = await pool.query('SELECT * FROM users');
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ status: 'success', users: result.rows }, null, 2));
