@@ -1,7 +1,1 @@
-import express from 'express';
-import { Resend } from 'resend';
-import pkg from 'pg';
-const { Pool } = pkg;
-
-const app = express();
-const resend = new Resend('Re_GALEoWCV_8WmcbckpgCCXRJpbjdYwDz2x');
+import { myHelper } from './helper.js'; // Notice the .js here!
