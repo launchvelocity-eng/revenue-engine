@@ -1,19 +1,67 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { Pool } = require('pg');
+const { Resend } = require('resend');
 
-const server = http.createServer((req, res) => {
-  const filePath = path.join(__dirname, 'index.html');
-  
-  fs.readFile(filePath, (err, content) => {
-    if (err) {
-      res.writeHead(500, { 'Content-Type': 'text/plain' });
-      res.end('Error loading index.html');
-    } else {
-      res.writeHead(200, { 'Content-Type': 'text/html' });
-      res.end(content, 'utf-8');
-    }
-  });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const server = http.createServer(async (req, res) => {
+  const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
+
+  if (req.method === 'GET' && parsedUrl.pathname === '/') {
+    const filePath = path.join(__dirname, 'index.html');
+    fs.readFile(filePath, (err, content) => {
+      if (err) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Error loading index.html');
+      } else {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(content, 'utf-8');
+      }
+    });
+  } else if (req.method === 'POST' && parsedUrl.pathname === '/signup') {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    
+    req.on('end', async () => {
+      const params = new URLSearchParams(body);
+      const email = params.get('email');
+
+      try {
+        // Ensure table exists
+        await pool.query(`CREATE TABLE IF NOT EXISTS waitlist (id SERIAL PRIMARY KEY, email VARCHAR(255) UNIQUE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`);
+        
+        // Insert email
+        await pool.query('INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING;', [email]);
+
+        // Send confirmation email via Resend
+        await resend.emails.send({
+          from: 'onboarding@resend.dev',
+          to: email,
+          subject: 'You are on the Revenue Engine waitlist!',
+          html: '<p>Thanks for joining the Revenue Engine waitlist. We will notify you when we launch!</p>'
+        });
+
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end('<h2>Success! Check your email for confirmation.</h2><a href="/">Back</a>');
+      } catch (err) {
+        console.error(err);
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Server error processing your signup.');
+      }
+    });
+  } else {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not Found');
+  }
 });
 
 const PORT = process.env.PORT || 3000;
