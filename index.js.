@@ -1,5 +1,5 @@
 const { Pool } = require('pg');
-const http = http = require('http');
+const http = require('http');
 const url = require('url');
 
 const pool = new Pool({
@@ -9,21 +9,17 @@ const pool = new Pool({
   }
 });
 
-// Virtual Employee Logger: Tracks system events & errors in real-time
 function logEvent(type, message, details = {}) {
   const timestamp = new Date().toISOString();
   console.log(JSON.stringify({ timestamp, type, message, details }));
 }
 
 const server = http.createServer(async (req, res) => {
-  const startTime = Date.now();
   const parsedUrl = url.parse(req.url, true);
   const pathname = parsedUrl.pathname;
 
-  // Track request arrival
   logEvent('INFO', `Incoming ${req.method} request to ${pathname}`);
 
-  // 1. Landing Page / Waitlist Form
   if (req.method === 'GET' && (pathname === '/' || pathname === '')) {
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end(`
@@ -83,7 +79,6 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // 2. Signup Handler API
   if (req.method === 'POST' && pathname === '/signup') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
@@ -111,7 +106,6 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // 3. Admin Dashboard View Route
   if (req.method === 'GET' && pathname === '/admin') {
     try {
       await pool.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, email TEXT UNIQUE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)');
@@ -165,7 +159,6 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // 4. System Health Check & Performance API Route
   if (req.method === 'GET' && pathname === '/health') {
     try {
       await pool.query('SELECT 1');
