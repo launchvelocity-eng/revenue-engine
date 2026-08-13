@@ -1,3 +1,22 @@
-{
-  "type": "module"
-}
+// Add this below your existing routes in index.js
+
+app.post('/api/waitlist', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  try {
+    const data = await resend.emails.send({
+      from: 'onboarding@resend.dev', // Or your verified domain
+      to: email,
+      subject: 'You are on the waitlist!',
+      html: '<p>Thanks for joining our waitlist! We will be in touch soon.</p>'
+    });
+
+    return res.status(200).json({ success: true, data });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
