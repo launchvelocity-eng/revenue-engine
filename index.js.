@@ -1,5 +1,5 @@
 const { Pool } = require('pg');
-const http = require('http');
+const http = http = require('http');
 const url = require('url');
 
 const pool = new Pool({
@@ -9,9 +9,19 @@ const pool = new Pool({
   }
 });
 
+// Virtual Employee Logger: Tracks system events & errors in real-time
+function logEvent(type, message, details = {}) {
+  const timestamp = new Date().toISOString();
+  console.log(JSON.stringify({ timestamp, type, message, details }));
+}
+
 const server = http.createServer(async (req, res) => {
+  const startTime = Date.now();
   const parsedUrl = url.parse(req.url, true);
   const pathname = parsedUrl.pathname;
+
+  // Track request arrival
+  logEvent('INFO', `Incoming ${req.method} request to ${pathname}`);
 
   // 1. Landing Page / Waitlist Form
   if (req.method === 'GET' && (pathname === '/' || pathname === '')) {
@@ -81,15 +91,19 @@ const server = http.createServer(async (req, res) => {
       try {
         const { email } = JSON.parse(body);
         if (!email) {
+          logEvent('WARN', 'Signup attempted without email');
           res.writeHead(400, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ status: 'error', message: 'Email is required' }));
           return;
         }
         await pool.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, email TEXT UNIQUE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)');
         await pool.query('INSERT INTO users (email) VALUES ($1) ON CONFLICT (email) DO NOTHING', [email]);
+        
+        logEvent('SUCCESS', `New user registered: ${email}`);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'success' }));
       } catch (err) {
+        logEvent('ERROR', `Signup failure: ${err.message}`);
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'error', message: err.message }));
       }
@@ -144,21 +158,23 @@ const server = http.createServer(async (req, res) => {
         </html>
       `);
     } catch (err) {
+      logEvent('ERROR', `Admin view failure: ${err.message}`);
       res.writeHead(500, { 'Content-Type': 'text/html' });
       res.end(`<h2>Database Error</h2><p>${err.message}</p>`);
     }
     return;
   }
 
-  // 4. Raw JSON Users API Route
-  if (req.method === 'GET' && pathname === '/users') {
+  // 4. System Health Check & Performance API Route
+  if (req.method === 'GET' && pathname === '/health') {
     try {
-      const result = await pool.query('SELECT * FROM users');
+      await pool.query('SELECT 1');
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'success', users: result.rows }, null, 2));
+      res.end(JSON.stringify({ status: 'healthy', database: 'connected', uptime: process.uptime() }));
     } catch (err) {
+      logEvent('ERROR', `Health check failed: ${err.message}`);
       res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'error', message: err.message }));
+      res.end(JSON.stringify({ status: 'unhealthy', error: err.message }));
     }
     return;
   }
@@ -169,5 +185,5 @@ const server = http.createServer(async (req, res) => {
 
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+  logEvent('INFO', `Server running on port ${PORT}`);
 });
