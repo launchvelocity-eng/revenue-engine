@@ -1,61 +1,7 @@
-const express = require('express');
-const { Resend } = require('resend');
-const { Pool } = require('pg');
-
-const app = express();
-const port = process.env.PORT || 10000;
-
-app.use(express.json());
-
-const resend = new Resend('Re_GALEoWCV_8WmcbckpgCCXRJpbjdYwDz2x');
-
-// Connect to PostgreSQL using environment variable
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
-
-// Initialize database table on startup
-pool.query(`
-  CREATE TABLE IF NOT EXISTS waitlist (
-    id SERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  )
-`).catchall = (err) => console.error("DB setup error:", err);
-
-app.get('/', (req, res) => {
-  res.send('Revenue Engine is running!');
-});
-
-// Waitlist API endpoint
-app.post('/api/waitlist', async (req, res) => {
-  const { email } = req.body;
-
-  if (!email) {
-    return res.status(400).json({ error: 'Email is required' });
-  }
-
-  try {
-    // Save to PostgreSQL database
-    await pool.query('INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING', [email]);
-
-    // Send confirmation email via Resend
-    const data = await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: email,
-      subject: 'You are on the waitlist!',
-      html: '<p>Thanks for joining our waitlist! We will be in touch soon.</p>'
-    });
-
-    return res.status(200).json({ success: true, data });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+fetch('https://revenue-engine-dc8d.onrender.com/api/waitlist', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ email: userEmail })
+})
