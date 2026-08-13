@@ -7,5 +7,16 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false
   },
-  connectionTimeoutMillis: 10000, // Wait up to 10s before timing out
+  connectionTimeoutMillis: 10000 // Wait up to 10s before timing out
+});
+
+// Create a basic server so Render keeps the app running
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Revenue Engine is running!\n');
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
 });
