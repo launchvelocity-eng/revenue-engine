@@ -1,12 +1,11 @@
 {
-  "status": "success",
-  "total_subscribers": 1,
-  "recent_registrations": [
-    {
-      "id": 1,
-      "email": "user@example.com",
-      "subscription_status": "active",
-      "joined_date": "2026-08-12 18:30:00"
-    }
-  ]
+  "name": "revenue-engine",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "pg": "^8.11.3"
+  }
 }
