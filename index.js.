@@ -1,22 +1,19 @@
-// Add this below your existing routes in index.js
+import express from 'express';
+import { Resend } from 'resend';
+import pkg from 'pg';
 
-app.post('/api/waitlist', async (req, res) => {
-  const { email } = req.body;
+const { Pool } = pkg;
+const app = express();
+const port = process.env.PORT || 10000;
 
-  if (!email) {
-    return res.status(400).json({ error: 'Email is required' });
-  }
+app.use(express.json());
 
-  try {
-    const data = await resend.emails.send({
-      from: 'onboarding@resend.dev', // Or your verified domain
-      to: email,
-      subject: 'You are on the waitlist!',
-      html: '<p>Thanks for joining our waitlist! We will be in touch soon.</p>'
-    });
+const resend = new Resend('Re_GALEoWCV_8WmcbckpgCCXRJpbjdYwDz2x');
 
-    return res.status(200).json({ success: true, data });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
+app.get('/', (req, res) => {
+  res.send('Revenue Engine is running!');
+});
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
