@@ -1,5 +1,3 @@
-fetch('https://revenue-engine-dc8d.onrender.com/api/waitlist', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email: userEmail })
-})
+app.get('/', (req, res) => {
+  res.send('Revenue Engine API is running live!');
+});
