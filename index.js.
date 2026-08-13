@@ -94,26 +94,7 @@ const server = http.createServer(async (req, res) => {
         await pool.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, email TEXT UNIQUE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)');
         await pool.query('INSERT INTO users (email) VALUES ($1) ON CONFLICT (email) DO NOTHING', [email]);
         
-        // Dispatch email notification via Resend API
-        const emailResponse = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`
-          },
-          body: JSON.stringify({
-            from: 'onboarding@resend.dev',
-            to: 'mongealfredoantonio@gmail.com',
-            subject: 'New Revenue Engine Signup!',
-            html: `<p>A new user just registered: <strong>${email}</strong></p>`
-          })
-        });
-
-        if (!emailResponse.ok) {
-          logEvent('WARN', 'Failed to dispatch notification email');
-        } else {
-          logEvent('SUCCESS', `Notification email sent for: ${email}`);
-        }
+        logEvent('SUCCESS', `New user registered: ${email}`);
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'success' }));
