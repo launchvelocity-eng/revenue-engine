@@ -1,12 +1,2 @@
-{
-  "name": "revenue-engine",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "dependencies": {
-    "pg": "^8.11.3",
-    "resend": "^4.0.0"
-  }
-}
+res.writeHead(200, { 'Content-Type': 'text/plain' });
+res.end('Revenue Engine API with Resend is running!\n');
