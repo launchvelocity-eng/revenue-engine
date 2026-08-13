@@ -28,7 +28,6 @@ initDB();
 const server = http.createServer(async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
 
-  // Handle User Signup Endpoint: POST /signup
   if (req.method === 'POST' && req.url === '/signup') {
     let body = '';
     req.on('data', chunk => {
@@ -63,7 +62,22 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Default Status Route
+  if (req.method === 'GET' && req.url === '/users') {
+    try {
+      const result = await pool.query('SELECT * FROM users ORDER BY created_at DESC');
+      res.writeHead(200);
+      res.end(JSON.stringify({
+        status: 'success',
+        count: result.rowCount,
+        users: result.rows
+      }, null, 2));
+    } catch (err) {
+      res.writeHead(500);
+      res.end(JSON.stringify({ status: 'error', message: err.message }, null, 2));
+    }
+    return;
+  }
+
   try {
     const dbResult = await pool.query('SELECT NOW()');
     const systemData = {
