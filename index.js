@@ -1,17 +1,5 @@
-import express from 'express';
-import cors from 'cors';
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-app.post('/api/waitlist', (req, res) => {
-  const { email } = req.body;
-  console.log("Received email:", email);
-  res.status(200).json({ success: true, message: "Saved!" });
-});
-
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
+fetch('https://revenue-engine-dc8d.onrender.com/api/waitlist', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email: userEmail })
+})
