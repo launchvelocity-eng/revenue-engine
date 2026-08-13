@@ -9,6 +9,23 @@ app.use(express.json());
 
 const resend = new Resend('Re_GALEoWCV_8WmcbckpgCCXRJpbjdYwDz2x');
 
+// Connect to PostgreSQL using environment variable
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
+
+// Initialize database table on startup
+pool.query(`
+  CREATE TABLE IF NOT EXISTS waitlist (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`).catchall = (err) => console.error("DB setup error:", err);
+
 app.get('/', (req, res) => {
   res.send('Revenue Engine is running!');
 });
@@ -22,6 +39,10 @@ app.post('/api/waitlist', async (req, res) => {
   }
 
   try {
+    // Save to PostgreSQL database
+    await pool.query('INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING', [email]);
+
+    // Send confirmation email via Resend
     const data = await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: email,
