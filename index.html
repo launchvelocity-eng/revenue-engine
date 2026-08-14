@@ -3,90 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Tiered Storage</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 20px; max-width: 800px; margin: auto; }
-        .tier-card { background: #1e293b; border: 1px solid #334155; padding: 20px; margin-bottom: 15px; border-radius: 8px; }
-        button { background: #3b82f6; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #2563eb; }
-        input, select { padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 5px; }
-    </style>
+    <title>Revenue Engine Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
 
-    <h1>Secure Storage Tiers</h1>
-    <div id="tiers-container">Loading storage tiers...</div>
+    <div class="w-full max-w-md bg-gray-800 rounded-lg shadow-xl p-6 space-y-6">
+        <h1 class="text-2xl font-bold text-center text-indigo-400">Revenue Engine Portal</h1>
 
-    <h2>Register / Select Tier</h2>
-    <form id="tier-form">
-        <input type="email" id="email" placeholder="Enter your email" required>
-        <select id="tier-select">
-            <option value="">Select a Tier</option>
-        </select>
-        <button type="submit">Register for Tier</button>
-    </form>
-    <p id="response-msg"></p>
+        <!-- Step 1: Authentication / Login -->
+        <div class="space-y-4">
+            <h2 class="text-lg font-semibold border-b border-gray-700 pb-2">1. Authenticate</h2>
+            <div>
+                <label class="block text-sm font-medium text-gray-400">Email Address</label>
+                <input type="email" id="emailInput" class="w-full mt-1 p-2 bg-gray-700 border border-gray-600 rounded focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="you@example.com">
+            </div>
+            <button onclick="loginUser()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium p-2 rounded transition">Set Session Token</button>
+        </div>
+
+        <!-- Step 2: MFA Setup & Verification -->
+        <div class="space-y-4 pt-4 border-t border-gray-700">
+            <h2 class="text-lg font-semibold border-b border-gray-700 pb-2">2. Security & MFA</h2>
+            <button onclick="setupMFA()" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium p-2 rounded transition">Generate MFA Secret & QR</button>
+            <div id="qrContainer" class="flex flex-col items-center space-y-2 hidden">
+                <img id="qrCodeImg" class="w-32 h-32 bg-white p-1 rounded" alt="MFA QR Code">
+                <p id="secretText" class="text-xs text-gray-400 font-mono"></p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-400">6-Digit TOTP Code</label>
+                <input type="text" id="mfaTokenInput" class="w-full mt-1 p-2 bg-gray-700 border border-gray-600 rounded focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="123456">
+            </div>
+            <button onclick="verifyMFA()" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium p-2 rounded transition">Verify & Enable MFA</button>
+        </div>
+
+        <!-- Step 3: Secure Asset Vault -->
+        <div class="space-y-4 pt-4 border-t border-gray-700">
+            <h2 class="text-lg font-semibold border-b border-gray-700 pb-2">3. Secure Vault</h2>
+            <div>
+                <label class="block text-sm font-medium text-gray-400">Secret Data / Payload</label>
+                <input type="text" id="vaultInput" class="w-full mt-1 p-2 bg-gray-700 border border-gray-600 rounded focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Confidential project note...">
+            </div>
+            <button onclick="storeAsset()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium p-2 rounded transition">Store in Vault (Requires Subscription)</button>
+        </div>
+
+        <p id="statusMsg" class="text-sm text-center text-indigo-300 h-6"></p>
+    </div>
 
     <script>
-        const API_URL = 'https://revenue-engine-dc8d.onrender.com';
+        const API_URL = 'https://revenue-engine-dc8d.onrender.com'; // Your live Render URL
 
-        // Fetch and render tiers dynamically
-        fetch(`${API_URL}/api/tiers`)
-            .then(res => res.json())
-            .then(data => {
-                const container = document.getElementById('tiers-container');
-                const select = document.getElementById('tier-select');
-                container.innerHTML = '';
-                
-                data.tiers.forEach(tier => {
-                    // Render card
-                    const card = document.createElement('div');
-                    card.className = 'tier-card';
-                    card.innerHTML = `
-                        <h3>${tier.tier_name}</h3>
-                        <p><strong>Price:</strong> $${tier.price_monthly}/month</p>
-                        <p><strong>Storage:</strong> ${tier.storage_gb} GB</p>
-                        <p><strong>Retention:</strong> ${tier.retention_days} Days</p>
-                        <p><strong>Security:</strong> ${tier.security_level}</p>
-                    `;
-                    container.appendChild(card);
+        function getAuthHeader() {
+            const email = document.getElementById('emailInput').value.trim();
+            return email ? { 'Authorization': `Bearer ${email}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+        }
 
-                    // Add to dropdown
-                    const option = document.createElement('option');
-                    option.value = tier.tier_name;
-                    option.textContent = `${tier.tier_name} ($${tier.price_monthly}/mo)`;
-                    select.appendChild(option);
+        function showStatus(msg, isError = false) {
+            const el = document.getElementById('statusMsg');
+            el.textContent = msg;
+            el.className = `text-sm text-center h-6 ${isError ? 'text-red-400' : 'text-green-400'}`;
+        }
+
+        function loginUser() {
+            const email = document.getElementById('emailInput').value.trim();
+            if (!email) return showStatus('Please enter a valid email.', true);
+            showStatus(`Session token set for ${email}`);
+        }
+
+        async function setupMFA() {
+            try {
+                const res = await fetch(`${API_URL}/api/mfa/setup`, {
+                    method: 'POST',
+                    headers: getAuthHeader()
                 });
-            })
-            .catch(err => {
-                document.getElementById('tiers-container').textContent = 'Failed to load tiers.';
-            });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed to setup MFA');
+                
+                document.getElementById('qrCodeImg').src = data.qrCodeUrl;
+                document.getElementById('secretText').textContent = `Secret: ${data.secret}`;
+                document.getElementById('qrContainer').classList.remove('hidden');
+                showStatus('MFA initialized successfully.');
+            } catch (err) {
+                showStatus(err.message, true);
+            }
+        }
 
-        // Handle tier selection
-        document.getElementById('tier-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const tierName = document.getElementById('tier-select').value;
-            const msg = document.getElementById('response-msg');
-
-            msg.textContent = 'Processing registration...';
+        async function verifyMFA() {
+            const token = document.getElementById('mfaTokenInput').value.trim();
+            if (!token) return showStatus('Enter your 6-digit TOTP code.', true);
 
             try {
-                const res = await fetch(`${API_URL}/api/select-tier`, {
+                const res = await fetch(`${API_URL}/api/mfa/verify`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, tierName })
+                    headers: getAuthHeader(),
+                    body: JSON.stringify({ token })
                 });
-                const result = await res.json();
-                if (result.success) {
-                    msg.textContent = result.message;
-                } else {
-                    msg.textContent = result.error || 'Registration failed.';
-                }
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Verification failed');
+                showStatus(data.message);
             } catch (err) {
-                msg.textContent = 'Error connecting to server.';
+                showStatus(err.message, true);
             }
-        });
+        }
+
+        async function storeAsset() {
+            const payload = document.getElementById('vaultInput').value.trim();
+            if (!payload) return showStatus('Payload cannot be empty.', true);
+
+            try {
+                const res = await fetch(`${API_URL}/api/secure-store`, {
+                    method: 'POST',
+                    headers: getAuthHeader(),
+                    body: JSON.stringify({ encryptedPayload: { data: payload } })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed to store asset');
+                showStatus(data.message);
+            } catch (err) {
+                showStatus(err.message, true);
+            }
+        }
     </script>
 </body>
 </html>
