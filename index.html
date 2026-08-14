@@ -3,101 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waitlist Signup</title>
+    <title>Secure Tiered Storage</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: #1e293b; padding: 2rem; border-radius: 8px; width: 100%; max-width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        input, select, button { width: 100%; padding: 0.75rem; margin-top: 1rem; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
-        button { background: #3b82f6; border: none; cursor: pointer; font-weight: bold; }
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 20px; max-width: 800px; margin: auto; }
+        .tier-card { background: #1e293b; border: 1px solid #334155; padding: 20px; margin-bottom: 15px; border-radius: 8px; }
+        button { background: #3b82f6; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
         button:hover { background: #2563eb; }
-        .hidden { display: none; }
+        input, select { padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Join the Waitlist</h2>
-    
-    <!-- Step 1: Signup Form -->
-    <form id="signupForm" onsubmit="handleSignup(event)">
-        <label for="signupEmail">Email Address</label>
-        <input type="email" id="signupEmail" placeholder="you@example.com" required>
-        <button type="submit">Request Verification Code</button>
-    </form>
+    <h1>Secure Storage Tiers</h1>
+    <div id="tiers-container">Loading storage tiers...</div>
 
-    <!-- Step 2: Verification Form (Hidden Initially) -->
-    <form id="verifyForm" class="hidden" onsubmit="handleVerify(event)">
-        <p style="font-size: 0.9rem; color: #94a3b8;">Enter the code sent to your email and select your tier.</p>
-        <label for="verifyCode">Verification Code</label>
-        <input type="text" id="verifyCode" placeholder="123456" required>
-        
-        <label for="tierLevel">Select Tier</label>
-        <select id="tierLevel">
-            <option value="1">Tier 1 - Standard</option>
-            <option value="2">Tier 2 - Pro</option>
-            <option value="3">Tier 3 - Enterprise</option>
+    <h2>Register / Select Tier</h2>
+    <form id="tier-form">
+        <input type="email" id="email" placeholder="Enter your email" required>
+        <select id="tier-select">
+            <option value="">Select a Tier</option>
         </select>
-
-        <button type="submit">Verify & Join</button>
+        <button type="submit">Register for Tier</button>
     </form>
-</div>
+    <p id="response-msg"></p>
 
-<script>
-    const API_BASE = 'https://revenue-engine-dc8d.onrender.com/api';
-    let userEmail = '';
+    <script>
+        const API_URL = 'https://revenue-engine-dc8d.onrender.com';
 
-    // 1. Request verification code
-    async function handleSignup(event) {
-        event.preventDefault();
-        userEmail = document.getElementById('signupEmail').value;
+        // Fetch and render tiers dynamically
+        fetch(`${API_URL}/api/tiers`)
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('tiers-container');
+                const select = document.getElementById('tier-select');
+                container.innerHTML = '';
+                
+                data.tiers.forEach(tier => {
+                    // Render card
+                    const card = document.createElement('div');
+                    card.className = 'tier-card';
+                    card.innerHTML = `
+                        <h3>${tier.tier_name}</h3>
+                        <p><strong>Price:</strong> $${tier.price_monthly}/month</p>
+                        <p><strong>Storage:</strong> ${tier.storage_gb} GB</p>
+                        <p><strong>Retention:</strong> ${tier.retention_days} Days</p>
+                        <p><strong>Security:</strong> ${tier.security_level}</p>
+                    `;
+                    container.appendChild(card);
 
-        try {
-            const response = await fetch(`${API_BASE}/signup`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: userEmail })
+                    // Add to dropdown
+                    const option = document.createElement('option');
+                    option.value = tier.tier_name;
+                    option.textContent = `${tier.tier_name} ($${tier.price_monthly}/mo)`;
+                    select.appendChild(option);
+                });
+            })
+            .catch(err => {
+                document.getElementById('tiers-container').textContent = 'Failed to load tiers.';
             });
 
-            const data = await response.json();
-            if (response.ok) {
-                alert('Verification code sent! Check your inbox.');
-                document.getElementById('signupForm').classList.add('hidden');
-                document.getElementById('verifyForm').classList.remove('hidden');
-            } else {
-                alert(data.error || 'Signup failed');
+        // Handle tier selection
+        document.getElementById('tier-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const tierName = document.getElementById('tier-select').value;
+            const msg = document.getElementById('response-msg');
+
+            msg.textContent = 'Processing registration...';
+
+            try {
+                const res = await fetch(`${API_URL}/api/select-tier`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, tierName })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    msg.textContent = result.message;
+                } else {
+                    msg.textContent = result.error || 'Registration failed.';
+                }
+            } catch (err) {
+                msg.textContent = 'Error connecting to server.';
             }
-        } catch (err) {
-            console.error('Network Error:', err);
-            alert('Could not connect to the server.');
-        }
-    }
-
-    // 2. Verify code and finalize tier placement
-    async function handleVerify(event) {
-        event.preventDefault();
-        const code = document.getElementById('verifyCode').value;
-        const tierLevel = document.getElementById('tierLevel').value;
-
-        try {
-            const response = await fetch(`${API_BASE}/verify`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: userEmail, code, tierLevel })
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                alert(`Success! You have been added to the waitlist.`);
-                // Reset or redirect here
-            } else {
-                alert(data.error || 'Verification failed');
-            }
-        } catch (err) {
-            console.error('Network Error:', err);
-            alert('Could not connect to the server.');
-        }
-    }
-</script>
-
+        });
+    </script>
 </body>
 </html>
