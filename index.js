@@ -29,24 +29,57 @@ if (process.env.DATABASE_URL) {
     ssl: { rejectUnauthorized: false }
   });
   
+  // Initialize waitlist and storage tiers tables on startup
   pool.query(`
-    DROP TABLE IF EXISTS waitlist;
-    CREATE TABLE waitlist (
+    CREATE TABLE IF NOT EXISTS waitlist (
       id SERIAL PRIMARY KEY,
       email VARCHAR(255) UNIQUE NOT NULL,
       tier_level VARCHAR(50) NOT NULL,
       verified BOOLEAN DEFAULT false,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
-  `).then(() => {
-    console.log('Database pool initialized and waitlist table recreated successfully.');
+
+    CREATE TABLE IF NOT EXISTS storage_tiers (
+      id SERIAL PRIMARY KEY,
+      tier_name VARCHAR(50) UNIQUE NOT NULL,
+      price_monthly DECIMAL(10, 2) NOT NULL,
+      storage_gb INTEGER NOT NULL,
+      retention_days INTEGER NOT NULL,
+      security_level VARCHAR(50) NOT NULL
+    );
+  `).then(async () => {
+    // Seed default tiers if table is empty
+    const check = await pool.query('SELECT COUNT(*) FROM storage_tiers');
+    if (parseInt(check.rows[0].count) === 0) {
+      await pool.query(`
+        INSERT INTO storage_tiers (tier_name, price_monthly, storage_gb, retention_days, security_level)
+        VALUES 
+        ('Tier 1 - Standard', 9.99, 100, 365, 'AES-256'),
+        ('Tier 2 - Professional', 29.99, 500, 730, 'AES-256 + MFA'),
+        ('Tier 3 - Enterprise', 99.99, 2000, 3650, 'AES-256 + MFA + Hardware-HSM');
+      `);
+      console.log('Default storage tiers seeded successfully.');
+    }
+    console.log('Database pool initialized and tables verified.');
   }).catch(err => {
-    console.error('Error creating waitlist table:', err);
+    console.error('Error setting up database tables:', err);
   });
 }
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const verificationStore = new Map();
+
+// Fetch available storage tiers and pricing for frontend display
+app.get('/api/tiers', async (req, res) => {
+  try {
+    if (!pool) return res.status(500).json({ error: 'Database not connected' });
+    const result = await pool.query('SELECT * FROM storage_tiers ORDER BY price_monthly ASC');
+    res.json({ success: true, tiers: result.rows });
+  } catch (err) {
+    console.error('Error fetching tiers:', err);
+    res.status(500).json({ error: 'Failed to fetch storage tiers.' });
+  }
+});
 
 app.post('/api/signup', async (req, res) => {
   const { email } = req.body;
@@ -86,11 +119,25 @@ app.post('/api/verify', async (req, res) => {
         [email, tierLevel]
       );
     }
+
+    if (process.env.RESEND_API_KEY) {
+      await resend.emails.send({
+        from: 'onboarding@resend.dev',
+        to: email,
+        subject: 'You are on the waitlist!',
+        html: `
+          <h2>Verification Confirmed!</h2>
+          <p>Thank you for verifying your email. You have been successfully added to our waitlist.</p>
+          <p>We will be in touch with you soon with updates, information on database storage fees, security levels, and more.</p>
+        `
+      });
+    }
+
     verificationStore.delete(email);
     res.json({ success: true, message: 'Successfully verified and added to waitlist!' });
   } catch (err) {
-    console.error('Database Error:', err);
-    res.status(500).json({ error: 'Database error processing verification.' });
+    console.error('Database/Email Error:', err);
+    res.status(500).json({ error: 'Error processing verification.' });
   }
 });
 
