@@ -1,6 +1,6 @@
-const express = require('express');
-const cors = require('cors');
-const { Resend } = require('resend');
+import express from 'express';
+import cors from 'cors';
+import { Resend } from 'resend';
 
 const app = express();
 app.use(express.json());
@@ -19,9 +19,8 @@ app.post('/api/waitlist', async (req, res) => {
     console.log(`Received email: ${email}`);
 
     try {
-        // Send email notification using Resend
         const data = await resend.emails.send({
-            from: 'onboarding@resend.dev', // Or your verified domain email
+            from: 'onboarding@resend.dev',
             to: 'mongealfredoantonio@gmail.com',
             subject: 'New LaunchVelocity Waitlist Signup!',
             html: `<p>New signup received: <strong>${email}</strong></p>`
