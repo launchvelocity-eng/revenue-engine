@@ -1,9 +1,11 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const { Resend } = require('resend');
-const { Pool } = require('pg');
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { Resend } from 'resend';
+import pkg from 'pg';
+
+const { Pool } = pkg;
 
 const app = express();
 
