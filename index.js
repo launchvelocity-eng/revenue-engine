@@ -1,3 +1,21 @@
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { Resend } from 'resend';
+import pkg from 'pg';
+import crypto from 'crypto';
+import cron from 'node-cron';
+
+const { Pool } = pkg;
+const app = express(); // <-- Must be instantiated right here first!
+
+app.set('trust proxy', 1);
+
+app.use(helmet());
+app.use(cors());
+
+// Now the webhook route can safely use 'app'
 app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
   const stripeSecret = process.env.STRIPE_SECRET_KEY;
