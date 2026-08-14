@@ -8,14 +8,12 @@ import pkg from 'pg';
 const { Pool } = pkg;
 const app = express();
 
-// Trust Render's proxy for rate-limiting
 app.set('trust proxy', 1);
 
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '10kb' }));
 
-// Rate limiting for API security
 const limiter = rateLimit({ 
   windowMs: 15 * 60 * 1000, 
   max: 50,
@@ -24,7 +22,6 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Database Pool Setup & Auto-Table Initialization
 let pool = null;
 if (process.env.DATABASE_URL) {
   pool = new Pool({
@@ -40,7 +37,9 @@ if (process.env.DATABASE_URL) {
       verified BOOLEAN DEFAULT false,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
-  `).then(() => {
+  `).then(async () => {
+    // Ensures existing tables convert integer tier columns to text seamlessly
+    await pool.query(`ALTER TABLE waitlist ALTER COLUMN tier_level TYPE VARCHAR(50);`).catch(() => {});
     console.log('Database pool initialized and waitlist table verified.');
   }).catch(err => {
     console.error('Error creating waitlist table:', err);
@@ -50,7 +49,6 @@ if (process.env.DATABASE_URL) {
 const resend = new Resend(process.env.RESEND_API_KEY);
 const verificationStore = new Map();
 
-// Step 1: Request Verification Code & Send Email
 app.post('/api/signup', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email is required' });
@@ -74,7 +72,6 @@ app.post('/api/signup', async (req, res) => {
   }
 });
 
-// Step 2: Verify Code and Save to Tier
 app.post('/api/verify', async (req, res) => {
   const { email, code, tierLevel } = req.body;
   const storedCode = verificationStore.get(email);
