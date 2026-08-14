@@ -1,6 +1,2 @@
-        const data = await resend.emails.send({
-            from: 'onboarding@resend.dev',
-            to: 'mongealfredoantonio@gmail.com', // Must match your Resend account email
-            subject: 'New LaunchVelocity Waitlist Signup!',
-            html: `<p>New signup received: <strong>${email}</strong></p>`
-        });
+import { Resend } from 'resend';
+const resend = new Resend(process.env.RESEND_API_KEY);
