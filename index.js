@@ -1,19 +1,15 @@
-async function joinWaitlist() {
-    const email = document.getElementById('waitlistEmailInput').value.trim();
-    if (!email) return showStatus('Please enter a valid email address.', true);
-
+// Add this inside your startup table initialization block in index.js
+async function initializeTables() {
     try {
-        const res = await fetch(`${API_URL}/api/waitlist`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed to join waitlist');
-
-        showStatus('You have been added to the waitlist successfully!');
-        document.getElementById('waitlistEmailInput').value = '';
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS waitlist (
+                id SERIAL PRIMARY KEY,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log("Database pool initialized and all session tables verified.");
     } catch (err) {
-        showStatus(err.message, true);
+        console.error("Error initializing database tables:", err);
     }
 }
