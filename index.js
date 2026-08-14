@@ -8,13 +8,20 @@ import pkg from 'pg';
 const { Pool } = pkg;
 const app = express();
 
+// Security and Middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '10kb' }));
 
-const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
+const limiter = rateLimit({ 
+  windowMs: 15 * 60 * 1000, 
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 app.use('/api/', limiter);
 
+// Initialize Services
 const resend = new Resend(process.env.RESEND_API_KEY || 're_123');
 const pendingSignups = new Map();
 
@@ -27,6 +34,7 @@ if (process.env.DATABASE_URL) {
   console.log('Database pool initialized.');
 }
 
+// Database Schema Setup
 const initDB = async () => {
   if (!pool) return;
   const client = await pool.connect();
@@ -43,12 +51,15 @@ const initDB = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+  } catch (err) {
+    console.error('Database Initialization Error:', err);
   } finally {
     client.release();
   }
 };
 initDB();
 
+// Native background audit check (Runs every 24 hours)
 setInterval(async () => {
   if (!pool) return;
   console.log('Running daily billing & retention audit...');
@@ -77,27 +88,38 @@ setInterval(async () => {
   }
 }, 24 * 60 * 60 * 1000);
 
+// API Endpoints
 app.post('/api/signup', async (req, res) => {
   const { email } = req.body;
+  if (!email || typeof email !== 'string') {
+    return res.status(400).json({ error: 'Valid email is required' });
+  }
+  
+  const cleanEmail = email.toLowerCase().trim();
   const code = Math.floor(100000 + Math.random() * 900000).toString();
-  pendingSignups.set(email.toLowerCase().trim(), code);
+  pendingSignups.set(cleanEmail, code);
   
   try {
     await resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: email,
+      to: cleanEmail,
       subject: 'Your LaunchVelocity Verification Code',
       html: `<p>Your secure code is: <strong>${code}</strong></p>`
     });
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to send email' });
+    console.error('Email Dispatch Error:', err);
+    res.status(500).json({ error: 'Failed to send verification email' });
   }
 });
 
 app.post('/api/verify', async (req, res) => {
   const { email, code, tierLevel = 1 } = req.body;
-  const cleanEmail = email?.toLowerCase().trim();
+  if (!email || !code) {
+    return res.status(400).json({ error: 'Email and verification code are required' });
+  }
+  
+  const cleanEmail = email.toLowerCase().trim();
 
   if (pendingSignups.get(cleanEmail) === code) {
     pendingSignups.delete(cleanEmail);
@@ -108,7 +130,7 @@ app.post('/api/verify', async (req, res) => {
           `INSERT INTO secure_users (email, tier_level, account_status) 
            VALUES ($1, $2, 'waitlist') 
            ON CONFLICT (email) DO UPDATE SET tier_level = EXCLUDED.tier_level`,
-          [cleanEmail, tierLevel]
+          [cleanEmail, parseInt(tierLevel, 10)]
         );
       } finally {
         client.release();
@@ -121,7 +143,8 @@ app.post('/api/verify', async (req, res) => {
 
 app.post('/api/dashboard', async (req, res) => {
   const { email } = req.body;
-  if (!pool) return res.status(500).json({ error: 'DB not connected' });
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+  if (!pool) return res.status(500).json({ error: 'Database not connected' });
   
   const client = await pool.connect();
   try {
@@ -131,13 +154,19 @@ app.post('/api/dashboard', async (req, res) => {
       [email.toLowerCase().trim()]
     );
     
-    if (user.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+    if (user.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
     res.json({ success: true, data: user.rows[0] });
+  } catch (err) {
+    console.error('Dashboard Query Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
   } finally {
     client.release();
   }
 });
 
+// Server Listener
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
