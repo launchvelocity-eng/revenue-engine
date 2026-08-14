@@ -21,19 +21,31 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Database Pool Setup
+// Database Pool Setup & Auto-Table Initialization
 let pool = null;
 if (process.env.DATABASE_URL) {
   pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
   });
-  console.log('Database pool initialized.');
+  
+  // Automatically create the waitlist table on startup
+  pool.query(`
+    CREATE TABLE IF NOT EXISTS waitlist (
+      id SERIAL PRIMARY KEY,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      tier_level INTEGER NOT NULL,
+      verified BOOLEAN DEFAULT false,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `).then(() => {
+    console.log('Database pool initialized and waitlist table verified.');
+  }).catch(err => {
+    console.error('Error creating waitlist table:', err);
+  });
 }
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-
-// In-memory code store for quick verification handling (or store in DB)
 const verificationStore = new Map();
 
 // Step 1: Request Verification Code & Send Email
