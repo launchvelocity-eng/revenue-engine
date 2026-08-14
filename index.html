@@ -1,37 +1,37 @@
-<div class="tier-selection-container">
-  <h3>Select Your Access Tier</h3>
-  <form id="tierForm">
-    <input type="email" id="userEmail" placeholder="Enter your email" required />
-    
-    <select id="tierLevel" required>
-      <option value="1">Tier 1: Free Public Access / Waitlist</option>
-      <option value="2">Tier 2: Basic Engagement</option>
-      <option value="3">Tier 3: Standard Prosumer</option>
-      <option value="4">Tier 4: Advanced Professional</option>
-      <option value="5">Tier 5: Enterprise / VIP</option>
+<div class="verification-container" style="margin-top: 20px;">
+  <h3>Enter Verification Code</h3>
+  <form id="verifyForm">
+    <input type="email" id="verifyEmail" placeholder="Confirm your email" required />
+    <input type="text" id="verifyCode" placeholder="6-digit code" required />
+    <select id="confirmTierLevel" required>
+      <option value="1">Tier 1</option>
+      <option value="2">Tier 2</option>
+      <option value="3">Tier 3</option>
+      <option value="4">Tier 4</option>
+      <option value="5">Tier 5</option>
     </select>
-
-    <button type="submit">Join / Upgrade</button>
+    <button type="submit">Verify & Activate Tier</button>
   </form>
 </div>
 
 <script>
-  document.getElementById('tierForm').addEventListener('submit', async (e) => {
+  document.getElementById('verifyForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('userEmail').value;
-    const tierLevel = parseInt(document.getElementById('tierLevel').value);
+    const email = document.getElementById('verifyEmail').value;
+    const code = document.getElementById('verifyCode').value;
+    const tierLevel = parseInt(document.getElementById('confirmTierLevel').value);
 
-    const response = await fetch('https://revenue-engine-dc8d.onrender.com/api/signup', {
+    const response = await fetch('https://revenue-engine-dc8d.onrender.com/api/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, tierLevel })
+      body: JSON.stringify({ email, code, tierLevel })
     });
 
     const data = await response.json();
     if (data.success) {
-      alert('Check your email for your verification code!');
+      alert('Success! Your account is verified and assigned to Tier ' + data.assignedTier);
     } else {
-      alert('Error: ' + data.error);
+      alert('Verification failed: ' + data.error);
     }
   });
 </script>
