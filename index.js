@@ -8,6 +8,9 @@ import pkg from 'pg';
 const { Pool } = pkg;
 const app = express();
 
+// Trust Render's proxy for rate-limiting
+app.set('trust proxy', 1);
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '10kb' }));
@@ -29,7 +32,6 @@ if (process.env.DATABASE_URL) {
     ssl: { rejectUnauthorized: false }
   });
   
-  // Automatically create the waitlist table on startup
   pool.query(`
     CREATE TABLE IF NOT EXISTS waitlist (
       id SERIAL PRIMARY KEY,
