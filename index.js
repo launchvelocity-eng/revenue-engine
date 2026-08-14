@@ -54,6 +54,13 @@ if (process.env.DATABASE_URL) {
       price_per_gb_monthly DECIMAL(10, 2) NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      tier_name VARCHAR(50) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE TABLE IF NOT EXISTS user_assets (
       id SERIAL PRIMARY KEY,
       email VARCHAR(255) NOT NULL,
@@ -62,7 +69,6 @@ if (process.env.DATABASE_URL) {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `).then(async () => {
-    // Seed default tiers with exclusive Tier 3 pricing
     const tierCheck = await pool.query('SELECT COUNT(*) FROM storage_tiers');
     if (parseInt(tierCheck.rows[0].count) === 0) {
       await pool.query(`
@@ -75,7 +81,6 @@ if (process.env.DATABASE_URL) {
       console.log('Default storage tiers seeded successfully.');
     }
 
-    // Seed add-on pricing for extra GBs
     const addonCheck = await pool.query('SELECT COUNT(*) FROM add_on_pricing');
     if (parseInt(addonCheck.rows[0].count) === 0) {
       await pool.query(`
@@ -94,9 +99,45 @@ if (process.env.DATABASE_URL) {
 const resend = new Resend(process.env.RESEND_API_KEY);
 const verificationStore = new Map();
 
-// Encryption Helpers
+// Cryptographic / Auth Helpers
+const JWT_SECRET = process.env.JWT_SECRET_KEY || crypto.randomBytes(32).toString('hex');
 const ENCRYPTION_KEY = process.env.ENCRYPTION_SECRET_KEY || crypto.randomBytes(32);
 const IV_LENGTH = 16;
+
+function generateToken(email, tierName) {
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ email, tierName, exp: Date.now() + (24 * 60 * 60 * 1000) })).toString('base64url');
+  const signature = crypto.createHmac('sha256', JWT_SECRET).update(`${header}.${payload}`).digest('base64url');
+  return `${header}.${payload}.${signature}`;
+}
+
+function verifyToken(token) {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const [header, payload, signature] = parts;
+    const expectedSignature = crypto.createHmac('sha256', JWT_SECRET).update(`${header}.${payload}`).digest('base64url');
+    if (signature !== expectedSignature) return null;
+    const decodedPayload = JSON.parse(Buffer.from(payload, 'base64url').toString());
+    if (decodedPayload.exp < Date.now()) return null;
+    return decodedPayload;
+  } catch (err) {
+    return null;
+  }
+}
+
+// Authentication Middleware
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Access token required.' });
+
+  const user = verifyToken(token);
+  if (!user) return res.status(403).json({ error: 'Invalid or expired token.' });
+
+  req.user = user;
+  next();
+}
 
 function encryptData(text) {
   const iv = crypto.randomBytes(IV_LENGTH);
@@ -140,7 +181,7 @@ app.post('/api/calculate-storage', async (req, res) => {
     }
 
     const tier = tierQuery.rows[0];
-    const ratePerGb = addonQuery.rows.length > 0 ? parseFloat(addonQuery.rows.rows?.[0]?.price_per_gb_monthly || 1.00) : 1.00;
+    const ratePerGb = addonQuery.rows.length > 0 ? parseFloat(addonQuery.rows[0].price_per_gb_monthly) : 1.00;
     
     const additionalGb = parseInt(extraGb) || 0;
     const additionalCost = additionalGb * ratePerGb;
@@ -158,6 +199,68 @@ app.post('/api/calculate-storage', async (req, res) => {
   } catch (err) {
     console.error('Calculation Error:', err);
     res.status(500).json({ error: 'Failed to calculate storage cost.' });
+  }
+});
+
+// Select Tier and Issue JWT Token
+app.post('/api/select-tier', async (req, res) => {
+  const { email, tierName } = req.body;
+  if (!email || !tierName) {
+    return res.status(400).json({ error: 'Email and tier selection are required.' });
+  }
+
+  try {
+    const tierQuery = await pool.query('SELECT * FROM storage_tiers WHERE tier_name = $1', [tierName]);
+    if (tierQuery.rows.length === 0) {
+      return res.status(404).json({ error: 'Selected storage tier not found.' });
+    }
+    const tier = tierQuery.rows[0];
+
+    if (pool) {
+      await pool.query(
+        'INSERT INTO users (email, tier_name) VALUES ($1, $2) ON CONFLICT (email) DO UPDATE SET tier_name = $2',
+        [email, tier.tier_name]
+      );
+    }
+
+    const token = generateToken(email, tier.tier_name);
+
+    res.json({ 
+      success: true, 
+      message: `Successfully registered for ${tier.tier_name}!`,
+      token,
+      details: {
+        price: tier.price_monthly,
+        storage: tier.storage_gb,
+        retention: tier.retention_days,
+        security: tier.security_level
+      }
+    });
+  } catch (err) {
+    console.error('Tier Selection Error:', err);
+    res.status(500).json({ error: 'Failed to process tier selection.' });
+  }
+});
+
+// Protected Secure Asset Storage Route (Requires JWT)
+app.post('/api/secure-store', authenticateToken, async (req, res) => {
+  const { dataPayload } = req.body;
+  if (!dataPayload) {
+    return res.status(400).json({ error: 'Data payload is required.' });
+  }
+
+  try {
+    const encryptedPayload = encryptData(dataPayload);
+    if (pool) {
+      await pool.query(
+        'INSERT INTO user_assets (email, tier_name, encrypted_data) VALUES ($1, $2, $3)',
+        [req.user.email, req.user.tierName, encryptedPayload]
+      );
+    }
+    res.json({ success: true, message: 'Data encrypted and stored securely under authenticated tiered protocols.' });
+  } catch (err) {
+    console.error('Security Storage Error:', err);
+    res.status(500).json({ error: 'Failed to process secure storage.' });
   }
 });
 
