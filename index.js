@@ -1,19 +1,13 @@
-// Background Cron Job: Run daily at midnight to check subscription health
-cron.schedule('0 0 * * *', async () => {
-  console.log('Running daily subscription maintenance check...');
-  try {
-    if (!pool) return;
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { Resend } from 'resend';
+import pkg from 'pg';
+import crypto from 'crypto';
+import cron from 'node-cron'; // <--- Make sure this is here!
+import speakeasy from 'speakeasy';
+import QRCode from 'qrcode';
 
-    // Example: Mark subscriptions as expired if past due grace period expires
-    const result = await pool.query(
-      `UPDATE users 
-       SET subscription_status = 'expired' 
-       WHERE subscription_status = 'past_due' 
-       AND created_at < NOW() - INTERVAL '30 days'`
-    );
-    
-    console.log(`Maintenance complete. Updated ${result.rowCount} expired accounts.`);
-  } catch (err) {
-    console.error('Subscription Maintenance Cron Error:', err);
-  }
-});
+const { Pool } = pkg;
+const app = express();
