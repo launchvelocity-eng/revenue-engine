@@ -49,7 +49,6 @@ const initDB = async () => {
 };
 initDB();
 
-// Native background audit check (Runs every 24 hours)
 setInterval(async () => {
   if (!pool) return;
   console.log('Running daily billing & retention audit...');
