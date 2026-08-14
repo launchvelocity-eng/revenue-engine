@@ -1,11 +1,27 @@
-async function fetchWaitlist() {
+document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const emailInput = document.getElementById('emailInput');
+    const email = emailInput.value.trim();
+
     try {
-        const res = await fetch(`${API_URL}/api/admin/waitlist`);
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed to fetch waitlist');
-        console.table(data.waitlist);
-        showStatus(`Loaded ${data.waitlist.length} waitlist subscribers (check console).`);
+        const response = await fetch('/api/waitlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Something went wrong.');
+
+        showStatus(data.message, false);
+        emailInput.value = '';
     } catch (err) {
         showStatus(err.message, true);
     }
+});
+
+function showStatus(message, isError = false) {
+    const statusDiv = document.getElementById('statusMessage');
+    statusDiv.textContent = message;
+    statusDiv.style.color = isError ? '#ff4d4d' : '#4bb543';
 }
