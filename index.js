@@ -1,8 +1,10 @@
-fetch('https://revenue-engine-dc8d.onrender.com/api/signup', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email: 'your-test-email@example.com' })
-})
-.then(res => res.json())
-.then(data => console.log('Response:', data))
-.catch(err => console.error('Error:', err));
+const response = await fetch('YOUR_API_URL');
+const text = await response.text(); // Get raw text first
+
+let data;
+try {
+  data = JSON.parse(text);
+} catch (e) {
+  console.error('Expected JSON, but received HTML/Text:', text);
+  return res.status(500).json({ error: 'External service returned an invalid response' });
+}
