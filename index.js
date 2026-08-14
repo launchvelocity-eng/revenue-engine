@@ -1,11 +1,11 @@
-// Admin Waitlist Viewer Endpoint
-app.get('/api/admin/waitlist', async (req, res) => {
-    // Optional: Add simple token/auth check here if desired
+async function fetchWaitlist() {
     try {
-        const result = await pool.query('SELECT email, created_at FROM waitlist ORDER BY created_at DESC');
-        return res.status(200).json({ waitlist: result.rows });
+        const res = await fetch(`${API_URL}/api/admin/waitlist`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to fetch waitlist');
+        console.table(data.waitlist);
+        showStatus(`Loaded ${data.waitlist.length} waitlist subscribers (check console).`);
     } catch (err) {
-        console.error('Fetch waitlist error:', err);
-        return res.status(500).json({ error: 'Internal server error.' });
+        showStatus(err.message, true);
     }
-});
+}
