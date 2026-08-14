@@ -5,7 +5,6 @@ import rateLimit from 'express-rate-limit';
 import { Resend } from 'resend';
 import pkg from 'pg';
 import crypto from 'crypto';
-import Stripe from 'stripe';
 
 const { Pool } = pkg;
 const app = express();
@@ -75,7 +74,6 @@ if (process.env.DATABASE_URL) {
 }
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_key');
 const verificationStore = new Map();
 
 // Encryption Helpers
@@ -102,47 +100,41 @@ app.get('/api/tiers', async (req, res) => {
   }
 });
 
-// Create Stripe Checkout Session for Subscription Billing
-app.post('/api/create-checkout-session', async (req, res) => {
+// Native Billing / Tier Selection Registration
+app.post('/api/select-tier', async (req, res) => {
   const { email, tierName } = req.body;
   if (!email || !tierName) {
     return res.status(400).json({ error: 'Email and tier selection are required.' });
   }
 
   try {
-    // Look up tier price mapping dynamically
     const tierQuery = await pool.query('SELECT * FROM storage_tiers WHERE tier_name = $1', [tierName]);
     if (tierQuery.rows.length === 0) {
       return res.status(404).json({ error: 'Selected storage tier not found.' });
     }
     const tier = tierQuery.rows[0];
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      customer_email: email,
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: tier.tier_name,
-              description: `${tier.storage_gb}GB Secure Storage (${tier.security_level}) - ${tier.retention_days} Days Retention`,
-            },
-            unit_amount: Math.round(tier.price_monthly * 100), // Convert to cents
-            recurring: { interval: 'month' },
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
-      success_url: `${req.protocol}://${req.get('host')}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.protocol}://${req.get('host')}/cancel`,
-    });
+    // Log selected tier subscription choice natively
+    if (pool) {
+      await pool.query(
+        'INSERT INTO user_assets (email, tier_name, encrypted_data) VALUES ($1, $2, $3)',
+        [email, tier.tier_name, encryptData(`Subscription registered: $${tier.price_monthly}/mo, ${tier.storage_gb}GB, ${tier.retention_days} days retention`)]
+      );
+    }
 
-    res.json({ success: true, url: session.url });
+    res.json({ 
+      success: true, 
+      message: `Successfully registered for ${tier.tier_name}!`,
+      details: {
+        price: tier.price_monthly,
+        storage: tier.storage_gb,
+        retention: tier.retention_days,
+        security: tier.security_level
+      }
+    });
   } catch (err) {
-    console.error('Stripe Checkout Error:', err);
-    res.status(500).json({ error: 'Failed to initiate billing session.' });
+    console.error('Tier Selection Error:', err);
+    res.status(500).json({ error: 'Failed to process tier selection.' });
   }
 });
 
