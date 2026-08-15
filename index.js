@@ -1,21 +1,20 @@
-// Middleware to enforce specific access tiers
-export const requireTier = (...allowedTiers) => {
-    return (req, res, next) => {
-        if (!req.user || !req.user.tier) {
-            return res.status(401).json({ error: 'Unauthorized access. Session context missing.' });
-        }
+const express = require('express');
+const router = express.Router();
 
-        const userTier = req.user.tier.toLowerCase();
+router.post('/execute', async (req, res, next) => {
+    try {
+        const { client_event, timestamp, payload } = req.body;
         
-        // Check if user's tier is included in the allowed list
-        if (!allowedTiers.map(t => t.toLowerCase()).includes(userTier)) {
-            return res.status(403).json({ 
-                error: 'Forbidden. Your current tier does not grant access to this resource.',
-                requiredTier: allowedTiers,
-                currentTier: userTier
-            });
+        // Basic payload validation
+        if (!client_event || !payload || !payload.asset_id) {
+            return res.status(400).json({ error: 'Invalid payload structure' });
         }
 
-        next();
-    };
-};
+        // Pass to business logic layer
+        res.status(200).json({ status: 'received', asset_id: payload.asset_id });
+    } catch (err) {
+        next(err);
+    }
+});
+
+module.exports = router;
