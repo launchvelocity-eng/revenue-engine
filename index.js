@@ -1,14 +1,28 @@
-import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import pkg from 'pg';
-const { Pool } = pkg;
+document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const emailInput = document.getElementById('emailInput');
+    const email = emailInput.value.trim();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+    try {
+        // Point explicitly to your live Render backend URL
+        const response = await fetch('https://revenue-engine-dc8d.onrender.com/api/waitlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
 
-const app = express();
-app.use(express.json());
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Something went wrong.');
 
-// Serve static files from the root directory
-app.use(express.static(path.join(__dirname)));
+        showStatus(data.message, false);
+        emailInput.value = '';
+    } catch (err) {
+        showStatus(err.message, true);
+    }
+});
+
+function showStatus(message, isError = false) {
+    const statusDiv = document.getElementById('statusMessage');
+    statusDiv.textContent = message;
+    statusDiv.style.color = isError ? '#ff4d4d' : '#4bb543';
+}
