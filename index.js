@@ -4,9 +4,12 @@ import pkg from 'pg';
 const { Pool } = pkg;
 
 const app = express();
+
+// Middleware setup
 app.use(cors());
 app.use(express.json());
 
+// Initialize PostgreSQL database connection pool
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
@@ -14,6 +17,7 @@ const pool = new Pool({
 
 async function startServer() {
     try {
+        // Ensure the waitlist table exists on startup
         await pool.query(`
             CREATE TABLE IF NOT EXISTS waitlist (
                 id SERIAL PRIMARY KEY,
@@ -23,28 +27,37 @@ async function startServer() {
         `);
         console.log("Database pool initialized and all session tables verified.");
 
+        // Waitlist API endpoint
         app.post('/api/waitlist', async (req, res) => {
             const { email } = req.body;
-            if (!email || !email.includes('@')) {
+            
+            if (!email || typeof email !== 'string' || !email.includes('@')) {
                 return res.status(400).json({ error: 'Valid email address is required.' });
             }
 
             try {
                 await pool.query(
                     'INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING',
-                    [email]
+                    [email.trim().toLowerCase()]
                 );
                 return res.status(200).json({ message: 'Successfully joined the waitlist!' });
             } catch (err) {
-                console.error('Waitlist error:', err);
+                console.error('Waitlist database error:', err);
                 return res.status(500).json({ error: 'Internal server error.' });
             }
         });
 
+        // Health check endpoint
+        app.get('/', (req, res) => {
+            res.status(200).send('Revenue Engine Backend is running live.');
+        });
+
+        // Start listening on Render's assigned port
         const PORT = process.env.PORT || 10000;
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
         });
+
     } catch (err) {
         console.error('Critical startup error:', err);
         process.exit(1);
