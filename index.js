@@ -1,28 +1,54 @@
-document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const emailInput = document.getElementById('emailInput');
-    const email = emailInput.value.trim();
+import express from 'express';
+import cors from 'cors';
+import pkg from 'pg';
+const { Pool } = pkg;
 
-    try {
-        // Point explicitly to your live Render backend URL
-        const response = await fetch('https://revenue-engine-dc8d.onrender.com/api/waitlist', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Something went wrong.');
-
-        showStatus(data.message, false);
-        emailInput.value = '';
-    } catch (err) {
-        showStatus(err.message, true);
-    }
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
 });
 
-function showStatus(message, isError = false) {
-    const statusDiv = document.getElementById('statusMessage');
-    statusDiv.textContent = message;
-    statusDiv.style.color = isError ? '#ff4d4d' : '#4bb543';
+async function startServer() {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS waitlist (
+                id SERIAL PRIMARY KEY,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log("Database pool initialized and all session tables verified.");
+
+        app.post('/api/waitlist', async (req, res) => {
+            const { email } = req.body;
+            if (!email || !email.includes('@')) {
+                return res.status(400).json({ error: 'Valid email address is required.' });
+            }
+
+            try {
+                await pool.query(
+                    'INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING',
+                    [email]
+                );
+                return res.status(200).json({ message: 'Successfully joined the waitlist!' });
+            } catch (err) {
+                console.error('Waitlist error:', err);
+                return res.status(500).json({ error: 'Internal server error.' });
+            }
+        });
+
+        const PORT = process.env.PORT || 10000;
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    } catch (err) {
+        console.error('Critical startup error:', err);
+        process.exit(1);
+    }
 }
+
+startServer();
