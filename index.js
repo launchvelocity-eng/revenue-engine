@@ -14,17 +14,17 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// Health check endpoint
+// Immediate port binding health check
 app.get('/', (req, res) => {
-    res.status(200).send('Cloud Storage Database Engine is live.');
+    res.status(200).send('Cloud Storage Engine Active.');
 });
 
-// Store data / waitlist endpoint
+// Waitlist / Data Endpoint
 app.post('/api/waitlist', async (req, res) => {
     const { email } = req.body;
     
     if (!email || typeof email !== 'string' || !email.includes('@')) {
-        return res.status(400).json({ error: 'Valid email address is required.' });
+        return res.status(400).json({ error: 'Valid email is required.' });
     }
 
     try {
@@ -34,17 +34,16 @@ app.post('/api/waitlist', async (req, res) => {
         );
         return res.status(200).json({ message: 'Successfully stored in database!' });
     } catch (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({ error: 'Internal server error.' });
+        console.error('Database insertion error:', err);
+        return res.status(500).json({ error: 'Database error.' });
     }
 });
 
-async function startServer() {
+// Start server instantly to satisfy Render port scan
+app.listen(PORT, '0.0.0.0', async () => {
+    console.log(`Server successfully bound to port ${PORT}`);
+    
     try {
-        app.listen(PORT, '0.0.0.0', () => {
-            console.log(`Server running on port ${PORT}`);
-        });
-
         await pool.query(`
             CREATE TABLE IF NOT EXISTS waitlist (
                 id SERIAL PRIMARY KEY,
@@ -52,10 +51,8 @@ async function startServer() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
-        console.log("Database table verified successfully.");
-    } catch (err) {
-        console.error('Startup error:', err);
+        console.log("Database table verified.");
+    } catch (dbErr) {
+        console.error("Table initialization warning:", dbErr);
     }
-}
-
-startServer();
+});
