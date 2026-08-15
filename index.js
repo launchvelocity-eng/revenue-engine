@@ -4,6 +4,7 @@ import pkg from 'pg';
 const { Pool } = pkg;
 
 const app = express();
+const PORT = process.env.PORT || 10000;
 
 app.use(cors());
 app.use(express.json());
@@ -13,12 +14,12 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-const PORT = process.env.PORT || 10000;
-
+// Health check endpoint
 app.get('/', (req, res) => {
-    res.status(200).send('Revenue Engine Backend is running live.');
+    res.status(200).send('Cloud Storage Database Engine is live.');
 });
 
+// Store data / waitlist endpoint
 app.post('/api/waitlist', async (req, res) => {
     const { email } = req.body;
     
@@ -31,9 +32,9 @@ app.post('/api/waitlist', async (req, res) => {
             'INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING',
             [email.trim().toLowerCase()]
         );
-        return res.status(200).json({ message: 'Successfully joined the waitlist!' });
+        return res.status(200).json({ message: 'Successfully stored in database!' });
     } catch (err) {
-        console.error('Waitlist database error:', err);
+        console.error('Database error:', err);
         return res.status(500).json({ error: 'Internal server error.' });
     }
 });
@@ -51,9 +52,9 @@ async function startServer() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
-        console.log("Database pool initialized and all session tables verified.");
+        console.log("Database table verified successfully.");
     } catch (err) {
-        console.error('Critical startup error:', err);
+        console.error('Startup error:', err);
     }
 }
 
