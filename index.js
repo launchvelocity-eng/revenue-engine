@@ -14,17 +14,17 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// Immediate port binding health check
+// Health check endpoint
 app.get('/', (req, res) => {
-    res.status(200).send('Cloud Storage Engine Active.');
+    res.status(200).send('Revenue Engine Database API is live.');
 });
 
-// Waitlist / Data Endpoint
+// Waitlist / Data API endpoint
 app.post('/api/waitlist', async (req, res) => {
     const { email } = req.body;
     
     if (!email || typeof email !== 'string' || !email.includes('@')) {
-        return res.status(400).json({ error: 'Valid email is required.' });
+        return res.status(400).json({ error: 'Valid email address is required.' });
     }
 
     try {
@@ -32,17 +32,17 @@ app.post('/api/waitlist', async (req, res) => {
             'INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING',
             [email.trim().toLowerCase()]
         );
-        return res.status(200).json({ message: 'Successfully stored in database!' });
+        return res.status(200).json({ message: 'Successfully stored in the cloud database!' });
     } catch (err) {
-        console.error('Database insertion error:', err);
-        return res.status(500).json({ error: 'Database error.' });
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Internal server error.' });
     }
 });
 
-// Start server instantly to satisfy Render port scan
+// Bind immediately to satisfy Render's port scan
 app.listen(PORT, '0.0.0.0', async () => {
-    console.log(`Server successfully bound to port ${PORT}`);
-    
+    console.log(`Server running and bound to port ${PORT}`);
+
     try {
         await pool.query(`
             CREATE TABLE IF NOT EXISTS waitlist (
@@ -53,6 +53,6 @@ app.listen(PORT, '0.0.0.0', async () => {
         `);
         console.log("Database table verified.");
     } catch (dbErr) {
-        console.error("Table initialization warning:", dbErr);
+        console.error("Database initialization notice:", dbErr);
     }
 });
