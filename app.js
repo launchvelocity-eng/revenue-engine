@@ -1,17 +1,25 @@
 import http from 'node:http';
 import pg from 'pg';
 
-const { Client } = pg;
+const { Pool } = pg;
 
-function getDbConnectionString() {
-  let url = process.env.DATABASE_URL || '';
-  if (!url) return '';
-  // Clean off existing query params to ensure fresh, valid parameters
-  const baseUrl = url.split('?')[0];
-  return `${baseUrl}?uselibpqcompat=true&sslmode=require`;
-}
+// Connection config for Render PostgreSQL (External URL compatible)
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  },
+  max: 5,
+  idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 10000
+});
+
+pool.on('error', (err) => {
+  console.error('PostgreSQL Pool Error:', err.message);
+});
 
 const server = http.createServer(async (req, res) => {
+  // CORS Headers for GitHub Pages frontend
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -25,11 +33,7 @@ const server = http.createServer(async (req, res) => {
     let body = '';
     req.on('data', chunk => { body += chunk.toString(); });
     req.on('end', async () => {
-      const client = new Client({
-        connectionString: getDbConnectionString(),
-        ssl: { rejectUnauthorized: false }
-      });
-
+      let client;
       try {
         const data = JSON.parse(body || '{}');
         const email = data.email;
@@ -39,8 +43,9 @@ const server = http.createServer(async (req, res) => {
           return res.end(JSON.stringify({ success: false, error: 'Valid corporate email required.' }));
         }
 
-        await client.connect();
-        
+        client = await pool.connect();
+
+        // On-demand table creation
         await client.query(`
           CREATE TABLE IF NOT EXISTS waitlist (
             id SERIAL PRIMARY KEY,
@@ -49,18 +54,19 @@ const server = http.createServer(async (req, res) => {
           );
         `);
 
+        // Insert email entry
         await client.query(
           'INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING',
           [email]
         );
 
-        await client.end();
+        client.release();
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ success: true, message: 'Priority access requested.' }));
       } catch (err) {
         console.error('Execution Error Detail:', err.message);
-        try { await client.end(); } catch (e) {}
+        if (client) client.release();
         res.writeHead(500, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ success: false, error: 'Internal Server Error' }));
       }
