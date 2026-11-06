@@ -1,12 +1,18 @@
 import http from 'node:http';
 import pg from 'pg';
 
-const { Pool } = pg;
+const { Client } = pg;
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
+function createDbClient() {
+  let url = process.env.DATABASE_URL || '';
+  if (url && !url.includes('sslmode=')) {
+    url += url.includes('?') ? '&sslmode=no-verify' : '?sslmode=no-verify';
+  }
+  return new Client({
+    connectionString: url,
+    ssl: { rejectUnauthorized: false }
+  });
+}
 
 const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -22,6 +28,7 @@ const server = http.createServer(async (req, res) => {
     let body = '';
     req.on('data', chunk => { body += chunk.toString(); });
     req.on('end', async () => {
+      const client = createDbClient();
       try {
         const { email } = JSON.parse(body || '{}');
 
@@ -30,7 +37,8 @@ const server = http.createServer(async (req, res) => {
           return res.end(JSON.stringify({ success: false, error: 'Valid corporate email required.' }));
         }
 
-        const client = await pool.connect();
+        await client.connect();
+
         await client.query(`
           CREATE TABLE IF NOT EXISTS waitlist (
             id SERIAL PRIMARY KEY,
@@ -43,12 +51,14 @@ const server = http.createServer(async (req, res) => {
           'INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING',
           [email]
         );
-        client.release();
+
+        await client.end();
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ success: true }));
       } catch (err) {
         console.error('DB Error:', err.message);
+        try { await client.end(); } catch (e) {}
         res.writeHead(500, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ success: false, error: 'Internal Server Error' }));
       }
