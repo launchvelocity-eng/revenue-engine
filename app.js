@@ -8,30 +8,30 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Health Check Endpoint
+// Health check endpoint
 app.get('/', (req, res) => {
     res.status(200).json({ status: 'Revenue-Engine API is running successfully' });
 });
 
-// Sync Endpoint for Front-End Waitlist Submissions
+// Waitlist Submission Endpoint
 app.post('/api/execute', async (req, res) => {
-    const { client_event, payload } = req.body;
-    const email = payload?.asset_id || req.body.email;
-
-    if (!email) {
-        return res.status(400).json({ error: 'Email address is required' });
-    }
-
-    // Direct per-request PostgreSQL client connection
-    const client = new Client({
-        connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false }
-    });
-
+    let client;
     try {
+        const { client_event, payload } = req.body || {};
+        const email = payload?.asset_id || req.body?.email;
+
+        if (!email) {
+            return res.status(400).json({ error: 'Email address is required' });
+        }
+
+        client = new Client({
+            connectionString: process.env.DATABASE_URL,
+            ssl: { rejectUnauthorized: false }
+        });
+
         await client.connect();
 
-        // 1. SQL: Auto-initialize table schema if not exists
+        // Ensure table exists
         await client.query(`
             CREATE TABLE IF NOT EXISTS waitlist (
                 id SERIAL PRIMARY KEY,
@@ -41,7 +41,7 @@ app.post('/api/execute', async (req, res) => {
             );
         `);
 
-        // 2. SQL: Execute insert query
+        // Insert record safely
         await client.query(
             'INSERT INTO waitlist (email, client_event) VALUES ($1, $2)',
             [email, client_event || 'waitlist_signup']
@@ -51,6 +51,15 @@ app.post('/api/execute', async (req, res) => {
         return res.status(200).json({ success: true, message: 'Waitlist entry recorded successfully!' });
 
     } catch (err) {
-        console.error('❌ SQL Execution Error:', err.message);
-        try { await client.end(); } catch (e) {}
-        
+        console.error('❌ Execution Error:', err.message);
+        if (client) {
+            try { await client.end(); } catch (e) {}
+        }
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server listening on port ${PORT}`);
+});
