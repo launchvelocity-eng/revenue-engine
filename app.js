@@ -1,7 +1,28 @@
 import http from 'node:http';
 import pg from 'pg';
 
-const { Client } = pg;
+const { Pool } = pg;
+
+// Helper to sanitize and normalize the database connection string
+function getDbConfig() {
+  let connectionString = process.env.DATABASE_URL || '';
+  
+  // Ensure SSL is properly configured for Render PostgreSQL instances
+  const config = {
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 10000, // 10 second timeout to prevent hanging
+    idleTimeoutMillis: 30000
+  };
+  
+  return config;
+}
+
+const pool = new Pool(getDbConfig());
+
+pool.on('error', (err) => {
+  console.error('Unexpected database pool error:', err.message);
+});
 
 const server = http.createServer(async (req, res) => {
   // CORS Headers for GitHub Pages frontend
@@ -14,26 +35,26 @@ const server = http.createServer(async (req, res) => {
     return res.end();
   }
 
+  // API Endpoint: /api/execute
   if (req.method === 'POST' && req.url === '/api/execute') {
     let body = '';
     req.on('data', chunk => { body += chunk.toString(); });
+    
     req.on('end', async () => {
-      const client = new Client({
-        connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false }
-      });
-
+      let client;
       try {
-        const { email } = JSON.parse(body || '{}');
+        const payload = JSON.parse(body || '{}');
+        const email = payload.email ? payload.email.trim() : '';
 
         if (!email || !email.includes('@')) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           return res.end(JSON.stringify({ success: false, error: 'Valid corporate email required.' }));
         }
 
-        await client.connect();
+        // Acquire connection from pool
+        client = await pool.connect();
 
-        // Create table if it doesn't exist yet
+        // Create table schema if not already present
         await client.query(`
           CREATE TABLE IF NOT EXISTS waitlist (
             id SERIAL PRIMARY KEY,
@@ -42,19 +63,20 @@ const server = http.createServer(async (req, res) => {
           );
         `);
 
-        // Insert new waitlist email
+        // Insert record safely with conflict handling
         await client.query(
           'INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING',
           [email]
         );
 
-        await client.end();
+        client.release();
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ success: true }));
+        return res.end(JSON.stringify({ success: true, message: 'Capacity secured.' }));
       } catch (err) {
-        console.error('SERVER EXECUTION ERROR:', err.message);
-        try { await client.end(); } catch (e) {}
+        console.error('EXECUTION FAILURE:', err.message);
+        if (client) client.release();
+        
         res.writeHead(500, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ success: false, error: err.message }));
       }
@@ -62,9 +84,12 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Default health check route
   res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Launch Velocity API Operational');
+  res.end('Launch Velocity Enterprise API Operational');
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => {
+  console.log(`Launch Velocity server active on port ${PORT}`);
+});
