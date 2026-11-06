@@ -31,7 +31,6 @@
             text-align: center;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
         }
-        /* Launch Velocity Brand Emblem */
         .brand-emblem {
             width: 70px;
             height: 70px;
@@ -51,7 +50,6 @@
         .hero-card h1 {
             font-size: 1.8rem;
             font-weight: 800;
-            letter-spacing: -0.5px;
             margin-bottom: 0.5rem;
             background: linear-gradient(180deg, #ffffff 0%, #8b949e 100%);
             -webkit-background-clip: text;
@@ -71,9 +69,7 @@
             line-height: 1.5;
             margin-bottom: 2rem;
         }
-        /* Form Setup */
         .input-group {
-            position: relative;
             margin-bottom: 1rem;
         }
         input[type="email"] {
@@ -85,11 +81,9 @@
             color: #ffffff;
             font-size: 16px;
             outline: none;
-            transition: all 0.2s ease;
         }
         input[type="email"]:focus {
             border-color: #58a6ff;
-            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
         }
         button.btn-primary {
             width: 100%;
@@ -101,11 +95,6 @@
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(46, 160, 67, 0.3);
-            transition: transform 0.1s ease, box-shadow 0.2s ease;
-        }
-        button.btn-primary:active {
-            transform: scale(0.98);
         }
         #status-msg {
             margin-top: 1rem;
@@ -114,7 +103,7 @@
             min-height: 20px;
         }
 
-        /* Success Popup Modal */
+        /* Success Modal Popup */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -188,10 +177,8 @@
 </head>
 <body>
 
-    <!-- Welcome Page Hero Card -->
     <div class="hero-card">
         <div class="brand-emblem">
-            <!-- Launch Velocity Crest SVG -->
             <svg viewBox="0 0 24 24">
                 <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
             </svg>
@@ -234,7 +221,7 @@
         const msgEl = document.getElementById('status-msg');
 
         msgEl.style.color = '#8b949e';
-        msgEl.textContent = 'Connecting to Launch Velocity...';
+        msgEl.textContent = 'Connecting...';
 
         try {
             const response = await fetch(API_URL, {
@@ -254,12 +241,11 @@
                 document.getElementById('success-modal').style.display = 'flex';
             } else {
                 msgEl.style.color = '#f85149';
-                msgEl.textContent = `Error: ${data.error || 'Unable to join waitlist.'}`;
+                msgEl.textContent = `Error: ${data.error || 'Execution failed'}`;
             }
         } catch (err) {
             msgEl.style.color = '#f85149';
-            msgEl.textContent = 'Connection error. Please try again.';
-            console.error(err);
+            msgEl.textContent = 'Network error. Please try again.';
         }
     });
     </script>
