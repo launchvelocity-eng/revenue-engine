@@ -1,11 +1,267 @@
-<!-- Launch Velocity Success Modal -->
-<div class="modal-overlay" id="success-modal">
-    <div class="modal-card">
-        <div class="rocket-icon">🚀</div>
-        <h2>You're on the list!</h2>
-        <p>Success! Confirmation hit! You signed up for the revenue-engine.</p>
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
-        <p style="font-size: 12px; color: #666; font-weight: bold;">Powered by<br><span style="font-size: 16px; color: #0066cc;">Launch Velocity</span><br><i>Igniting Innovation</i></p>
-        <button class="close-btn" onclick="document.getElementById('success-modal').style.display='none'">Done</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch Velocity | Revenue-Engine Access</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at top, #1a2332 0%, #0d1117 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .hero-card {
+            background: rgba(22, 27, 34, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+        /* Launch Velocity Brand Emblem */
+        .brand-emblem {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 1.5rem auto;
+            background: linear-gradient(135deg, #0969da, #2ea043);
+            border-radius: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(9, 105, 218, 0.35);
+        }
+        .brand-emblem svg {
+            width: 40px;
+            height: 40px;
+            fill: #ffffff;
+        }
+        .hero-card h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(180deg, #ffffff 0%, #8b949e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .tagline {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #58a6ff;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .description {
+            font-size: 0.95rem;
+            color: #8b949e;
+            line-height: 1.5;
+            margin-bottom: 2rem;
+        }
+        /* Form Setup */
+        .input-group {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        input[type="email"] {
+            width: 100%;
+            padding: 14px 16px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        input[type="email"]:focus {
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+        }
+        button.btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #238636, #2ea043);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(46, 160, 67, 0.3);
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
+        }
+        button.btn-primary:active {
+            transform: scale(0.98);
+        }
+        #status-msg {
+            margin-top: 1rem;
+            font-size: 14px;
+            color: #8b949e;
+            min-height: 20px;
+        }
+
+        /* Success Popup Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(6px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: #ffffff;
+            color: #1a1a1a;
+            padding: 2.5rem 2rem;
+            border-radius: 24px;
+            text-align: center;
+            width: 85%;
+            max-width: 340px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .modal-rocket {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+        .modal-card h3 {
+            font-size: 1.6rem;
+            color: #0d1117;
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+        .modal-card p {
+            font-size: 14px;
+            color: #57606a;
+            line-height: 1.4;
+        }
+        .divider {
+            border: 0;
+            border-top: 1px solid #e1e4e8;
+            margin: 20px 0;
+        }
+        .brand-footer {
+            font-size: 12px;
+            color: #57606a;
+            font-weight: 600;
+        }
+        .brand-title {
+            font-size: 18px;
+            color: #0969da;
+            font-weight: 800;
+            display: block;
+            margin: 4px 0 2px 0;
+        }
+        .close-btn {
+            margin-top: 18px;
+            width: 100%;
+            padding: 12px;
+            background: #1f2328;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Welcome Page Hero Card -->
+    <div class="hero-card">
+        <div class="brand-emblem">
+            <!-- Launch Velocity Crest SVG -->
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
+            </svg>
+        </div>
+        <div class="tagline">Launch Velocity</div>
+        <h1>Revenue Engine Portal</h1>
+        <p class="description">Gain early access to our cloud storage waitlist database system powered by automated execution pipelines.</p>
+        
+        <form id="waitlist-form">
+            <div class="input-group">
+                <input type="email" id="email-input" placeholder="Enter your email address" required />
+            </div>
+            <button type="submit" class="btn-primary">Join Waitlist</button>
+        </form>
+        <p id="status-msg"></p>
     </div>
-</div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal-card">
+            <div class="modal-rocket">🚀</div>
+            <h3>You're on the list!</h3>
+            <p>Success! Confirmation hit! You signed up for the revenue-engine.</p>
+            <div class="divider"></div>
+            <div class="brand-footer">
+                Powered by
+                <span class="brand-title">Launch Velocity</span>
+                <i>Igniting Innovation</i>
+            </div>
+            <button class="close-btn" onclick="document.getElementById('success-modal').style.display='none'">Done</button>
+        </div>
+    </div>
+
+    <script>
+    const API_URL = 'https://revenue-engine-dc8d.onrender.com/api/execute';
+
+    document.getElementById('waitlist-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email-input').value;
+        const msgEl = document.getElementById('status-msg');
+
+        msgEl.style.color = '#8b949e';
+        msgEl.textContent = 'Connecting to Launch Velocity...';
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    client_event: 'waitlist_signup',
+                    payload: { asset_id: email }
+                })
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                msgEl.textContent = '';
+                document.getElementById('waitlist-form').reset();
+                document.getElementById('success-modal').style.display = 'flex';
+            } else {
+                msgEl.style.color = '#f85149';
+                msgEl.textContent = `Error: ${data.error || 'Unable to join waitlist.'}`;
+            }
+        } catch (err) {
+            msgEl.style.color = '#f85149';
+            msgEl.textContent = 'Connection error. Please try again.';
+            console.error(err);
+        }
+    });
+    </script>
+</body>
+</html>
