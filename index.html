@@ -3,38 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Launch Velocity | Enterprise Secure Cloud Storage</title>
+  <title>Launch Velocity | Secure Enterprise Cloud Storage</title>
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #0b0f19; color: #f8fafc; padding: 20px; }
-    .card { background: #111827; border: 1px solid #1f2937; padding: 40px; border-radius: 16px; width: 100%; max-width: 480px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); text-align: center; }
-    .badge { display: inline-block; background: rgba(59, 130, 246, 0.1); color: #60a5fa; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; border: 1px solid rgba(59, 130, 246, 0.2); }
-    h1 { margin: 0 0 12px 0; font-size: 1.8rem; font-weight: 700; color: #ffffff; letter-spacing: -0.5px; }
-    p.subtitle { color: #9ca3af; font-size: 0.95rem; line-height: 1.6; margin-bottom: 28px; }
-    input[type="email"] { width: 100%; padding: 14px 16px; margin-bottom: 16px; border: 1px solid #374151; border-radius: 8px; background: #030712; color: #fff; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
-    input[type="email"]:focus { border-color: #3b82f6; }
-    button { width: 100%; padding: 14px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #060913; color: #f8fafc; padding: 20px; }
+    
+    .card { background: #0f172a; border: 1px solid #1e293b; padding: 44px 36px; border-radius: 20px; width: 100%; max-width: 460px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); text-align: center; }
+    
+    /* Launch Velocity Enterprise Logo Header */
+    .logo-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #2563eb, #3b82f6); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.3rem; color: #ffffff; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4); }
+    .logo-text { font-size: 1.6rem; font-weight: 800; tracking: -0.5px; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px; }
+    .logo-text span { color: #3b82f6; }
+
+    .badge { display: inline-block; background: rgba(59, 130, 246, 0.12); color: #60a5fa; padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 20px; border: 1px solid rgba(59, 130, 246, 0.25); }
+    
+    p.subtitle { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 30px; }
+    
+    input[type="email"] { width: 100%; padding: 16px; margin-bottom: 18px; border: 1px solid #334155; border-radius: 10px; background: #020617; color: #fff; font-size: 0.95rem; outline: none; transition: all 0.2s; }
+    input[type="email"]:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+    
+    button { width: 100%; padding: 16px; background: #2563eb; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 1rem; transition: background 0.2s, transform 0.1s; }
     button:hover { background: #1d4ed8; }
+    button:active { transform: scale(0.99); }
     button:disabled { opacity: 0.6; cursor: not-allowed; }
-    #status { margin-top: 16px; font-size: 0.85rem; }
+    
+    #status { margin-top: 18px; font-size: 0.85rem; font-weight: 500; }
     .error { color: #f87171; }
     
-    /* Executive Modal Screen */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(8px); justify-content: center; align-items: center; padding: 20px; z-index: 1000; }
-    .modal-card { background: #111827; border: 1px solid #374151; padding: 36px; border-radius: 16px; max-width: 440px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-    .modal-icon { width: 56px; height: 56px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 20px auto; border: 1px solid rgba(16, 185, 129, 0.2); }
-    .modal-card h2 { margin: 0 0 10px 0; color: #ffffff; font-size: 1.4rem; }
-    .modal-card p { color: #9ca3af; font-size: 0.9rem; line-height: 1.6; margin-bottom: 24px; }
-    .modal-btn { background: #374151; color: #ffffff; padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
-    .modal-btn:hover { background: #4b5563; }
+    /* Confirmation Modal Screen */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.88); backdrop-filter: blur(8px); justify-content: center; align-items: center; padding: 20px; z-index: 1000; }
+    .modal-card { background: #0f172a; border: 1px solid #334155; padding: 40px; border-radius: 20px; max-width: 440px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); }
+    .modal-icon { width: 60px; height: 60px; background: rgba(16, 185, 129, 0.12); color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 20px auto; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .modal-card h2 { margin: 0 0 12px 0; color: #ffffff; font-size: 1.4rem; font-weight: 700; }
+    .modal-card p { color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 26px; }
+    .modal-btn { background: #1e293b; color: #ffffff; padding: 12px 28px; border: 1px solid #334155; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+    .modal-btn:hover { background: #334155; }
   </style>
 </head>
 <body>
 
   <div class="card">
-    <div class="badge">Next-Gen Cloud Architecture</div>
-    <h1>Launch Velocity</h1>
-    <p class="subtitle">Zero-trust, impenetrable cloud storage infrastructure designed for enterprise data integrity and high-stakes asset security.</p>
+    <div class="logo-container">
+      <div class="logo-icon">LV</div>
+      <div class="logo-text">Launch <span>Velocity</span></div>
+    </div>
+    
+    <div class="badge">Enterprise Storage Vault</div>
+    <p class="subtitle">Zero-trust, impenetrable cloud storage architecture built for corporate data protection and vital asset security.</p>
     
     <form id="waitlistForm">
       <input type="email" id="emailInput" placeholder="Enter corporate email address" required />
@@ -43,12 +59,12 @@
     <div id="status"></div>
   </div>
 
-  <!-- Confirmation Modal -->
+  <!-- Confirmation Modal Screen -->
   <div class="modal-overlay" id="successModal">
     <div class="modal-card">
       <div class="modal-icon">✓</div>
       <h2>Access Request Acknowledged</h2>
-      <p>Your enterprise email has been encrypted and priority-registered. A formal receipt and platform launch notification will be dispatched as custom storage partitions become ready for allocation.</p>
+      <p>Your executive email has been encrypted and priority-registered. A formal receipt and platform notice will be dispatched to your inbox as custom enterprise storage partitions become available.</p>
       <button class="modal-btn" onclick="closeModal()">Return to Portal</button>
     </div>
   </div>
@@ -82,11 +98,11 @@
           modal.style.display = 'flex';
         } else {
           statusDiv.className = 'error';
-          statusDiv.textContent = data.error || data.details || 'Unable to register request.';
+          statusDiv.textContent = data.error || data.details || 'Unable to process request.';
         }
       } catch (err) {
         statusDiv.className = 'error';
-        statusDiv.textContent = 'Connection latency error. Please try again.';
+        statusDiv.textContent = 'Network latency error. Please try again.';
       } finally {
         submitBtn.disabled = false;
       }
