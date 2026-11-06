@@ -4,6 +4,7 @@ import pg from 'pg';
 const { Client } = pg;
 
 const server = http.createServer(async (req, res) => {
+  // CORS Headers for GitHub Pages frontend
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -32,6 +33,7 @@ const server = http.createServer(async (req, res) => {
 
         await client.connect();
 
+        // Create table if it doesn't exist yet
         await client.query(`
           CREATE TABLE IF NOT EXISTS waitlist (
             id SERIAL PRIMARY KEY,
@@ -40,6 +42,7 @@ const server = http.createServer(async (req, res) => {
           );
         `);
 
+        // Insert new waitlist email
         await client.query(
           'INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING',
           [email]
@@ -53,7 +56,6 @@ const server = http.createServer(async (req, res) => {
         console.error('SERVER EXECUTION ERROR:', err.message);
         try { await client.end(); } catch (e) {}
         res.writeHead(500, { 'Content-Type': 'application/json' });
-        // Return the exact error message to the frontend for instant debugging
         return res.end(JSON.stringify({ success: false, error: err.message }));
       }
     });
