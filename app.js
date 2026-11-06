@@ -3,42 +3,36 @@ import pg from 'pg';
 
 const { Pool } = pg;
 
-// Construct database pool with explicit Render SSL parameters
-let dbUrl = process.env.DATABASE_URL || '';
-if (dbUrl && !dbUrl.includes('sslmode=')) {
-  dbUrl += dbUrl.includes('?') ? '&sslmode=require' : '?sslmode=require';
-}
-
 const pool = new Pool({
-  connectionString: dbUrl,
+  connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
   },
-  connectionTimeoutMillis: 10000,
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000,
+  connectionTimeoutMillis: 15000,
   idleTimeoutMillis: 30000
 });
 
-// Resilient initialization with connection retry logic
-async function initDb(retries = 3) {
-  while (retries > 0) {
-    try {
-      const client = await pool.connect();
-      await client.query(`
-        CREATE TABLE IF NOT EXISTS waitlist (
-          id SERIAL PRIMARY KEY,
-          email TEXT UNIQUE NOT NULL,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-      `);
-      client.release();
-      console.log('Database initialized successfully: waitlist table ready.');
-      return;
-    } catch (err) {
-      console.error(`Database connection attempt failed (${retries} retries left):`, err.message);
-      retries -= 1;
-      if (retries === 0) break;
-      await new Promise(res => setTimeout(res, 3000));
-    }
+// Handle pool errors gracefully to prevent sudden crashes
+pool.on('error', (err) => {
+  console.error('Unexpected database pool error:', err.message);
+});
+
+async function initDb() {
+  try {
+    const client = await pool.connect();
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS waitlist (
+        id SERIAL PRIMARY KEY,
+        email TEXT UNIQUE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    client.release();
+    console.log('Database initialized successfully: waitlist table ready.');
+  } catch (err) {
+    console.error('Database initialization error:', err.message);
   }
 }
 
