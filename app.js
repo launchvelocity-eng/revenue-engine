@@ -3,12 +3,10 @@ import pkg from 'pg';
 
 const { Pool } = pkg;
 
-// Render PostgreSQL Pool with strict SSL acceptance
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
+    connectionTimeoutMillis: 5000,
+    ssl: { rejectUnauthorized: false }
 });
 
 const PORT = process.env.PORT || 10000;
@@ -42,7 +40,6 @@ const server = http.createServer(async (req, res) => {
                     return res.end(JSON.stringify({ error: 'Email address is required' }));
                 }
 
-                // Insert directly (table assumed pre-initialized or handled)
                 await pool.query(
                     'INSERT INTO waitlist (email, client_event) VALUES ($1, $2) ON CONFLICT DO NOTHING',
                     [email, client_event]
@@ -51,4 +48,19 @@ const server = http.createServer(async (req, res) => {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 return res.end(JSON.stringify({ success: true, message: 'Waitlist entry recorded successfully!' }));
 
-            } catch (err)
+            } catch (err) {
+                console.error('❌ Database Execution Error:', err.message);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                return res.end(JSON.stringify({ error: err.message }));
+            }
+        });
+        return;
+    }
+
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Route not found' }));
+});
+
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server listening on port ${PORT}`);
+});
