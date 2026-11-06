@@ -1,45 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Waitlist Portal</title>
-</head>
-<body>
+<form id="waitlist-form">
+    <input type="email" id="email-input" placeholder="Enter your email" required />
+    <button type="submit">Join Waitlist</button>
+</form>
+<p id="response-msg"></p>
 
-    <form id="waitlistForm">
-        <input type="email" id="emailInput" placeholder="Enter your email address" required />
-        <button type="submit">Join Waitlist</button>
-    </form>
-    <div id="statusMessage"></div>
+<script>
+const API_URL = 'https://revenue-engine-dc8d.onrender.com/api/execute';
 
-    <script>
-        document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const emailInput = document.getElementById('emailInput');
-            const email = emailInput.value.trim();
+document.getElementById('waitlist-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email-input').value;
+    const msgEl = document.getElementById('response-msg');
 
-            try {
-                const response = await fetch('/api/waitlist', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
+    msgEl.textContent = 'Submitting...';
 
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || 'Something went wrong.');
-
-                showStatus(data.message, false);
-                emailInput.value = '';
-            } catch (err) {
-                showStatus(err.message, true);
-            }
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                client_event: 'waitlist_signup',
+                payload: { asset_id: email }
+            })
         });
 
-        function showStatus(message, isError = false) {
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.textContent = message;
-            statusDiv.style.color = isError ? '#ff4d4d' : '#4bb543';
+        const data = await response.json();
+        
+        if (response.ok) {
+            msgEl.textContent = 'Success! You are on the waitlist.';
+            document.getElementById('waitlist-form').reset();
+        } else {
+            msgEl.textContent = `Error: ${data.error || 'Something went wrong'}`;
         }
-    </script>
-</body>
-</html>
+    } catch (err) {
+        msgEl.textContent = 'Network error. Please try again.';
+        console.error(err);
+    }
+});
+</script>
