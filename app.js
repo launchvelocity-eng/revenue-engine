@@ -1,17 +1,24 @@
 import http from 'node:http';
 import pkg from 'pg';
 
-const { Client } = pkg;
+const { Pool } = pkg;
+
+// Initialize PostgreSQL Pool with Render SSL and keep-alive settings
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 5000,
+    idleTimeoutMillis: 30000
+});
 
 const PORT = process.env.PORT || 10000;
 
 const server = http.createServer(async (req, res) => {
-    // Enable CORS for frontend GitHub Pages request
+    // Enable CORS for GitHub Pages frontend
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // Handle preflight OPTIONS request
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
         return res.end();
@@ -32,7 +39,6 @@ const server = http.createServer(async (req, res) => {
         });
 
         req.on('end', async () => {
-            let client;
             try {
                 const parsed = JSON.parse(body || '{}');
                 const client_event = parsed.client_event || 'waitlist_signup';
@@ -43,15 +49,8 @@ const server = http.createServer(async (req, res) => {
                     return res.end(JSON.stringify({ error: 'Email address is required' }));
                 }
 
-                client = new Client({
-                    connectionString: process.env.DATABASE_URL,
-                    ssl: { rejectUnauthorized: false }
-                });
-
-                await client.connect();
-
-                // Auto-create waitlist table
-                await client.query(`
+                // 1. Ensure table exists using pool
+                await pool.query(`
                     CREATE TABLE IF NOT EXISTS waitlist (
                         id SERIAL PRIMARY KEY,
                         email VARCHAR(255) NOT NULL,
@@ -60,22 +59,17 @@ const server = http.createServer(async (req, res) => {
                     );
                 `);
 
-                // Insert record safely
-                await client.query(
+                // 2. Insert record safely
+                await pool.query(
                     'INSERT INTO waitlist (email, client_event) VALUES ($1, $2)',
                     [email, client_event]
                 );
-
-                await client.end();
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 return res.end(JSON.stringify({ success: true, message: 'Waitlist entry recorded successfully!' }));
 
             } catch (err) {
-                console.error('❌ Execution Error:', err.message);
-                if (client) {
-                    try { await client.end(); } catch (e) {}
-                }
+                console.error('❌ Database Execution Error:', err.message);
                 res.writeHead(500, { 'Content-Type': 'application/json' });
                 return res.end(JSON.stringify({ error: err.message }));
             }
@@ -83,7 +77,6 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
-    // 404 Fallback
     res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Route not found' }));
 });
