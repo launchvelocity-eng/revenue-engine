@@ -3,16 +3,16 @@ import pg from 'pg';
 
 const { Client } = pg;
 
-function getDbConfig() {
-  let connectionString = process.env.DATABASE_URL || '';
-  if (connectionString && !connectionString.includes('sslmode=')) {
-    connectionString += connectionString.includes('?') ? '&sslmode=require' : '?sslmode=require';
-  }
-  return {
-    connectionString,
-    ssl: { rejectUnauthorized: false }
-  };
+// Clean connection URL with sslmode requirement
+let connectionString = process.env.DATABASE_URL || '';
+if (connectionString && !connectionString.includes('sslmode=')) {
+  connectionString += connectionString.includes('?') ? '&sslmode=require' : '?sslmode=require';
 }
+
+const dbConfig = {
+  connectionString,
+  ssl: { rejectUnauthorized: false }
+};
 
 const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -28,7 +28,7 @@ const server = http.createServer(async (req, res) => {
     let body = '';
     req.on('data', chunk => { body += chunk.toString(); });
     req.on('end', async () => {
-      const client = new Client(getDbConfig());
+      const client = new Client(dbConfig);
       try {
         const data = JSON.parse(body || '{}');
         const email = data.email;
@@ -52,14 +52,14 @@ const server = http.createServer(async (req, res) => {
           'INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING',
           [email]
         );
-        
+
         await client.end();
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ success: true, message: 'Priority access requested.' }));
       } catch (err) {
-        console.error('Execution Error:', err.message);
-        try { await client.end(); } catch(e) {}
+        console.error('Execution Error Detail:', err.message);
+        try { await client.end(); } catch (e) {}
         res.writeHead(500, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ success: false, error: 'Internal Server Error' }));
       }
