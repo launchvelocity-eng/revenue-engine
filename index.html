@@ -1,10 +1,273 @@
-{
-  "categories": ["Backend API", "Database & Environment", "Background Worker & Frontend"],
-  "items": [
-    { "id": "1", "label": "Configure app.js and Express server routing", "category": "Backend API", "checked": true },
-    { "id": "2", "label": "Deploy Web Service successfully on Render", "category": "Backend API", "checked": true },
-    { "id": "3", "label": "Connect PostgreSQL database (revenue-dn) and set DATABASE_URL", "category": "Database & Environment", "checked": true },
-    { "id": "4", "label": "Deploy Background Worker assistant (worker.js)", "category": "Background Worker & Frontend", "checked": true },
-    { "id": "5", "label": "Wire up frontend waitlist portal to /api/execute endpoint", "category": "Background Worker & Frontend", "checked": true }
-  ]
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch Velocity | Revenue-Engine Access</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at top, #1a2332 0%, #0d1117 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .hero-card {
+            background: rgba(22, 27, 34, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+        .brand-emblem {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 1.5rem auto;
+            background: linear-gradient(135deg, #0969da, #2ea043);
+            border-radius: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(9, 105, 218, 0.35);
+        }
+        .brand-emblem svg {
+            width: 40px;
+            height: 40px;
+            fill: #ffffff;
+        }
+        .hero-card h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(180deg, #ffffff 0%, #8b949e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .tagline {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #58a6ff;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .description {
+            font-size: 0.95rem;
+            color: #8b949e;
+            line-height: 1.5;
+            margin-bottom: 2rem;
+        }
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        input[type="email"] {
+            width: 100%;
+            padding: 14px 16px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 16px;
+            outline: none;
+        }
+        input[type="email"]:focus {
+            border-color: #58a6ff;
+        }
+        button.btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #238636, #2ea043);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        #status-msg {
+            margin-top: 1rem;
+            font-size: 14px;
+            color: #8b949e;
+            min-height: 20px;
+        }
+
+        /* Success Pop-up Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(6px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: linear-gradient(180deg, #eef7ff 0%, #ffffff 100%);
+            color: #1a1a1a;
+            padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+            border-radius: 28px;
+            text-align: center;
+            width: 88%;
+            max-width: 340px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .modal-card h3 {
+            font-size: 1.8rem;
+            color: #0b3c5d;
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+        .modal-card p.msg-text {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+        .brand-box {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 15px;
+        }
+        .brand-logo-svg {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 10px auto;
+        }
+        .brand-footer {
+            font-size: 11px;
+            color: #718096;
+            font-weight: 600;
+        }
+        .brand-title {
+            font-size: 17px;
+            color: #0b3c5d;
+            font-weight: 800;
+            display: block;
+            margin: 2px 0 1px 0;
+        }
+        .brand-tagline {
+            font-size: 11px;
+            color: #319795;
+            font-style: italic;
+        }
+        .close-btn {
+            width: 100%;
+            padding: 12px;
+            background: #1a202c;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Welcome Page -->
+    <div class="hero-card">
+        <div class="brand-emblem">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
+            </svg>
+        </div>
+        <div class="tagline">Launch Velocity</div>
+        <h1>Revenue Engine Portal</h1>
+        <p class="description">Gain early access to our cloud storage waitlist database system powered by automated execution pipelines.</p>
+        
+        <form id="waitlist-form">
+            <div class="input-group">
+                <input type="email" id="email-input" placeholder="Enter your email address" required />
+            </div>
+            <button type="submit" class="btn-primary">Join Waitlist</button>
+        </form>
+        <p id="status-msg"></p>
+    </div>
+
+    <!-- Success Pop-up Modal -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal-card">
+            <h3>You're on the list!</h3>
+            <p class="msg-text">Hi! This confirmation is letting you know your sign up to our waiting list was successful. We will send an email verifying your sign up.</p>
+            
+            <div class="brand-box">
+                <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 75 C40 75 75 40 75 15 C75 15 50 50 20 75 Z" fill="#0b3c5d"/>
+                    <path d="M30 85 C55 85 85 55 85 25 C85 25 60 65 30 85 Z" fill="#c59b27"/>
+                    <path d="M60 25 L75 10 L80 25 L70 30 Z" fill="#0b3c5d"/>
+                    <polygon points="45,35 48,42 55,42 50,47 52,54 45,50 38,54 40,47 35,42 42,42" fill="#0b3c5d"/>
+                </svg>
+
+                <div class="brand-footer">
+                    Powered by
+                    <span class="brand-title">Launch Velocity</span>
+                    <span class="brand-tagline">Igniting Innovation</span>
+                </div>
+            </div>
+
+            <button class="close-btn" onclick="document.getElementById('success-modal').style.display='none'">Done</button>
+        </div>
+    </div>
+
+    <script>
+    const API_URL = 'https://revenue-engine-dc8d.onrender.com/api/execute';
+
+    document.getElementById('waitlist-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email-input').value;
+        const msgEl = document.getElementById('status-msg');
+
+        msgEl.style.color = '#8b949e';
+        msgEl.textContent = 'Connecting...';
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    client_event: 'waitlist_signup',
+                    payload: { asset_id: email }
+                })
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                msgEl.textContent = '';
+                document.getElementById('waitlist-form').reset();
+                document.getElementById('success-modal').style.display = 'flex';
+            } else {
+                msgEl.style.color = '#f85149';
+                msgEl.textContent = `Error: ${data.error || 'Execution failed'}`;
+            }
+        } catch (err) {
+            msgEl.style.color = '#f85149';
+            msgEl.textContent = 'Network error. Please try again.';
+        }
+    });
+    </script>
+</body>
+</html>
