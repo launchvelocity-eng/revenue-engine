@@ -3,16 +3,13 @@ import pg from 'pg';
 
 const { Client } = pg;
 
-// Clean connection URL with sslmode requirement
-let connectionString = process.env.DATABASE_URL || '';
-if (connectionString && !connectionString.includes('sslmode=')) {
-  connectionString += connectionString.includes('?') ? '&sslmode=require' : '?sslmode=require';
+function getDbConnectionString() {
+  let url = process.env.DATABASE_URL || '';
+  if (!url) return '';
+  // Clean off existing query params to ensure fresh, valid parameters
+  const baseUrl = url.split('?')[0];
+  return `${baseUrl}?uselibpqcompat=true&sslmode=require`;
 }
-
-const dbConfig = {
-  connectionString,
-  ssl: { rejectUnauthorized: false }
-};
 
 const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -28,7 +25,11 @@ const server = http.createServer(async (req, res) => {
     let body = '';
     req.on('data', chunk => { body += chunk.toString(); });
     req.on('end', async () => {
-      const client = new Client(dbConfig);
+      const client = new Client({
+        connectionString: getDbConnectionString(),
+        ssl: { rejectUnauthorized: false }
+      });
+
       try {
         const data = JSON.parse(body || '{}');
         const email = data.email;
