@@ -1,24 +1,14 @@
-const express = require('express');
-const { Pool } = require('pg');
+import http from 'node:http';
+import pg from 'pg';
 
-const app = express();
-app.use(express.json());
-
-// Enable CORS for GitHub Pages requests
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  if (req.method === 'OPTIONS') return res.sendStatus(200);
-  next();
-});
+const { Pool } = pg;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
-// Auto-initialize the waitlist table on app boot
+// Auto-initialize waitlist table on startup
 async function initDb() {
   try {
     await pool.query(`
@@ -28,34 +18,65 @@ async function initDb() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    console.log('Database initialized successfully: waitlist table ready.');
+    console.log('Database initialized: waitlist table ready.');
   } catch (err) {
-    console.error('Error initializing database table:', err);
+    console.error('Database initialization error:', err.message);
   }
 }
 
 initDb();
 
-app.post('/api/execute', async (req, res) => {
-  const { email } = req.body;
+const server = http.createServer(async (req, res) => {
+  // CORS Headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
 
-  if (!email || !email.includes('@')) {
-    return res.status(400).json({ success: false, error: 'Valid corporate email required.' });
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    return res.end();
   }
 
-  try {
-    await pool.query(
-      'INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING',
-      [email]
-    );
-    return res.status(200).json({ success: true, message: 'Priority access requested.' });
-  } catch (err) {
-    console.error('Database Error:', err);
-    return res.status(500).json({ success: false, error: 'Internal Server Error' });
+  if (req.method === 'POST' && req.url === '/api/execute') {
+    let body = '';
+    req.on('data', chunk => { body += chunk.toString(); });
+    req.on('end', async () => {
+      try {
+        const data = JSON.parse(body || '{}');
+        const email = data.email;
+
+        if (!email || !email.includes('@')) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ success: false, error: 'Valid corporate email required.' }));
+        }
+
+        await pool.query(
+          'INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING',
+          [email]
+        );
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ success: true, message: 'Priority access requested.' }));
+      } catch (err) {
+        console.error('Execution Error:', err.message);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ success: false, error: 'Internal Server Error' }));
+      }
+    });
+    return;
   }
+
+  // Health check endpoint
+  if (req.method === 'GET' && req.url === '/') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    return res.end('Revenue-Engine API Operational');
+  }
+
+  res.writeHead(404, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ error: 'Endpoint not found' }));
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Revenue-Engine backend server running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
 });
