@@ -1,21 +1,15 @@
 import http from 'node:http';
-import pg from 'pg';
+import fs from 'node:fs';
+import path from 'node:path';
 
-const { Pool } = pg;
+const DB_FILE = path.join('/tmp', 'waitlist.json');
 
-// Connection pool configured for Render PostgreSQL
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-  connectionTimeoutMillis: 10000,
-  idleTimeoutMillis: 30000
-});
+// Initialize local JSON storage if not exists
+if (!fs.existsSync(DB_FILE)) {
+  fs.writeFileSync(DB_FILE, JSON.stringify([]));
+}
 
-pool.on('error', (err) => {
-  console.error('Database pool background error:', err.message);
-});
-
-const server = http.createServer(async (req, res) => {
+const server = http.createServer((req, res) => {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -31,8 +25,7 @@ const server = http.createServer(async (req, res) => {
     let body = '';
     req.on('data', chunk => { body += chunk.toString(); });
 
-    req.on('end', async () => {
-      let client;
+    req.on('end', () => {
       try {
         const payload = JSON.parse(body || '{}');
         const email = payload.email ? payload.email.trim() : '';
@@ -42,30 +35,19 @@ const server = http.createServer(async (req, res) => {
           return res.end(JSON.stringify({ success: false, error: 'Valid corporate email required.' }));
         }
 
-        client = await pool.connect();
+        // Read existing records
+        const data = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
 
-        // Ensure table exists
-        await client.query(`
-          CREATE TABLE IF NOT EXISTS waitlist (
-            id SERIAL PRIMARY KEY,
-            email TEXT UNIQUE NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-          );
-        `);
-
-        // Save email entry
-        await client.query(
-          'INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING',
-          [email]
-        );
-
-        client.release();
+        // Save email if unique
+        if (!data.includes(email)) {
+          data.push(email);
+          fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+        }
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ success: true, message: 'Access requested.' }));
       } catch (err) {
         console.error('API Error:', err.message);
-        if (client) client.release();
         res.writeHead(500, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ success: false, error: err.message }));
       }
@@ -75,7 +57,7 @@ const server = http.createServer(async (req, res) => {
 
   // Root Health Check
   res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Launch Velocity API Active');
+  res.end('Launch Velocity API Active (Local Engine)');
 });
 
 const PORT = process.env.PORT || 3000;
