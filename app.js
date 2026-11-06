@@ -55,7 +55,7 @@ const server = http.createServer(async (req, res) => {
         await client.end();
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ success: true }));
+        return res.end(JSON.stringify({ success: true, message: 'Priority access requested.' }));
       } catch (err) {
         console.error('DB Error:', err.message);
         try { await client.end(); } catch (e) {}
@@ -70,4 +70,5 @@ const server = http.createServer(async (req, res) => {
   res.end('Launch Velocity API Operational');
 });
 
-server.listen(process.env.PORT || 3000);
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
