@@ -1,23 +1,20 @@
 import express from 'express';
-import cors from 'cors';
-import router from './index.js';
 
-const app = express();
+const router = express.Router();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+router.post('/execute', async (req, res, next) => {
+    try {
+        const { client_event, payload } = req.body;
 
-// Mount the API router
-app.use('/api', router);
+        // Basic payload validation
+        if (!client_event || !payload || !payload.asset_id) {
+            return res.status(400).json({ error: 'Invalid payload structure' });
+        }
 
-// Health check route for Render
-app.get('/', (req, res) => {
-    res.status(200).json({ status: 'Revenue-Engine API is running successfully' });
+        res.status(200).json({ status: 'received', asset_id: payload.asset_id });
+    } catch (err) {
+        next(err);
+    }
 });
 
-// Start server on Render's assigned port
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+export default router;
