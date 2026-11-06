@@ -19,7 +19,7 @@
     #status { margin-top: 16px; font-size: 0.85rem; }
     .error { color: #f87171; }
     
-    /* Modal Overlay */
+    /* Executive Modal Screen */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(8px); justify-content: center; align-items: center; padding: 20px; z-index: 1000; }
     .modal-card { background: #111827; border: 1px solid #374151; padding: 36px; border-radius: 16px; max-width: 440px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
     .modal-icon { width: 56px; height: 56px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 20px auto; border: 1px solid rgba(16, 185, 129, 0.2); }
@@ -43,12 +43,12 @@
     <div id="status"></div>
   </div>
 
-  <!-- Confirmation Modal Screen -->
+  <!-- Confirmation Modal -->
   <div class="modal-overlay" id="successModal">
     <div class="modal-card">
       <div class="modal-icon">✓</div>
       <h2>Access Request Acknowledged</h2>
-      <p>Your enterprise email has been encrypted and priority-registered. A formal receipt and platform launch notification will be dispatched to your inbox shortly as custom storage partitions become ready for allocation.</p>
+      <p>Your enterprise email has been encrypted and priority-registered. A formal receipt and platform launch notification will be dispatched as custom storage partitions become ready for allocation.</p>
       <button class="modal-btn" onclick="closeModal()">Return to Portal</button>
     </div>
   </div>
