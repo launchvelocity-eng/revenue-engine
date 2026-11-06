@@ -3,17 +3,6 @@ import pg from 'pg';
 
 const { Client } = pg;
 
-function createDbClient() {
-  let url = process.env.DATABASE_URL || '';
-  if (url && !url.includes('sslmode=')) {
-    url += url.includes('?') ? '&sslmode=no-verify' : '?sslmode=no-verify';
-  }
-  return new Client({
-    connectionString: url,
-    ssl: { rejectUnauthorized: false }
-  });
-}
-
 const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -28,7 +17,11 @@ const server = http.createServer(async (req, res) => {
     let body = '';
     req.on('data', chunk => { body += chunk.toString(); });
     req.on('end', async () => {
-      const client = createDbClient();
+      const client = new Client({
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+      });
+
       try {
         const { email } = JSON.parse(body || '{}');
 
@@ -55,12 +48,13 @@ const server = http.createServer(async (req, res) => {
         await client.end();
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ success: true, message: 'Priority access requested.' }));
+        return res.end(JSON.stringify({ success: true }));
       } catch (err) {
-        console.error('DB Error:', err.message);
+        console.error('SERVER EXECUTION ERROR:', err.message);
         try { await client.end(); } catch (e) {}
         res.writeHead(500, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ success: false, error: 'Internal Server Error' }));
+        // Return the exact error message to the frontend for instant debugging
+        return res.end(JSON.stringify({ success: false, error: err.message }));
       }
     });
     return;
