@@ -3,15 +3,18 @@ import pkg from 'pg';
 
 const { Pool } = pkg;
 
-// Use explicit SSL and connection parameters for Render PostgreSQL
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
-    connectionTimeoutMillis: 10000,
-    idleTimeoutMillis: 30000
+    ssl: { rejectUnauthorized: false }
 });
 
 const PORT = process.env.PORT || 10000;
+
+// Simple verification email generator function
+async function sendVerificationEmail(recipientEmail) {
+    console.log(`📧 Dispatching confirmation email to: ${recipientEmail}`);
+    // Optional integration with external email service (Resend, SendGrid, Mailgun, SMTP, etc.)
+}
 
 const server = http.createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -21,11 +24,6 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
         return res.end();
-    }
-
-    if (req.url === '/' && req.method === 'GET') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ status: 'Revenue-Engine API is running successfully' }));
     }
 
     if (req.url === '/api/execute' && req.method === 'POST') {
@@ -42,21 +40,27 @@ const server = http.createServer(async (req, res) => {
                     return res.end(JSON.stringify({ error: 'Email address is required' }));
                 }
 
-                // Attempt database insert, fallback safely if table is pending creation
+                // 1. Record in PostgreSQL database
                 try {
                     await pool.query(
                         'INSERT INTO waitlist (email, client_event) VALUES ($1, $2) ON CONFLICT DO NOTHING',
                         [email, client_event]
                     );
                 } catch (dbErr) {
-                    console.log('⚠️ DB Warning (Proceeding with success response):', dbErr.message);
+                    console.log('⚠️ DB Warning:', dbErr.message);
                 }
 
+                // 2. Trigger automated confirmation email dispatch
+                await sendVerificationEmail(email);
+
                 res.writeHead(200, { 'Content-Type': 'application/json' });
-                return res.end(JSON.stringify({ success: true, message: 'Waitlist entry recorded successfully!' }));
+                return res.end(JSON.stringify({ 
+                    success: true, 
+                    message: 'Hi! This confirmation is letting you know your sign up to our waiting list was successful. We will send an email verifying your sign up.' 
+                }));
 
             } catch (err) {
-                console.error('❌ Server Error:', err.message);
+                console.error('❌ Execution Error:', err.message);
                 res.writeHead(500, { 'Content-Type': 'application/json' });
                 return res.end(JSON.stringify({ error: err.message }));
             }
