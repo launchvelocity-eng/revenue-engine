@@ -3,22 +3,27 @@ import pg from 'pg';
 
 const { Pool } = pg;
 
+// Fail-safe database pool configuration for Render PostgreSQL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 // Auto-initialize waitlist table on startup
 async function initDb() {
   try {
-    await pool.query(`
+    const client = await pool.connect();
+    await client.query(`
       CREATE TABLE IF NOT EXISTS waitlist (
         id SERIAL PRIMARY KEY,
         email TEXT UNIQUE NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    console.log('Database initialized: waitlist table ready.');
+    client.release();
+    console.log('Database initialized successfully: waitlist table ready.');
   } catch (err) {
     console.error('Database initialization error:', err.message);
   }
@@ -27,7 +32,6 @@ async function initDb() {
 initDb();
 
 const server = http.createServer(async (req, res) => {
-  // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -50,10 +54,12 @@ const server = http.createServer(async (req, res) => {
           return res.end(JSON.stringify({ success: false, error: 'Valid corporate email required.' }));
         }
 
-        await pool.query(
+        const client = await pool.connect();
+        await client.query(
           'INSERT INTO waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING',
           [email]
         );
+        client.release();
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ success: true, message: 'Priority access requested.' }));
@@ -66,10 +72,9 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Health check endpoint
   if (req.method === 'GET' && req.url === '/') {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    return res.end('Revenue-Engine API Operational');
+    return res.end('Launch Velocity API Operational');
   }
 
   res.writeHead(404, { 'Content-Type': 'application/json' });
