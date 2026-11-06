@@ -1,42 +1,136 @@
-<form id="waitlist-form">
-    <input type="email" id="email-input" placeholder="Enter your email" required />
-    <button type="submit">Join Waitlist</button>
-</form>
-<p id="response-msg"></p>
-
-<script>
-const API_URL = 'https://revenue-engine-dc8d.onrender.com/api/execute';
-
-document.getElementById('waitlist-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email-input').value;
-    const msgEl = document.getElementById('response-msg');
-
-    msgEl.textContent = 'Submitting...';
-
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                client_event: 'waitlist_signup',
-                payload: { asset_id: email }
-            })
-        });
-
-        const data = await response.json();
-        
-        if (response.ok) {
-            msgEl.textContent = 'Success! You are on the waitlist.';
-            document.getElementById('waitlist-form').reset();
-        } else {
-            msgEl.textContent = `Error: ${data.error || 'Something went wrong'}`;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Engine Waitlist</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f7f6;
         }
-    } catch (err) {
-        msgEl.textContent = 'Network error. Please try again.';
-        console.error(err);
-    }
-});
-</script>
+        .container {
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        input[type="email"] {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            width: 85%;
+            max-width: 320px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: popIn 0.3s ease-out;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .rocket-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+        .close-btn {
+            margin-top: 15px;
+            background: #222;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Join the Revenue-Engine Waitlist</h2>
+        <form id="waitlist-form">
+            <input type="email" id="email-input" placeholder="Enter your email" required /><br>
+            <button type="submit">Join Waitlist</button>
+        </form>
+        <p id="status-msg"></p>
+    </div>
+
+    <!-- Launch Velocity Success Modal -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal-card">
+            <div class="rocket-icon">🚀</div>
+            <h2>You're on the list!</h2>
+            <p>Success! Confirmation hit! You signed up for the revenue-engine.</p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+            <p style="font-size: 12px; color: #666; font-weight: bold;">Powered by<br><span style="font-size: 16px; color: #0066cc;">Launch Velocity</span><br><i>Igniting Innovation</i></p>
+            <button class="close-btn" onclick="document.getElementById('success-modal').style.display='none'">Done</button>
+        </div>
+    </div>
+
+    <script>
+    const API_URL = 'https://revenue-engine-dc8d.onrender.com/api/execute';
+
+    document.getElementById('waitlist-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email-input').value;
+        const msgEl = document.getElementById('status-msg');
+
+        msgEl.textContent = 'Submitting...';
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    client_event: 'waitlist_signup',
+                    payload: { asset_id: email }
+                })
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                msgEl.textContent = '';
+                document.getElementById('waitlist-form').reset();
+                document.getElementById('success-modal').style.display = 'flex';
+            } else {
+                msgEl.textContent = `Error: ${data.error || 'Something went wrong'}`;
+            }
+        } catch (err) {
+            msgEl.textContent = 'Network error. Please try again.';
+            console.error(err);
+        }
+    });
+    </script>
+</body>
+</html>
