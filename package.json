@@ -1,6 +1,4 @@
 {
-  "client_event": "waitlist_signup",
-  "payload": {
-    "asset_id": "user@example.com"
-  }
+  "success": true,
+  "message": "Waitlist entry recorded successfully!"
 }
