@@ -1,7 +1,7 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
 
 const DB_FILE = path.join('/tmp', 'waitlist.json');
 
@@ -36,7 +36,7 @@ const server = http.createServer((req, res) => {
         }
 
         const tenantKeyId = 'LV-KEY-' + crypto.randomBytes(6).toString('hex').toUpperCase();
-        const entry = { email: email, tenantKeyId: tenantKeyId, date: new Date().toISOString() };
+        const entry = { email, tenantKeyId, date: new Date().toISOString() };
 
         try {
           const data = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
@@ -47,7 +47,7 @@ const server = http.createServer((req, res) => {
         }
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true, tenantKeyId: tenantKeyId }));
+        res.end(JSON.stringify({ success: true, tenantKeyId }));
       } catch (err) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: false, error: err.message }));
@@ -62,5 +62,5 @@ const server = http.createServer((req, res) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log('Server running on port ' + PORT);
+  console.log(`Server running on port ${PORT}`);
 });
