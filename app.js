@@ -1,66 +1,50 @@
 import http from 'node:http';
-import fs from 'node:fs';
-import path from 'node:path';
 import crypto from 'node:crypto';
+import pg from 'pg';
 
-const DB_FILE = path.join('/tmp', 'waitlist.json');
+const { Pool } = pg;
 
-if (!fs.existsSync(DB_FILE)) {
-  fs.writeFileSync(DB_FILE, JSON.stringify([]));
+// Connect to Render PostgreSQL database instance via DATABASE_URL environment variable
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+});
+
+// Auto-initialize enterprise database tables on startup
+async function initDb() {
+  if (!process.env.DATABASE_URL) {
+    console.log('No DATABASE_URL supplied. Skipping PostgreSQL initialization.');
+    return;
+  }
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS enterprise_tenants (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        company_name VARCHAR(255) NOT NULL,
+        corporate_email VARCHAR(255) UNIQUE NOT NULL,
+        tenant_key_id VARCHAR(64) UNIQUE NOT NULL,
+        hsm_key_hash VARCHAR(256) NOT NULL,
+        allocated_tb INTEGER NOT NULL DEFAULT 50,
+        contract_months INTEGER NOT NULL DEFAULT 12,
+        isolation_level VARCHAR(50) DEFAULT 'ZERO_TRUST_AIR_GAPPED',
+        status VARCHAR(50) DEFAULT 'PROVISIONED',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('Enterprise PostgreSQL schema verified.');
+  } catch (err) {
+    console.error('PostgreSQL Schema Init Error:', err.message);
+  } finally {
+    client.release();
+  }
 }
+
+initDb();
 
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
 
-  if (req.method === 'OPTIONS') {
-    res.writeHead(204);
-    return res.end();
-  }
-
-  if (req.method === 'POST' && req.url === '/api/execute') {
-    let body = '';
-    req.on('data', chunk => {
-      body += chunk.toString();
-    });
-    req.on('end', () => {
-      try {
-        const payload = JSON.parse(body || '{}');
-        const email = payload.email ? payload.email.trim() : '';
-
-        if (!email || !email.includes('@')) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ success: false, error: 'Invalid email' }));
-          return;
-        }
-
-        const tenantKeyId = 'LV-KEY-' + crypto.randomBytes(6).toString('hex').toUpperCase();
-        const entry = { email, tenantKeyId, date: new Date().toISOString() };
-
-        try {
-          const data = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-          data.push(entry);
-          fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
-        } catch (dbErr) {
-          console.error('DB error:', dbErr.message);
-        }
-
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true, tenantKeyId }));
-      } catch (err) {
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: false, error: err.message }));
-      }
-    });
-    return;
-  }
-
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Launch Velocity Engine Live');
-});
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  if (req.
