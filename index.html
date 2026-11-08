@@ -3,113 +3,153 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Launch Velocity | Enterprise Secure Cloud Storage</title>
+  <title>Launch Velocity | Enterprise Vault Portal</title>
   <style>
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #060913; color: #f8fafc; padding: 20px; }
-    
-    .card { background: #0f172a; border: 1px solid #1e293b; padding: 44px 36px; border-radius: 20px; width: 100%; max-width: 460px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); text-align: center; }
-    
-    .logo-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
-    .logo-icon { width: 42px; height: 42px; background: linear-gradient(135deg, #2563eb, #3b82f6); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.3rem; color: #ffffff; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4); }
-    .logo-text { font-size: 1.6rem; font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px; }
-    .logo-text span { color: #3b82f6; }
-
-    .badge { display: inline-block; background: rgba(59, 130, 246, 0.12); color: #60a5fa; padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 20px; border: 1px solid rgba(59, 130, 246, 0.25); }
-    
-    p.subtitle { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 30px; }
-    
-    input[type="email"] { width: 100%; padding: 16px; margin-bottom: 18px; border: 1px solid #334155; border-radius: 10px; background: #020617; color: #fff; font-size: 0.95rem; outline: none; transition: all 0.2s; }
-    input[type="email"]:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
-    
-    button { width: 100%; padding: 16px; background: #2563eb; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 1rem; transition: background 0.2s, transform 0.1s; }
-    button:hover { background: #1d4ed8; }
-    button:active { transform: scale(0.99); }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    
-    #status { margin-top: 18px; font-size: 0.85rem; font-weight: 500; }
-    .error { color: #f87171; }
-    
-    /* Confirmation Modal Screen */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.88); backdrop-filter: blur(8px); justify-content: center; align-items: center; padding: 20px; z-index: 1000; }
-    .modal-card { background: #0f172a; border: 1px solid #334155; padding: 40px; border-radius: 20px; max-width: 440px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); }
-    .modal-icon { width: 60px; height: 60px; background: rgba(16, 185, 129, 0.12); color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 20px auto; border: 1px solid rgba(16, 185, 129, 0.3); }
-    .modal-card h2 { margin: 0 0 12px 0; color: #ffffff; font-size: 1.4rem; font-weight: 700; }
-    .modal-card p { color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 26px; }
-    .modal-btn { background: #1e293b; color: #ffffff; padding: 12px 28px; border: 1px solid #334155; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
-    .modal-btn:hover { background: #334155; }
+    :root {
+      --bg: #090d16;
+      --card: #131b2e;
+      --accent: #38bdf8;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #1e293b;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .portal-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    h1 {
+      color: var(--accent);
+      font-size: 24px;
+      margin-top: 0;
+      letter-spacing: 1px;
+    }
+    p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      background: #0b1120;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: #090d16;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    #responseMessage {
+      margin-top: 20px;
+      font-size: 13px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <div class="logo-container">
-      <div class="logo-icon">LV</div>
-      <div class="logo-text">Launch <span>Velocity</span></div>
-    </div>
-    
-    <div class="badge">Enterprise Vault Storage</div>
-    <p class="subtitle">Zero-trust, bank-grade cloud data architecture designed exclusively for enterprise asset protection and mission-critical integrity.</p>
-    
-    <form id="waitlistForm">
-      <input type="email" id="emailInput" placeholder="Enter corporate executive email" required />
-      <button type="submit" id="submitBtn">Request Early Capacity Access</button>
-    </form>
-    <div id="status"></div>
-  </div>
+  <div class="portal-card">
+    <h1>LAUNCH VELOCITY</h1>
+    <p>Zero-Trust Enterprise Cloud Storage Partition Waitlist</p>
 
-  <!-- Confirmation Modal Screen -->
-  <div class="modal-overlay" id="successModal">
-    <div class="modal-card">
-      <div class="modal-icon">✓</div>
-      <h2>Access Request Acknowledged</h2>
-      <p>Your enterprise email has been encrypted and registered. A formal receipt and platform notice will be dispatched to your inbox as custom storage partitions become available for allocation.</p>
-      <button class="modal-btn" onclick="closeModal()">Return to Portal</button>
-    </div>
+    <form id="waitlistForm">
+      <div class="form-group">
+        <label for="company">Company / Organization</label>
+        <input type="text" id="company" placeholder="Acme Corporation" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Corporate Email</label>
+        <input type="email" id="email" placeholder="admin@company.com" required>
+      </div>
+
+      <button type="submit" id="submitBtn">Request Vault Partition</button>
+    </form>
+
+    <div id="responseMessage"></div>
   </div>
 
   <script>
-    const API_URL = 'https://revenue-engine-dc8d.onrender.com/api/execute';
     const form = document.getElementById('waitlistForm');
-    const emailInput = document.getElementById('emailInput');
-    const submitBtn = document.getElementById('submitBtn');
-    const statusDiv = document.getElementById('status');
-    const modal = document.getElementById('successModal');
+    const msg = document.getElementById('responseMessage');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      submitBtn.disabled = true;
-      statusDiv.className = '';
-      statusDiv.textContent = 'Encrypting & Transmitting...';
+      msg.style.color = '#94a3b8';
+      msg.innerText = 'Provisioning request...';
+
+      const payload = {
+        company: document.getElementById('company').value,
+        email: document.getElementById('email').value
+      };
 
       try {
-        const response = await fetch(API_URL, {
+        const response = await fetch('https://revenue-engine-dc8d.onrender.com/api/execute', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: emailInput.value })
+          body: JSON.stringify(payload)
         });
-        
+
         const data = await response.json();
-        
-        if (response.ok && data.success) {
-          statusDiv.textContent = '';
-          emailInput.value = '';
-          modal.style.display = 'flex';
+
+        if (data.success) {
+          msg.style.color = '#38bdf8';
+          msg.innerText = 'Request logged. Key assigned: ' + data.tenantKeyId;
+          form.reset();
         } else {
-          statusDiv.className = 'error';
-          statusDiv.textContent = data.error || data.details || 'Unable to process request.';
+          msg.style.color = '#ef4444';
+          msg.innerText = 'Error: ' + (data.error || 'Failed to submit request');
         }
       } catch (err) {
-        statusDiv.className = 'error';
-        statusDiv.textContent = 'Network latency error. Please try again.';
-      } finally {
-        submitBtn.disabled = false;
+        msg.style.color = '#ef4444';
+        msg.innerText = 'Connection error. Please try again.';
       }
     });
-
-    function closeModal() {
-      modal.style.display = 'none';
-    }
   </script>
 
 </body>
