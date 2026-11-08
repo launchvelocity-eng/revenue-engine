@@ -1,6 +1,5 @@
 // --- VAULT GATEKEEPER & FILE UPLOAD PIPELINE ---
 
-// 1. Gatekeeper Middleware: Validates Client Access Keys & Lease Status
 async function validateVaultAccess(req, res, next) {
     const apiKey = req.headers['x-vault-api-key'];
     
@@ -9,13 +8,12 @@ async function validateVaultAccess(req, res, next) {
     }
 
     try {
-        // Query database to check if key exists and join lease lifecycle status
         const keyResult = await pool.query(
             `SELECT k.tenant_id, k.is_active, l.status, l.grace_ends_at 
              FROM tenant_vault_keys k 
              JOIN tenant_lease_lifecycle l ON k.tenant_id = l.tenant_id 
              WHERE k.key_hash = $1`,
-            [apiKey] // In production, hash the incoming key before comparison
+            [apiKey]
         );
 
         if (keyResult.rows.length === 0) {
@@ -24,7 +22,6 @@ async function validateVaultAccess(req, res, next) {
 
         const tenantData = keyResult.rows[0];
 
-        // Check if partition is locked out or expired
         if (tenantData.status === 'LOCKED_OUT' || tenantData.status === 'PURGED') {
             return res.status(403).json({ 
                 success: false, 
@@ -40,13 +37,11 @@ async function validateVaultAccess(req, res, next) {
     }
 }
 
-// 2. Secure File Ingestion Endpoint
 app.post('/api/vault/upload', validateVaultAccess, express.raw({ type: 'application/octet-stream', limit: '500mb' }), async (req, res) => {
     try {
         const fileName = req.headers['x-file-name'] || 'unnamed-payload';
         const fileExtension = fileName.split('.').pop().toLowerCase();
 
-        // Dangerous Extension Blacklist
         const blockedExtensions = ['exe', 'sh', 'bat', 'cmd', 'scr', 'pif', 'js', 'jar'];
         if (blockedExtensions.includes(fileExtension)) {
             return res.status(400).json({ 
@@ -57,15 +52,13 @@ app.post('/api/vault/upload', validateVaultAccess, express.raw({ type: 'applicat
 
         const payloadSize = req.body ? req.body.length : 0;
 
-        // Enforce strict 500MB single-request inline limit
         if (payloadSize > 500 * 1024 * 1024) {
             return res.status(413).json({ 
                 success: false, 
-                error: 'Payload Too Large: Single request exceeds the 500MB inline ceiling. Use chunked multi-part upload.' 
+                error: 'Payload Too Large: Single request exceeds the 500MB inline ceiling.' 
             });
         }
 
-        // Log secure ingestion success (Metadata stored in PostgreSQL, binary streamed to vault)
         console.log(`[VAULT INGESTION] Tenant ID: ${req.tenantId} | File: ${fileName} | Size: ${(payloadSize / 1024 / 1024).toFixed(2)} MB`);
 
         res.status(200).json({
@@ -73,4 +66,11 @@ app.post('/api/vault/upload', validateVaultAccess, express.raw({ type: 'applicat
             message: 'Payload successfully inspected and committed to air-gapped tenant partition.',
             tenant_id: req.tenantId,
             file_name: fileName,
-            
+            bytes_received: payloadSize
+        });
+
+    } catch (err) {
+        console.error('[UPLOAD ERROR]:', err);
+        res.status(500).json({ success: false, error: 'Failed to commit payload to secure vault.' });
+    }
+});
