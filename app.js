@@ -1,13 +1,19 @@
-app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`[SERVER ENGINE] Launch Velocity running and listening on port ${PORT}`);
-  
-  // 1. First, build or verify missing database structures natively
-  await runDatabaseMigrations();
-  
-  // 2. Then, run your background audit tracking cycles safely
-  try {
-    await executeTenantOffboardingAudit();
-  } catch (startupErr) {
-    console.warn('[STARTUP NOTICE] Background worker deferred:', startupErr.message);
-  }
+import express from 'express';
+import { pipeline } from 'stream/promises';
+import { Transform } from 'stream';
+import pkg from 'pg';
+const { Pool } = pkg;
+
+// Initialize 'app' right here so it's globally defined for the rest of the file
+const app = express(); 
+const PORT = process.env.PORT || 10000;
+
+// Initialize your production database connection pool
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
+
+// ==========================================
+// NOW place your Transform Streams, Database Functions, and Routes below this line...
+// ==========================================
