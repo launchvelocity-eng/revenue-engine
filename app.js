@@ -100,3 +100,13 @@ export async function executeTenantOffboardingAudit() {
     lockClient.release();
   }
 }
+
+// Optional: Self-invoking execution wrapper if run as a standalone worker process
+if (process.argv[1] === import.meta.filename) {
+  executeTenantOffboardingAudit()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error('Fatal worker execution error:', err);
+      process.exit(1);
+    });
+}
