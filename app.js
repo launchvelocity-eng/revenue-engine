@@ -1,62 +1,47 @@
-    // Route: Vault File Upload (With Enterprise Firewall Protection)
-    if (parsedUrl.pathname === '/api/vault/upload' && req.method === 'POST') {
-        // Enforce Rate Limit Firewall
-        if (!enforceRateLimit(req)) {
-            res.writeHead(429, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: false, error: 'Firewall Triggered: Rate limit exceeded. Too many requests.' }));
-            return;
-        }
+import { Transform } from 'stream';
 
-        const apiKey = req.headers['x-vault-api-key'];
-        if (!apiKey) {
-            res.writeHead(401, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: false, error: 'Unauthorized: Missing x-vault-api-key header.' }));
-            return;
-        }
-
-        try {
-            const keyResult = await pool.query(
-                `SELECT k.tenant_id, l.status FROM tenant_vault_keys k JOIN tenant_lease_lifecycle l ON k.tenant_id = l.tenant_id WHERE k.key_hash = $1`,
-                [apiKey]
-            );
-
-            if (keyResult.rows.length === 0 || keyResult.rows[0].status !== 'ACTIVE') {
-                res.writeHead(403, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ success: false, error: 'Forbidden: Invalid or expired vault access key.' }));
-                return;
-            }
-
-            const tenantId = keyResult.rows[0].tenant_id;
-            const fileName = req.headers['x-file-name'] || 'unnamed-payload';
-            const fileExtension = fileName.split('.').pop().toLowerCase();
-
-            // Extension Blacklist Check
-            const blockedExtensions = ['exe', 'sh', 'bat', 'cmd', 'scr', 'pif', 'js', 'jar'];
-            if (blockedExtensions.includes(fileExtension)) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ success: false, error: `Threat Inspection Failed: Extension .${fileExtension} is prohibited.` }));
-                return;
-            }
-
-            // Read Stream and Enforce 500MB Cap
-            const rawBody = await getRawBody();
-
-            // Deep Binary Threat Inspection (Magic Byte Check)
-            const binaryThreat = inspectBinaryThreats(rawBody);
-            if (binaryThreat) {
-                console.warn(`[SECURITY ALERT] Tenant ${tenantId} attempted to upload blocked binary signature: ${binaryThreat}`);
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ success: false, error: `Firewall Threat Blocked: ${binaryThreat}` }));
-                return;
-            }
-
-            console.log(`[VAULT INGESTION] Tenant ID: ${tenantId} | File: ${fileName} | Size: ${(rawBody.length / 1024 / 1024).toFixed(2)} MB | Firewall: PASSED`);
-
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: true, message: 'Payload successfully inspected and committed to air-gapped tenant partition.', tenant_id: tenantId, bytes_received: rawBody.length }));
-        } catch (err) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: false, error: err.message || 'Failed to commit payload.' }));
-        }
-        return;
+export class MagicByteInspectionTransform extends Transform {
+    constructor(options = {}) {
+        super(options);
+        this.headerChecked = false;
+        this.headerBuffer = Buffer.alloc(0);
+        this.MAX_HEADER_BYTES = 8; // Enough to check MZ, ELF, ZIP/Java signatures
     }
+
+    _transform(chunk, encoding, callback) {
+        if (this.headerChecked) {
+            // Once header is verified, pass all subsequent chunks straight through downstream
+            return callback(null, chunk);
+        }
+
+        // Accumulate initial bytes until we reach our inspection window
+        this.headerBuffer = Buffer.concat([this.headerBuffer, chunk]);
+
+        if (this.headerBuffer.length >= this.MAX_HEADER_BYTES || chunk.length === 0) {
+            this.headerChecked = true;
+            
+            const hexHeader = this.headerBuffer.subarray(0, 4).toString('hex').toUpperCase();
+
+            // 1. Check for Windows PE Executables / DLLs / Screensavers (MZ Header: 4D5A)
+            if (hexHeader.startsWith('4D5A')) {
+                return callback(new Error('THREAT_DETECTED_PE_EXECUTABLE'));
+            }
+
+            // 2. Check for Linux ELF Binaries / Scripts (ELF Header: 7F454C46)
+            if (hexHeader.startsWith('7F454C46')) {
+                return callback(new Error('THREAT_DETECTED_ELF_BINARY'));
+            }
+
+            // 3. Check for Compiled Java Archives / Executable ZIP wrappers (504B0304)
+            if (hexHeader.startsWith('504B0304')) {
+                return callback(new Error('THREAT_DETECTED_ARCHIVE_PAYLOAD'));
+            }
+
+            // Flush the accumulated header buffer downstream, then let the rest flow
+            this.push(this.headerBuffer);
+            this.headerBuffer = null; // Release memory reference
+        }
+
+        callback();
+    }
+}
