@@ -57,7 +57,7 @@ const server = http.createServer((req, res) => {
           };
 
           try {
-            // A. Admin Alert
+            // A. Admin Alert to Launchvelocityadmin2026@gmail.com
             await fetch('https://api.resend.com/emails', {
               method: 'POST',
               headers: resendHeaders,
@@ -69,7 +69,7 @@ const server = http.createServer((req, res) => {
               })
             });
 
-            // B. User Confirmation (with Branding & Greeting)
+            // B. Branded User Confirmation with Greeting & Key
             await fetch('https://api.resend.com/emails', {
               method: 'POST',
               headers: resendHeaders,
@@ -96,4 +96,25 @@ const server = http.createServer((req, res) => {
               })
             });
           } catch (mailErr) {
-            console.error('Email alert error:', mailErr.message
+            console.error('Email alert error:', mailErr.message);
+          }
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, tenantKeyId: tenantKeyId }));
+      } catch (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Launch Velocity Engine Live');
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log('Server running on port ' + PORT);
+});
