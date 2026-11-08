@@ -1,9 +1,4 @@
 {
-  "name": "revenue-engine",
-  "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
-    "express": "^4.19.2",
-    "pg": "^8.11.5"
-  }
+  "error": "Security Policy Violation",
+  "details": "Executable binaries (.exe / ELF) are strictly prohibited from entering the vault."
 }
