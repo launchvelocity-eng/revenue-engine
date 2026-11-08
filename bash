@@ -1,3 +1,1 @@
-git add package.json package-lock.json
-git commit -m "fix: bundle production node express module properly"
-git push origin main
+node -e "import('pg').then(async ({default: {Pool}}) => { const p = new Pool({connectionString: process.env.DATABASE_URL, ssl: {rejectUnauthorized: false}}); await p.query('CREATE TABLE IF NOT EXISTS tenant_leases (id SERIAL PRIMARY KEY, tenant_id VARCHAR(255) NOT NULL, partition_name VARCHAR(255) NOT NULL, lease_status VARCHAR(50) DEFAULT \\'GRACE_PERIOD\\', expires_at TIMESTAMP WITH TIME ZONE NOT NULL, finalized_at TIMESTAMP WITH TIME ZONE);'); console.log('Table tenant_leases created successfully!'); process.exit(0); })"
