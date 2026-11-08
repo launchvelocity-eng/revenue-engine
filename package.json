@@ -1,13 +1,5 @@
-{
-  "name": "revenue-engine",
-  "version": "1.0.0",
-  "type": "module",
-  "main": "src/app.js",
-  "scripts": {
-    "start": "node src/app.js"
-  },
-  "dependencies": {
-    "express": "^4.19.2",
-    "pg": "^8.11.5"
-  }
+"dependencies": {
+  "express": "^4.19.2",
+  "ioredis": "^5.3.2",
+  "pg": "^8.11.3"
 }
