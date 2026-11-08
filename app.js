@@ -1,6 +1,27 @@
 import express from 'express';
 import pkg from 'pg';
-import { redisRateLimiter } from './src/middleware/ratelimiter.js';
+import express from 'express';
+import { pipeline } from 'stream/promises';
+import { Transform } from 'stream';
+import pkg from 'pg';
+const { Pool } = pkg;
+
+const app = express(); 
+const PORT = process.env.PORT || 10000;
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+// =========================================================================
+// PASTE THE RATE LIMITER FUNCTION DIRECTLY INLINE HERE
+// =========================================================================
+async function redisRateLimiter(req, res, next) {
+  // If you don't have Redis provisioned yet, keep it as a transparent pass-through:
+  next();
+}
+
 
 const { Pool } = pkg;
 
