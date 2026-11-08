@@ -1,8 +1,13 @@
-// Security Middleware: Inline Threat & Payload Inspection
-function inspectPayloadSecurity(req, res, next) {
-  const maxPayloadBytes = 500 * 1024 * 1024; // 500 MB per chunk limit
+/**
+ * Step 2: Inline Threat & Payload Inspection Middleware
+ * Validates payload byte sizes and restricts dangerous executable extensions
+ * prior to commiting files or enterprise metadata to storage partitions.
+ */
+export function inspectPayloadSecurity(req, res, next) {
+  const maxPayloadBytes = 500 * 1024 * 1024; // 500 MB max threshold limit
   const contentLength = parseInt(req.headers['content-length'] || '0', 10);
 
+  // 1. Verify byte threshold
   if (contentLength > maxPayloadBytes) {
     res.writeHead(413, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({ 
@@ -11,13 +16,14 @@ function inspectPayloadSecurity(req, res, next) {
     }));
   }
 
-  // Block dangerous executable extensions in file upload metadata
+  // 2. Scan file extension headers for restricted executable scripts/binaries
   const blockedExtensions = ['.exe', '.bat', '.cmd', '.sh', '.vbs', '.scr', '.dll', '.so'];
-  const fileNameHeader = req.headers['x-file-name'] || '';
-  const isBlocked = blockedExtensions.some(ext => fileNameHeader.toLowerCase().endsWith(ext));
+  const fileNameHeader = (req.headers['x-file-name'] || '').toString().toLowerCase();
+  
+  const isBlocked = blockedExtensions.some(ext => fileNameHeader.endsWith(ext));
 
   if (isBlocked) {
-    console.warn(`[THREAT DETECTED] Blocked upload attempt with extension: ${fileNameHeader}`);
+    console.warn(`[THREAT DETECTED] Blocked upload attempt for restricted file: ${fileNameHeader}`);
     res.writeHead(400, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({ 
       success: false, 
@@ -25,5 +31,8 @@ function inspectPayloadSecurity(req, res, next) {
     }));
   }
 
-  next();
+  // Proceed to next execution block if payload passes inspection
+  if (typeof next === 'function') {
+    next();
+  }
 }
