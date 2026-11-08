@@ -1,2 +1,1 @@
-
-node app.js
+npm install express --save
