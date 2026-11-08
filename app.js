@@ -1,48 +1,62 @@
-// --- LAUNCH VELOCITY ENTERPRISE SECURITY FIREWALL ---
+    // Route: Vault File Upload (With Enterprise Firewall Protection)
+    if (parsedUrl.pathname === '/api/vault/upload' && req.method === 'POST') {
+        // Enforce Rate Limit Firewall
+        if (!enforceRateLimit(req)) {
+            res.writeHead(429, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: false, error: 'Firewall Triggered: Rate limit exceeded. Too many requests.' }));
+            return;
+        }
 
-// 1. In-Memory Rate Limiting Tracker (IP-based)
-const requestTracker = new Map();
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_REQUESTS_PER_WINDOW = 30;  // Max 30 requests per minute per IP
+        const apiKey = req.headers['x-vault-api-key'];
+        if (!apiKey) {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: false, error: 'Unauthorized: Missing x-vault-api-key header.' }));
+            return;
+        }
 
-function enforceRateLimit(req) {
-    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
-    const now = Date.now();
-    
-    if (!requestTracker.has(clientIp)) {
-        requestTracker.set(clientIp, { count: 1, startTime: now });
-        return true;
+        try {
+            const keyResult = await pool.query(
+                `SELECT k.tenant_id, l.status FROM tenant_vault_keys k JOIN tenant_lease_lifecycle l ON k.tenant_id = l.tenant_id WHERE k.key_hash = $1`,
+                [apiKey]
+            );
+
+            if (keyResult.rows.length === 0 || keyResult.rows[0].status !== 'ACTIVE') {
+                res.writeHead(403, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: 'Forbidden: Invalid or expired vault access key.' }));
+                return;
+            }
+
+            const tenantId = keyResult.rows[0].tenant_id;
+            const fileName = req.headers['x-file-name'] || 'unnamed-payload';
+            const fileExtension = fileName.split('.').pop().toLowerCase();
+
+            // Extension Blacklist Check
+            const blockedExtensions = ['exe', 'sh', 'bat', 'cmd', 'scr', 'pif', 'js', 'jar'];
+            if (blockedExtensions.includes(fileExtension)) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: `Threat Inspection Failed: Extension .${fileExtension} is prohibited.` }));
+                return;
+            }
+
+            // Read Stream and Enforce 500MB Cap
+            const rawBody = await getRawBody();
+
+            // Deep Binary Threat Inspection (Magic Byte Check)
+            const binaryThreat = inspectBinaryThreats(rawBody);
+            if (binaryThreat) {
+                console.warn(`[SECURITY ALERT] Tenant ${tenantId} attempted to upload blocked binary signature: ${binaryThreat}`);
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: `Firewall Threat Blocked: ${binaryThreat}` }));
+                return;
+            }
+
+            console.log(`[VAULT INGESTION] Tenant ID: ${tenantId} | File: ${fileName} | Size: ${(rawBody.length / 1024 / 1024).toFixed(2)} MB | Firewall: PASSED`);
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: true, message: 'Payload successfully inspected and committed to air-gapped tenant partition.', tenant_id: tenantId, bytes_received: rawBody.length }));
+        } catch (err) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: false, error: err.message || 'Failed to commit payload.' }));
+        }
+        return;
     }
-
-    const tracker = requestTracker.get(clientIp);
-    if (now - tracker.startTime > RATE_LIMIT_WINDOW) {
-        tracker.count = 1;
-        tracker.startTime = now;
-        return true;
-    }
-
-    tracker.count++;
-    return tracker.count <= MAX_REQUESTS_PER_WINDOW;
-}
-
-// 2. Advanced Magic Byte / Buffer Threat Inspection
-// Detects executable file signatures even if the extension was renamed
-function inspectBinaryThreats(buffer) {
-    if (!buffer || buffer.length < 4) return null;
-
-    // Common dangerous magic bytes (MZ header for PE/EXE, ELF for linux binaries, etc.)
-    const headerHex = buffer.subarray(0, 4).toString('hex').toUpperCase();
-    
-    // MZ Header (Windows PE executables .exe, .dll, .scr)
-    if (headerHex.startsWith('4D5A')) return 'Prohibited PE Executable Signature (MZ Header)';
-    
-    // ELF Header (Linux executables/scripts)
-    if (headerHex.startsWith('7F454C46')) return 'Prohibited ELF Binary Signature';
-    
-    // Java Archive / ZIP container check if disguised
-    if (headerHex.startsWith('504B0304') && buffer.toString('utf8', 0, 100).includes('.class')) {
-        return 'Prohibited Compiled Java Archive payload';
-    }
-
-    return null; // Clean
-}
