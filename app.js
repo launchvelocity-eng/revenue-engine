@@ -1,6 +1,8 @@
-const http = require('http');
-const crypto = require('crypto');
-const { Pool } = require('pg');
+import http from 'http';
+import crypto from 'crypto';
+import pg from 'pg';
+
+const { Pool } = pg;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || '',
