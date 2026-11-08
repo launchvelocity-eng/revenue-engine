@@ -1,0 +1,9 @@
+{
+  "categories": ["System Capabilities"],
+  "items": [
+    { "id": "1", "label": "Multi-tenant database storage (PostgreSQL)", "category": "System Capabilities", "checked": true },
+    { "id": "2", "label": "Separate admin email alert dispatch sequence", "category": "System Capabilities", "checked": true },
+    { "id": "3", "label": "Individual user confirmation email dispatch sequence", "category": "System Capabilities", "checked": true },
+    { "id": "4", "label": "Custom domain verification (removes Resend sandbox limit)", "category": "System Capabilities", "checked": false }
+  ]
+}
