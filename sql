@@ -1,3 +1,5 @@
+BEGIN;
+
 CREATE TABLE IF NOT EXISTS tenant_leases (
     id SERIAL PRIMARY KEY,
     tenant_id VARCHAR(255) NOT NULL,
@@ -6,3 +8,5 @@ CREATE TABLE IF NOT EXISTS tenant_leases (
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
     finalized_at TIMESTAMP WITH TIME ZONE
 );
+
+COMMIT;
