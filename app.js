@@ -1,12 +1,5 @@
-import http from 'http';
-import { pipeline } from 'stream/promises';
-import pkg from 'pg';
-const { Pool } = pkg;
+const PORT = process.env.PORT || 10000;
 
-// Database pool setup...
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`[SERVER ENGINE] Launch Velocity running and listening on port ${PORT}`);
 });
-
-// Your server creation and route handlers start here inside functions!
