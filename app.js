@@ -57,15 +57,15 @@ const server = http.createServer((req, res) => {
           };
 
           try {
-            // A. Admin Alert to Launchvelocityadmin2026@gmail.com
+            // A. Admin Alerts (dispatched to both admin inboxes)
             await fetch('https://api.resend.com/emails', {
               method: 'POST',
               headers: resendHeaders,
               body: JSON.stringify({
                 from: 'Launch Velocity Security <onboarding@resend.dev>',
-                to: ['Launchvelocityadmin2026@gmail.com'],
+                to: ['Launchvelocityadmin2026@gmail.com', 'mongealfredoantonio@gmail.com'],
                 subject: '🚨 New Waitlist Signup: ' + company,
-                html: `<p>New registration received from <strong>${email}</strong> (${company}). Tenant Key: <code>${tenantKeyId}</code></p>`
+                html: `<p>New registration received from <strong>${email}</strong> (${company}).</p><p>Tenant Key: <code>${tenantKeyId}</code></p>`
               })
             });
 
@@ -93,6 +93,8 @@ const server = http.createServer((req, res) => {
           } catch (mailErr) {
             console.error('Email alert error:', mailErr.message);
           }
+        } else {
+          console.warn('RESEND_API_KEY environment variable is not defined.');
         }
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
