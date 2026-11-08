@@ -1,13 +1,14 @@
-app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`[SERVER ENGINE] Launch Velocity running and listening on port ${PORT}`);
-  
-  // 1. First, build or verify missing database structures natively
-  await runDatabaseMigrations();
-  
-  // 2. Then, run your background audit tracking cycles safely
-  try {
-    await executeTenantOffboardingAudit();
-  } catch (startupErr) {
-    console.warn('[STARTUP NOTICE] Background worker deferred:', startupErr.message);
+{
+  "name": "revenue-engine",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.11.5",
+    "ioredis": "^5.4.1"
   }
-});
+}
