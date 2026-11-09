@@ -1,2 +1,11 @@
-// Set your live backend base URL in your frontend config
-const API_BASE_URL = "https://your-service-name.onrender.com";[span_1](start_span)[span_1](end_span)
+import cors from 'cors';
+
+// Configure strict CORS for frontend origin
+app.use(cors({
+  origin: [
+    'https://launchvelocity-eng.github.io',
+    'http://localhost:3000' // For local frontend development
+  ],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'X-Vault-Gatekeeper-Key']
+}));
