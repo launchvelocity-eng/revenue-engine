@@ -1,1 +1,56 @@
-<div id="root"></div>
+<!-- SCRIPT LOGIC FOR LIVE API ROUTING PACKETS -->
+<script>
+  // UPDATE THIS URL TO YOUR LIVE RENDER ENGINE URL
+  const BACKEND_URL = "https://revenue-engine.onrender.com";
+  // SET THIS TO MATCH YOUR RENDER ENVIRONMENT VARIABLE
+  const GATEKEEPER_KEY = "YOUR_VAULT_GATEKEEPER_KEY";
+
+  function logToConsole(message, type = 'info') {
+    const consoleDiv = document.getElementById('console-output');
+    const timestamp = new Date().toLocaleTimeString();
+    let colorClass = 'text-zinc-400';
+    if (type === 'success') colorClass = 'text-green-400 font-bold';
+    if (type === 'error') colorClass = 'text-red-400 font-bold';
+    if (type === 'warn') colorClass = 'text-yellow-500';
+    
+    consoleDiv.innerHTML += `<div class="block"><span class="text-zinc-600">[${timestamp}]</span> <span class="${colorClass}">${message}</span></div>`;
+    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    document.getElementById('terminal-timestamp').innerText = `UPDATED: ${timestamp}`;
+  }
+
+  async function simulateUpload(payloadType) {
+    logToConsole(`Preparing data stream for payload type: [${payloadType.toUpperCase()}]...`);
+    
+    let payloadBody;
+    if (payloadType === 'clean') {
+      payloadBody = "%PDF-1.4\n%Enterprise Financial Report Data Layer Matrix Clear";
+    } else if (payloadType === 'exe') {
+      payloadBody = "MZ\x90\x00\x03\x00\x00\x00Malicious Windows Executable Intrusion Packet Simulation String";
+    } else if (payloadType === 'elf') {
+      payloadBody = "\x7FELFMalicious Linux Compile Binary Target Suite Generation Payload";
+    }
+
+    try {
+      logToConsole(`Opening TCP transmission pipeline to ${BACKEND_URL}/api/vault/upload...`, 'warn');
+      
+      const response = await fetch(`${BACKEND_URL}/api/vault/upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'X-Vault-Gatekeeper-Key': GATEKEEPER_KEY
+        },
+        body: payloadBody
+      });
+
+      const data = await response.json();
+
+      if (response.ok) { // Handles 200-299 HTTP status codes
+        logToConsole(`[SUCCESS] HTTP ${response.status}: Ingestion sequence complete. ${data.message || ''}`, 'success');
+      } else {
+        logToConsole(`[BLOCKED] HTTP ${response.status} ${data.error || ''}: ${data.details || 'Security threshold triggered.'}`, 'error');
+      }
+    } catch (err) {
+      logToConsole(`[CRITICAL NETWORK ERROR] Failed to connect to server engine pipeline: ${err.message}`, 'error');
+    }
+  }
+</script>
