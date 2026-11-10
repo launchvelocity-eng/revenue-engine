@@ -1,1 +1,3 @@
-document.addEventListener('DOMContentLoaded', () => { GatekeeperAuth.init(); });
+import express from 'express';
+import cors from 'cors';
+// ... other server imports
