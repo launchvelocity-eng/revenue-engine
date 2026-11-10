@@ -1,41 +1,35 @@
-<!-- Enterprise Vault Telemetry Dashboard -->
-<section id="vault-dashboard" class="cyber-panel">
+<!-- Enterprise Waitlist & Onboarding Lead Flow -->
+<section id="onboarding-section" class="cyber-panel">
   <div class="panel-header">
-    <span class="cyber-badge-live">LIVE TELEMETRY</span>
-    <h2>Enterprise Storage & Declutter Matrix</h2>
+    <span class="cyber-badge">PRIORITY ACCESS</span>
+    <h2>Secure Enterprise Onboarding</h2>
   </div>
+  <p class="modal-subtext">
+    Apply for a dedicated air-gapped vault enclave under our $2,500/mo baseline retainer tier (10 TB base capacity).
+  </p>
 
-  <div class="telemetry-grid">
-    <!-- Base Tier Capacity Widget -->
-    <div class="metric-card">
-      <div class="metric-label">RETAINER CAPACITY (10 TB BASE)</div>
-      <div class="metric-value" id="storageUsedDisplay">0.00 / 10.00 TB</div>
-      <div class="progress-bar-container">
-        <div class="progress-bar-fill" id="storageProgressBar" style="width: 0%;"></div>
+  <form id="enterpriseOnboardForm" class="onboard-form">
+    <div class="form-grid">
+      <div class="input-group">
+        <label for="companyName">CORPORATE ENTITY</label>
+        <input type="text" id="companyName" placeholder="Acme Global Corp ($100M+)" required autocomplete="organization" />
       </div>
-      <div class="metric-subtext" id="capacitySubtext">0% Allocated Across Secure Vaults</div>
+
+      <div class="input-group">
+        <label for="adminEmail">ADMINISTRATIVE EMAIL</label>
+        <input type="email" id="adminEmail" placeholder="security@acmeglobal.com" required autocomplete="email" />
+      </div>
     </div>
 
-    <!-- Active Vaults Widget -->
-    <div class="metric-card">
-      <div class="metric-label">ACTIVE TENANT VAULTS</div>
-      <div class="metric-value" id="activeVaultsCount">0</div>
-      <div class="metric-subtext">Zero-Trust Air-Gapped Key Enclaves</div>
+    <div class="input-group">
+      <label for="vaultTier">RETAINER TIER SELECTION</label>
+      <select id="vaultTier" class="cyber-select">
+        <option value="baseline">Baseline Enterprise Vault (10 TB Base — $2,500/mo)</option>
+        <option value="custom">Custom Air-Gapped Cluster (Dedicated Node)</option>
+      </select>
     </div>
 
-    <!-- Declutter Audit Widget -->
-    <div class="metric-card">
-      <div class="metric-label">DECLUTTER AUDIT STATUS</div>
-      <div class="metric-value status-green" id="declutterStatus">OPTIMIZED</div>
-      <div class="metric-subtext" id="lastAuditTime">Automated Worker Active</div>
-    </div>
-  </div>
-
-  <!-- Real-Time Audit Activity Log -->
-  <div class="audit-log-container">
-    <h3>Automated Declutter Audit Stream</h3>
-    <div class="log-terminal" id="auditLogTerminal">
-      <div class="log-entry system">[SYSTEM] Connecting to revenue-engine backend...</div>
-    </div>
-  </div>
+    <button type="submit" class="btn-primary full-width">SUBMIT ENCLAVE APPLICATION</button>
+    <div id="onboardStatusMessage" class="auth-status-msg"></div>
+  </form>
 </section>
