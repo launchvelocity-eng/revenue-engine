@@ -1,4 +1,4 @@
-{
-  "error": "MALICIOUS_PAYLOAD_DETECTED",
-  "details": "Magic-byte inspection rejected prohibited binary header (MZ executable)."
+"dependencies": {
+  "cors": "^2.8.5",
+  "express": "^4.21.1"
 }
