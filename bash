@@ -1,4 +1,3 @@
-curl -X POST https://revenue-engine-dc8d.onrender.com/api/vault/upload \
+curl -X POST https://onrender.com \
   -H "Content-Type: application/octet-stream" \
-  -H "X-Vault-Gatekeeper-Key: YOUR_VAULT_GATEKEEPER_KEY" \
-  --data-binary "MZ\x90\x00\x03\x00\x00\x00Malicious Windows Executable Intrusion Packet"
+  -d "MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00"
