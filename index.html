@@ -1,89 +1,41 @@
-<!-- Gatekeeper Key Configuration Modal -->
-<div id="gatekeeperModal" class="modal-backdrop hidden">
-  <div class="modal-card">
-    <div class="modal-header">
-      <span class="cyber-badge">SECURITY PROTOCOL</span>
-      <h3>Vault Gatekeeper Authentication</h3>
-    </div>
-    <p class="modal-subtext">
-      Enter your enterprise vault key (<code>X-Vault-Gatekeeper-Key</code>) to authorize encrypted streaming transfers.
-    </p>
-    <div class="input-group">
-      <label for="gatekeeperKeyInput">GATEKEEPER KEY</label>
-      <input 
-        type="password" 
-        id="gatekeeperKeyInput" 
-        placeholder="vlt_live_xxxxxxxxxxxxxxxx" 
-        autocomplete="off"
-      />
-    </div>
-    <div class="modal-actions">
-      <button id="saveGatekeeperKeyBtn" class="btn-primary">SAVE & AUTHORIZE</button>
-      <button id="clearGatekeeperKeyBtn" class="btn-secondary">CLEAR KEY</button>
-    </div>
-    <div id="authStatusMessage" class="auth-status-msg"></div>
+<!-- Enterprise Vault Telemetry Dashboard -->
+<section id="vault-dashboard" class="cyber-panel">
+  <div class="panel-header">
+    <span class="cyber-badge-live">LIVE TELEMETRY</span>
+    <h2>Enterprise Storage & Declutter Matrix</h2>
   </div>
-</div>
 
-<script>
-  // Vault Gatekeeper Key Manager (Frontend Browser Only)
-  const GatekeeperAuth = {
-    STORAGE_KEY: 'lv_vault_gatekeeper_key',
+  <div class="telemetry-grid">
+    <!-- Base Tier Capacity Widget -->
+    <div class="metric-card">
+      <div class="metric-label">RETAINER CAPACITY (10 TB BASE)</div>
+      <div class="metric-value" id="storageUsedDisplay">0.00 / 10.00 TB</div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="storageProgressBar" style="width: 0%;"></div>
+      </div>
+      <div class="metric-subtext" id="capacitySubtext">0% Allocated Across Secure Vaults</div>
+    </div>
 
-    init() {
-      this.modal = document.getElementById('gatekeeperModal');
-      this.keyInput = document.getElementById('gatekeeperKeyInput');
-      this.statusMsg = document.getElementById('authStatusMessage');
+    <!-- Active Vaults Widget -->
+    <div class="metric-card">
+      <div class="metric-label">ACTIVE TENANT VAULTS</div>
+      <div class="metric-value" id="activeVaultsCount">0</div>
+      <div class="metric-subtext">Zero-Trust Air-Gapped Key Enclaves</div>
+    </div>
 
-      const saveBtn = document.getElementById('saveGatekeeperKeyBtn');
-      const clearBtn = document.getElementById('clearGatekeeperKeyBtn');
+    <!-- Declutter Audit Widget -->
+    <div class="metric-card">
+      <div class="metric-label">DECLUTTER AUDIT STATUS</div>
+      <div class="metric-value status-green" id="declutterStatus">OPTIMIZED</div>
+      <div class="metric-subtext" id="lastAuditTime">Automated Worker Active</div>
+    </div>
+  </div>
 
-      if (saveBtn) saveBtn.addEventListener('click', () => this.saveKey());
-      if (clearBtn) clearBtn.addEventListener('click', () => this.clearKey());
-
-      const savedKey = localStorage.getItem(this.STORAGE_KEY);
-      if (savedKey && this.keyInput) {
-        this.keyInput.value = savedKey;
-      }
-    },
-
-    getKey() {
-      return localStorage.getItem(this.STORAGE_KEY) || '';
-    },
-
-    openModal() {
-      if (this.modal) this.modal.classList.remove('hidden');
-    },
-
-    closeModal() {
-      if (this.modal) this.modal.classList.add('hidden');
-    },
-
-    saveKey() {
-      const keyVal = this.keyInput ? this.keyInput.value.trim() : '';
-      if (!keyVal) {
-        this.showStatus('Please enter a valid key.', '#f85149');
-        return;
-      }
-
-      localStorage.setItem(this.STORAGE_KEY, keyVal);
-      this.showStatus('Gatekeeper Key Authorized & Saved.', '#3fb950');
-      setTimeout(() => this.closeModal(), 1000);
-    },
-
-    clearKey() {
-      localStorage.removeItem(this.STORAGE_KEY);
-      if (this.keyInput) this.keyInput.value = '';
-      this.showStatus('Key cleared from session.', '#e3b341');
-    },
-
-    showStatus(msg, color) {
-      if (this.statusMsg) {
-        this.statusMsg.style.color = color;
-        this.statusMsg.textContent = msg;
-      }
-    }
-  };
-
-  document.addEventListener('DOMContentLoaded', () => GatekeeperAuth.init());
-</script>
+  <!-- Real-Time Audit Activity Log -->
+  <div class="audit-log-container">
+    <h3>Automated Declutter Audit Stream</h3>
+    <div class="log-terminal" id="auditLogTerminal">
+      <div class="log-entry system">[SYSTEM] Connecting to revenue-engine backend...</div>
+    </div>
+  </div>
+</section>
