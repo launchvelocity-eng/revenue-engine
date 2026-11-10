@@ -1,3 +1,3 @@
-git add index.html
-git commit -m "feat: add real-time digital declutter & storage dashboard telemetry"
+git add app.js
+git commit -m "fix: remove browser DOM references from app.js"
 git push origin main
