@@ -1,120 +1,106 @@
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(5, 7, 15, 0.85);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.modal-backdrop.hidden {
-  display: none !important;
-}
-
-.modal-card {
+.cyber-panel {
   background: #0d1117;
-  border: 1px solid #00f0ff;
-  box-shadow: 0 0 25px rgba(0, 240, 255, 0.2);
+  border: 1px solid #30363d;
   border-radius: 8px;
   padding: 2rem;
-  width: 90%;
-  max-width: 480px;
-  color: #e6edf3;
+  margin: 2rem auto;
+  max-width: 1100px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
   font-family: 'JetBrains Mono', monospace, sans-serif;
 }
 
-.cyber-badge {
-  background: rgba(0, 240, 255, 0.1);
-  color: #00f0ff;
-  border: 1px solid #00f0ff;
+.cyber-badge-live {
+  background: rgba(63, 185, 80, 0.15);
+  color: #3fb950;
+  border: 1px solid #3fb950;
   font-size: 0.7rem;
   padding: 2px 8px;
   letter-spacing: 1px;
   border-radius: 4px;
 }
 
-.modal-header h3 {
-  margin-top: 0.5rem;
-  font-size: 1.25rem;
+.panel-header h2 {
   color: #ffffff;
+  margin-top: 0.5rem;
+  font-size: 1.5rem;
 }
 
-.modal-subtext {
-  font-size: 0.85rem;
-  color: #8b949e;
-  margin-bottom: 1.5rem;
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
 }
 
-.input-group label {
-  display: block;
-  font-size: 0.75rem;
-  color: #00f0ff;
-  margin-bottom: 0.5rem;
-  letter-spacing: 1px;
-}
-
-.input-group input {
-  width: 100%;
-  padding: 0.75rem;
+.metric-card {
   background: #161b22;
   border: 1px solid #30363d;
-  border-radius: 4px;
+  border-radius: 6px;
+  padding: 1.25rem;
+}
+
+.metric-label {
+  font-size: 0.75rem;
   color: #00f0ff;
-  font-family: inherit;
-  margin-bottom: 1.5rem;
-  box-sizing: border-box;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
 }
 
-.input-group input:focus {
-  outline: none;
-  border-color: #00f0ff;
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
-}
-
-.modal-actions {
-  display: flex;
-  gap: 1rem;
-}
-
-.btn-primary {
-  flex: 2;
-  background: #00f0ff;
-  color: #05070f;
-  border: none;
-  padding: 0.75rem;
+.metric-value {
+  font-size: 1.8rem;
   font-weight: bold;
-  cursor: pointer;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.status-green {
+  color: #3fb950;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background: #21262d;
   border-radius: 4px;
-  transition: all 0.2s ease;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
 }
 
-.btn-primary:hover {
-  background: #70f8ff;
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00f0ff, #3fb950);
+  transition: width 0.5s ease-in-out;
 }
 
-.btn-secondary {
-  flex: 1;
-  background: transparent;
-  color: #8b949e;
-  border: 1px solid #30363d;
-  padding: 0.75rem;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.btn-secondary:hover {
-  border-color: #f85149;
-  color: #f85149;
-}
-
-.auth-status-msg {
-  margin-top: 1rem;
+.metric-subtext {
   font-size: 0.8rem;
-  text-align: center;
+  color: #8b949e;
 }
+
+.audit-log-container {
+  margin-top: 2rem;
+}
+
+.audit-log-container h3 {
+  font-size: 1rem;
+  color: #8b949e;
+  margin-bottom: 0.75rem;
+}
+
+.log-terminal {
+  background: #05070f;
+  border: 1px solid #21262d;
+  border-radius: 6px;
+  padding: 1rem;
+  height: 140px;
+  overflow-y: auto;
+  font-size: 0.8rem;
+  color: #e6edf3;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.log-entry.system { color: #00f0ff; }
+.log-entry.success { color: #3fb950; }
+.log-entry.audit { color: #e3b341; }
