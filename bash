@@ -1,3 +1,3 @@
-git add app.js
-git commit -m "fix: purge browser DOM code from app.js"
+git add index.html
+git commit -m "feat: add browser telemetry dashboard for digital declutter and storage metrics"
 git push origin main
