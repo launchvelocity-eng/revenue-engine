@@ -1,39 +1,89 @@
-import express from 'express';
-import cors from 'cors';
+<!-- Gatekeeper Key Configuration Modal -->
+<div id="gatekeeperModal" class="modal-backdrop hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span class="cyber-badge">SECURITY PROTOCOL</span>
+      <h3>Vault Gatekeeper Authentication</h3>
+    </div>
+    <p class="modal-subtext">
+      Enter your enterprise vault key (<code>X-Vault-Gatekeeper-Key</code>) to authorize encrypted streaming transfers.
+    </p>
+    <div class="input-group">
+      <label for="gatekeeperKeyInput">GATEKEEPER KEY</label>
+      <input 
+        type="password" 
+        id="gatekeeperKeyInput" 
+        placeholder="vlt_live_xxxxxxxxxxxxxxxx" 
+        autocomplete="off"
+      />
+    </div>
+    <div class="modal-actions">
+      <button id="saveGatekeeperKeyBtn" class="btn-primary">SAVE & AUTHORIZE</button>
+      <button id="clearGatekeeperKeyBtn" class="btn-secondary">CLEAR KEY</button>
+    </div>
+    <div id="authStatusMessage" class="auth-status-msg"></div>
+  </div>
+</div>
 
-const app = express();
-const PORT = process.env.PORT || 10000;
+<script>
+  // Vault Gatekeeper Key Manager (Frontend Browser Only)
+  const GatekeeperAuth = {
+    STORAGE_KEY: 'lv_vault_gatekeeper_key',
 
-app.use(cors());
-app.use(express.json());
-app.use(express.raw({ type: 'application/octet-stream', limit: '50mb' }));
+    init() {
+      this.modal = document.getElementById('gatekeeperModal');
+      this.keyInput = document.getElementById('gatekeeperKeyInput');
+      this.statusMsg = document.getElementById('authStatusMessage');
 
-// Security Upload Endpoint
-app.post('/api/vault/upload', (req, res) => {
-  const gatekeeperKey = req.headers['x-vault-gatekeeper-key'];
-  const expectedKey = process.env.VAULT_GATEKEEPER_KEY;
+      const saveBtn = document.getElementById('saveGatekeeperKeyBtn');
+      const clearBtn = document.getElementById('clearGatekeeperKeyBtn');
 
-  if (!gatekeeperKey || gatekeeperKey !== expectedKey) {
-    return res.status(401).json({ error: 'UNAUTHORIZED_GATEKEEPER_KEY' });
-  }
+      if (saveBtn) saveBtn.addEventListener('click', () => this.saveKey());
+      if (clearBtn) clearBtn.addEventListener('click', () => this.clearKey());
 
-  const buffer = req.body;
-  if (buffer && buffer.length >= 2) {
-    const header = buffer.toString('utf8', 0, 2);
-    if (header === 'MZ' || header === '\x7fE') {
-      return res.status(400).json({
-        error: 'MALICIOUS_PAYLOAD_DETECTED',
-        details: 'Magic-byte inspection rejected prohibited binary header.'
-      });
+      const savedKey = localStorage.getItem(this.STORAGE_KEY);
+      if (savedKey && this.keyInput) {
+        this.keyInput.value = savedKey;
+      }
+    },
+
+    getKey() {
+      return localStorage.getItem(this.STORAGE_KEY) || '';
+    },
+
+    openModal() {
+      if (this.modal) this.modal.classList.remove('hidden');
+    },
+
+    closeModal() {
+      if (this.modal) this.modal.classList.add('hidden');
+    },
+
+    saveKey() {
+      const keyVal = this.keyInput ? this.keyInput.value.trim() : '';
+      if (!keyVal) {
+        this.showStatus('Please enter a valid key.', '#f85149');
+        return;
+      }
+
+      localStorage.setItem(this.STORAGE_KEY, keyVal);
+      this.showStatus('Gatekeeper Key Authorized & Saved.', '#3fb950');
+      setTimeout(() => this.closeModal(), 1000);
+    },
+
+    clearKey() {
+      localStorage.removeItem(this.STORAGE_KEY);
+      if (this.keyInput) this.keyInput.value = '';
+      this.showStatus('Key cleared from session.', '#e3b341');
+    },
+
+    showStatus(msg, color) {
+      if (this.statusMsg) {
+        this.statusMsg.style.color = color;
+        this.statusMsg.textContent = msg;
+      }
     }
-  }
+  };
 
-  return res.status(200).json({ status: 'SUCCESS', message: 'Payload verified and ingested.' });
-});
-
-// Health check endpoint
-app.get('/health', (req, res) => res.status(200).send('OK'));
-
-app.listen(PORT, () => {
-  console.log(`[SERVER ENGINE] Launch Velocity running and listening on port ${PORT}`);
-});
+  document.addEventListener('DOMContentLoaded', () => GatekeeperAuth.init());
+</script>
