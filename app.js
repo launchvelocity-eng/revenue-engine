@@ -1,60 +1,39 @@
-// Vault Gatekeeper Key Manager (Browser Side Only)
-const GatekeeperAuth = {
-  STORAGE_KEY: 'lv_vault_gatekeeper_key',
+import express from 'express';
+import cors from 'cors';
 
-  init() {
-    this.modal = document.getElementById('gatekeeperModal');
-    this.keyInput = document.getElementById('gatekeeperKeyInput');
-    this.statusMsg = document.getElementById('authStatusMessage');
+const app = express();
+const PORT = process.env.PORT || 10000;
 
-    const saveBtn = document.getElementById('saveGatekeeperKeyBtn');
-    const clearBtn = document.getElementById('clearGatekeeperKeyBtn');
+app.use(cors());
+app.use(express.json());
+app.use(express.raw({ type: 'application/octet-stream', limit: '50mb' }));
 
-    if (saveBtn) saveBtn.addEventListener('click', () => this.saveKey());
-    if (clearBtn) clearBtn.addEventListener('click', () => this.clearKey());
+// Security Upload Endpoint
+app.post('/api/vault/upload', (req, res) => {
+  const gatekeeperKey = req.headers['x-vault-gatekeeper-key'];
+  const expectedKey = process.env.VAULT_GATEKEEPER_KEY;
 
-    const savedKey = localStorage.getItem(this.STORAGE_KEY);
-    if (savedKey && this.keyInput) {
-      this.keyInput.value = savedKey;
-    }
-  },
+  if (!gatekeeperKey || gatekeeperKey !== expectedKey) {
+    return res.status(401).json({ error: 'UNAUTHORIZED_GATEKEEPER_KEY' });
+  }
 
-  getKey() {
-    return localStorage.getItem(this.STORAGE_KEY) || '';
-  },
-
-  openModal() {
-    if (this.modal) this.modal.classList.remove('hidden');
-  },
-
-  closeModal() {
-    if (this.modal) this.modal.classList.add('hidden');
-  },
-
-  saveKey() {
-    const keyVal = this.keyInput ? this.keyInput.value.trim() : '';
-    if (!keyVal) {
-      this.showStatus('Please enter a valid key.', '#f85149');
-      return;
-    }
-
-    localStorage.setItem(this.STORAGE_KEY, keyVal);
-    this.showStatus('Gatekeeper Key Authorized & Saved.', '#3fb950');
-    setTimeout(() => this.closeModal(), 1000);
-  },
-
-  clearKey() {
-    localStorage.removeItem(this.STORAGE_KEY);
-    if (this.keyInput) this.keyInput.value = '';
-    this.showStatus('Key cleared from session.', '#e3b341');
-  },
-
-  showStatus(msg, color) {
-    if (this.statusMsg) {
-      this.statusMsg.style.color = color;
-      this.statusMsg.textContent = msg;
+  const buffer = req.body;
+  if (buffer && buffer.length >= 2) {
+    const header = buffer.toString('utf8', 0, 2);
+    if (header === 'MZ' || header === '\x7fE') {
+      return res.status(400).json({
+        error: 'MALICIOUS_PAYLOAD_DETECTED',
+        details: 'Magic-byte inspection rejected prohibited binary header.'
+      });
     }
   }
-};
 
-document.addEventListener('DOMContentLoaded', () => GatekeeperAuth.init());
+  return res.status(200).json({ status: 'SUCCESS', message: 'Payload verified and ingested.' });
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => res.status(200).send('OK'));
+
+app.listen(PORT, () => {
+  console.log(`[SERVER ENGINE] Launch Velocity running and listening on port ${PORT}`);
+});
