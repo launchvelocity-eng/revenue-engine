@@ -1,176 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LAUNCH VELOCITY // Enterprise Vault Portal</title>
-  <script src="https://tailwindcss.com"></script>
-  <style>
-    @import url('https://googleapis.com');
-    body {
-      font-family: 'JetBrains+Mono', monospace;
-      background-color: #050505;
-    }
-    .neon-border {
-      box-shadow: 0 0 10px rgba(34, 197, 94, 0.1);
-      border: 1px solid rgba(34, 197, 94, 0.2);
-    }
-    .neon-border-error {
-      box-shadow: 0 0 10px rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.2);
-    }
-  </style>
-</head>
-<body class="text-zinc-100 min-h-screen flex flex-col justify-between p-4 md:p-8">
+<!-- SCRIPT LOGIC FOR LIVE API ROUTING PACKETS -->
+<script>
+  // UPDATE THIS URL TO YOUR LIVE RENDER ENGINE URL
+  const BACKEND_URL = "https://revenue-engine.onrender.com";
+  // SET THIS TO MATCH YOUR RENDER ENVIRONMENT VARIABLE
+  const GATEKEEPER_KEY = "YOUR_VAULT_GATEKEEPER_KEY";
 
-  <!-- HEADER -->
-  <header class="w-full max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-zinc-800 pb-6 mb-8 gap-4">
-    <div>
-      <h1 class="text-2xl font-bold tracking-wider text-green-400">LAUNCH VELOCITY</h1>
-      <p class="text-xs text-zinc-500 mt-1">SECURE AIR-GAPPED ENTERPRISE STORAGE CORE // v1.0.0</p>
-    </div>
-    <div class="flex items-center gap-3 bg-zinc-900/50 px-4 py-2 rounded border border-zinc-800 text-xs">
-      <span class="relative flex h-2 w-2">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-      </span>
-      <span class="text-zinc-400">BACKEND GATEWAY:</span>
-      <span id="gateway-status" class="text-green-400 font-bold">ONLINE</span>
-    </div>
-  </header>
-
-  <!-- MAIN DASHBOARD CONNECTOR -->
-  <main class="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-start flex-grow">
+  function logToConsole(message, type = 'info') {
+    const consoleDiv = document.getElementById('console-output');
+    const timestamp = new Date().toLocaleTimeString();
+    let colorClass = 'text-zinc-400';
+    if (type === 'success') colorClass = 'text-green-400 font-bold';
+    if (type === 'error') colorClass = 'text-red-400 font-bold';
+    if (type === 'warn') colorClass = 'text-yellow-500';
     
-    <!-- LEFT PANEL: ARCHITECTURE METRICS -->
-    <section class="bg-zinc-900/30 p-6 rounded neon-border flex flex-col gap-6">
-      <h2 class="text-sm font-bold text-zinc-400 uppercase tracking-widest border-b border-zinc-800 pb-2">Vault Node Status</h2>
-      
-      <div class="grid grid-cols-2 gap-4">
-        <div class="bg-black/40 p-4 rounded border border-zinc-800">
-          <span class="text-[10px] text-zinc-500 block">BASE RETAINER</span>
-          <span class="text-xl font-bold text-zinc-200">$2,500<span class="text-xs text-zinc-500">/mo</span></span>
-        </div>
-        <div class="bg-black/40 p-4 rounded border border-zinc-800">
-          <span class="text-[10px] text-zinc-500 block">INCLUDED CAPACITY</span>
-          <span class="text-xl font-bold text-zinc-200">10 TB</span>
-        </div>
-      </div>
+    consoleDiv.innerHTML += `<div class="block"><span class="text-zinc-600">[${timestamp}]</span> <span class="${colorClass}">${message}</span></div>`;
+    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    document.getElementById('terminal-timestamp').innerText = `UPDATED: ${timestamp}`;
+  }
 
-      <div class="space-y-3 text-xs">
-        <div class="flex justify-between py-1 border-b border-zinc-900">
-          <span class="text-zinc-500">Storage Layer:</span>
-          <span class="text-zinc-300">Cloudflare R2 (Zero-Egress)</span>
-        </div>
-        <div class="flex justify-between py-1 border-b border-zinc-900">
-          <span class="text-zinc-500">Threat Shield:</span>
-          <span class="text-green-400">Active (MZ/ELF Blocks)</span>
-        </div>
-        <div class="flex justify-between py-1 border-b border-zinc-900">
-          <span class="text-zinc-500">Payload Ceiling:</span>
-          <span class="text-zinc-300">500MB Inline Stream Cap</span>
-        </div>
-        <div class="flex justify-between py-1">
-          <span class="text-zinc-500">Data Governance:</span>
-          <span class="text-zinc-300">7-Day Grace Partition Lock</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- CENTER PANEL: LIVE STREAM INGESTION TESTER -->
-    <section class="bg-zinc-900/30 p-6 rounded neon-border lg:col-span-2 flex flex-col gap-6">
-      <h2 class="text-sm font-bold text-zinc-400 uppercase tracking-widest border-b border-zinc-800 pb-2">Zero-Trust Ingestion Stream Simulator</h2>
-      
-      <div class="flex flex-col gap-4">
-        <p class="text-xs text-zinc-400">
-          Simulate a secure enterprise file stream to test the live backend's **Magic-Byte validation filter** and pipeline constraints.
-        </p>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <button onclick="simulateUpload('clean')" class="bg-zinc-900 hover:bg-zinc-800 text-xs text-green-400 font-bold py-3 px-4 rounded border border-green-500/30 transition-all">
-            Stream Clean Asset (PDF)
-          </button>
-          <button onclick="simulateUpload('exe')" class="bg-zinc-900 hover:bg-red-950/30 text-xs text-red-400 font-bold py-3 px-4 rounded border border-red-500/30 transition-all">
-            Inject Windows PE (.exe)
-          </button>
-          <button onclick="simulateUpload('elf')" class="bg-zinc-900 hover:bg-red-950/30 text-xs text-red-400 font-bold py-3 px-4 rounded border border-red-500/30 transition-all">
-            Inject Linux ELF binary
-          </button>
-        </div>
-
-        <!-- LIVE STREAM TERMINAL CONSOLE -->
-        <div class="bg-black p-4 rounded border border-zinc-800 flex flex-col gap-2">
-          <div class="flex justify-between items-center text-[10px] text-zinc-500 border-b border-zinc-900 pb-2">
-            <span>SECURE TERMINAL CONSOLE</span>
-            <span id="terminal-timestamp">READY</span>
-          </div>
-          <div id="console-output" class="text-xs text-zinc-400 h-32 overflow-y-auto space-y-1 font-mono pt-1">
-            <span class="text-zinc-600 block">&gt; System initialized. Awaiting pipeline ingestion payload...</span>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="w-full max-w-6xl mx-auto border-t border-zinc-800 pt-6 mt-12 flex flex-col sm:flex-row justify-between items-center text-[10px] text-zinc-600 gap-4">
-    <div>&copy; 2026 LAUNCH VELOCITY. ALL RIGHTS RESERVED CLOUD CORE SECURITY SYSTEMS.</div>
-    <div class="tracking-widest">ZERO-TRUST // AIR-GAPPED PLATFORM ARCHITECTURE</div>
-  </footer>
-
-  <!-- SCRIPT LOGIC FOR LIVE API ROUTING PACKETS -->
-  <script>
-    const BACKEND_URL = "https://onrender.com";
-
-    function logToConsole(message, type = 'info') {
-      const consoleDiv = document.getElementById('console-output');
-      const timestamp = new Date().toLocaleTimeString();
-      let colorClass = 'text-zinc-400';
-      
-      if (type === 'success') colorClass = 'text-green-400 font-bold';
-      if (type === 'error') colorClass = 'text-red-400 font-bold';
-      if (type === 'warn') colorClass = 'text-yellow-500';
-
-      consoleDiv.innerHTML += `<div class="block"><span class="text-zinc-600">[${timestamp}]</span> <span class="${colorClass}">${message}</span></div>`;
-      consoleDiv.scrollTop = consoleDiv.scrollHeight;
-      document.getElementById('terminal-timestamp').innerText = `UPDATED: ${timestamp}`;
+  async function simulateUpload(payloadType) {
+    logToConsole(`Preparing data stream for payload type: [${payloadType.toUpperCase()}]...`);
+    
+    let payloadBody;
+    if (payloadType === 'clean') {
+      payloadBody = "%PDF-1.4\n%Enterprise Financial Report Data Layer Matrix Clear";
+    } else if (payloadType === 'exe') {
+      payloadBody = "MZ\x90\x00\x03\x00\x00\x00Malicious Windows Executable Intrusion Packet Simulation String";
+    } else if (payloadType === 'elf') {
+      payloadBody = "\x7FELFMalicious Linux Compile Binary Target Suite Generation Payload";
     }
 
-    async function simulateUpload(payloadType) {
-      logToConsole(`Preparing data stream stream for type: [${payloadType.toUpperCase()}]...`);
+    try {
+      logToConsole(`Opening TCP transmission pipeline to ${BACKEND_URL}/api/vault/upload...`, 'warn');
       
-      let payloadBody;
-      if (payloadType === 'clean') {
-        payloadBody = "%PDF-1.4\n%Enterprise Financial Report Data Layer Matrix Clear";
-      } else if (payloadType === 'exe') {
-        payloadBody = "MZ\x90\x00\x03\x00\x00\x00Malicious Windows Executable Intrusion Packet Simulation String";
-      } else if (payloadType === 'elf') {
-        // Construct standard binary payload sequence matches for \x7fELF
-        payloadBody = "\x7FELFMalicious Linux Compile Binary Target Suite Generation Payload";
+      const response = await fetch(`${BACKEND_URL}/api/vault/upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'X-Vault-Gatekeeper-Key': GATEKEEPER_KEY
+        },
+        body: payloadBody
+      });
+
+      const data = await response.json();
+
+      if (response.ok) { // Handles 200-299 HTTP status codes
+        logToConsole(`[SUCCESS] HTTP ${response.status}: Ingestion sequence complete. ${data.message || ''}`, 'success');
+      } else {
+        logToConsole(`[BLOCKED] HTTP ${response.status} ${data.error || ''}: ${data.details || 'Security threshold triggered.'}`, 'error');
       }
-
-      try {
-        logToConsole(`Opening TCP transmission pipeline to ${BACKEND_URL}/api/vault/upload...`, 'warn');
-        
-        const response = await fetch(`${BACKEND_URL}/api/vault/upload`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/octet-stream'
-          },
-          body: payloadBody
-        });
-
-        const data = await response.json();
-
-        if (response.status === 201) {
-          logToConsole(`[SUCCESS] HTTP ${response.status}: Ingestion sequence complete. Bytes Vaulted: ${data.bytesProcessed}`, 'success');
-        } else {
-          logToConsole(`[BLOCKED] HTTP ${response.status} ${data.error || ''}: ${data.details || 'Security threshold triggered.'}`, 'error');
-        }
-      } catch (err) {
-        logToConsole(`[CRITICAL NETWORK ERROR] Failed to connect to server engine pipeline: ${err.message}`, 'error');
-      }
+    } catch (err) {
+      logToConsole(`[CRITICAL NETWORK ERROR] Failed to connect to server engine pipeline: ${err.message}`, 'error');
     }
-  </script>
-</body>
-</html>
+  }
+</script>
