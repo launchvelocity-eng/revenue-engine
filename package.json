@@ -1,4 +1,13 @@
-"dependencies": {
-  "cors": "^2.8.5",
-  "express": "^4.21.1"
+{
+  "name": "revenue-engine",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1"
+  }
 }
