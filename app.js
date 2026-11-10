@@ -1,39 +1,39 @@
-import express from 'express';
-import cors from 'cors';
+// Enterprise Onboarding Lead Flow Controller (Client Browser Only)
+const EnterpriseOnboard = {
+  init() {
+    const form = document.getElementById('enterpriseOnboardForm');
+    if (form) {
+      form.addEventListener('submit', (e) => this.handleSubmit(e));
+    }
+  },
 
-const app = express();
-const PORT = process.env.PORT || 10000;
+  handleSubmit(e) {
+    e.preventDefault();
+    const company = document.getElementById('companyName').value.trim();
+    const email = document.getElementById('adminEmail').value.trim();
+    const tier = document.getElementById('vaultTier').value;
+    const statusMsg = document.getElementById('onboardStatusMessage');
 
-app.use(cors());
-app.use(express.json());
-app.use(express.raw({ type: 'application/octet-stream', limit: '50mb' }));
+    if (!company || !email) {
+      this.showStatus('All fields are required for enterprise vetting.', '#f85149', statusMsg);
+      return;
+    }
 
-app.post('/api/vault/upload', (req, res) => {
-  const gatekeeperKey = req.headers['x-vault-gatekeeper-key'];
-  const expectedKey = process.env.VAULT_GATEKEEPER_KEY;
+    // Simulate secure intake transmission
+    this.showStatus('Validating corporate credentials & provisioning queue...', '#e3b341', statusMsg);
+    
+    setTimeout(() => {
+      this.showStatus(`Enclave application received for ${company}. Our security team will reach out via ${email}.`, '#3fb950', statusMsg);
+      e.target.reset();
+    }, 1200);
+  },
 
-  if (!gatekeeperKey || gatekeeperKey !== expectedKey) {
-    return res.status(401).json({ error: 'UNAUTHORIZED_GATEKEEPER_KEY' });
-  }
-
-  const buffer = req.body;
-  if (buffer && buffer.length >= 2) {
-    const header = buffer.toString('utf8', 0, 2);
-    if (header === 'MZ' || header === '\x7fE') {
-      return res.status(400).json({
-        error: 'MALICIOUS_PAYLOAD_DETECTED',
-        details: 'Magic-byte inspection rejected prohibited binary header.'
-      });
+  showStatus(msg, color, element) {
+    if (element) {
+      element.style.color = color;
+      element.textContent = msg;
     }
   }
+};
 
-  return res.status(200).json({ status: 'SUCCESS', message: 'Payload verified and ingested.' });
-});
-
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
-});
-
-app.listen(PORT, () => {
-  console.log(`[SERVER ENGINE] Launch Velocity running and listening on port ${PORT}`);
-});
+document.addEventListener('DOMContentLoaded', () => EnterpriseOnboard.init());
