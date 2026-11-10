@@ -1,0 +1,121 @@
+/* Cyberpunk Modal Styling */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(5, 7, 15, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-backdrop.hidden {
+  display: none !important;
+}
+
+.modal-card {
+  background: #0d1117;
+  border: 1px solid #00f0ff;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.2);
+  border-radius: 8px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 480px;
+  color: #e6edf3;
+  font-family: 'JetBrains Mono', monospace, sans-serif;
+}
+
+.cyber-badge {
+  background: rgba(0, 240, 255, 0.1);
+  color: #00f0ff;
+  border: 1px solid #00f0ff;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  letter-spacing: 1px;
+  border-radius: 4px;
+}
+
+.modal-header h3 {
+  margin-top: 0.5rem;
+  font-size: 1.25rem;
+  color: #ffffff;
+}
+
+.modal-subtext {
+  font-size: 0.85rem;
+  color: #8b949e;
+  margin-bottom: 1.5rem;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.75rem;
+  color: #00f0ff;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.75rem;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  color: #00f0ff;
+  font-family: inherit;
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #00f0ff;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-primary {
+  flex: 2;
+  background: #00f0ff;
+  color: #05070f;
+  border: none;
+  padding: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #70f8ff;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+}
+
+.btn-secondary {
+  flex: 1;
+  background: transparent;
+  color: #8b949e;
+  border: 1px solid #30363d;
+  padding: 0.75rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-secondary:hover {
+  border-color: #f85149;
+  color: #f85149;
+}
+
+.auth-status-msg {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  text-align: center;
+}
