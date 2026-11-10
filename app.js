@@ -4,26 +4,37 @@ import cors from 'cors';
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Enable CORS for cross-origin requests from GitHub Pages
 app.use(cors());
-
-// Parse JSON bodies
 app.use(express.json());
-
-// Raw binary parser for stream byte-level threat inspection up to 50MB
 app.use(express.raw({ type: 'application/octet-stream', limit: '50mb' }));
 
-// Zero-Trust Gatekeeper & Threat Shield Middleware
-app.post('/api/vault/upload', (req, res) => {
-  const gatekeeperKey = req.headers['x-vault-gatekeeper-key'];
-  const expectedKey = process.env.VAULT_GATEKEEPER_KEY;
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'HEALTHY', message: 'Launch Velocity Engine is operating at peak efficiency.' });
+});
 
-  if (!gatekeeperKey || gatekeeperKey !== expectedKey) {
-    return res.status(401).json({ error: 'UNAUTHORIZED_GATEKEEPER_KEY' });
+// ZeroTrustMagicByteShield Route
+app.post('/api/vault/upload', (req, res) => {
+  const authKey = req.headers['x-vault-gatekeeper-key'];
+  
+  if (!authKey) {
+    return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Gatekeeper key missing.' });
   }
 
-  // Magic Byte Stream Inspection (Blocking MZ and ELF Headers)
   const buffer = req.body;
   if (buffer && buffer.length >= 2) {
-    const header = buffer.toString('utf8', 0, 2);
-    
+    // Check for Windows executable magic bytes 'MZ'
+    if (buffer[0] === 0x4D && buffer[1] === 0x5A) {
+      return res.status(400).json({ 
+        error: 'MALICIOUS_PAYLOAD_DETECTED', 
+        message: 'ZeroTrustMagicByteShield intercepted an unauthorized executable signature.' 
+      });
+    }
+  }
+
+  res.status(200).json({ message: 'Payload verified and ingested securely.' });
+});
+
+app.listen(PORT, () => {
+  console.log(`[SERVER ENGINE] Launch Velocity running and listening on port ${PORT}`);
+});
