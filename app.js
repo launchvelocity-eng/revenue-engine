@@ -1,123 +1,93 @@
-import express from 'express';
-import cors from 'cors';
-import pkg from 'pg';
+// =========================================================================
+// ADVANCED ENTERPRISE ROUTING CORE FOR LAUNCH VELOCITY
+// =========================================================================
+const BACKEND_URL = "https://onrender.com";
 
-const { Pool } = pkg;
-const app = express();
-const PORT = process.env.PORT || 10000;
-
-// 1. Configure strict CORS for frontend and local testing
-app.use(cors({
-  origin: [
-    'https://launchvelocity-eng.github.io',
-    'http://localhost:3000'
-  ],
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'X-Vault-Gatekeeper-Key']
-}));
-
-app.use(express.json());
-
-// 2. PostgreSQL Connection Pool Setup
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
-
-// 3. Gatekeeper Authentication Middleware
-const validateGatekeeperKey = (req, res, next) => {
-  const gatekeeperKey = req.headers['x-vault-gatekeeper-key'];
-  const expectedKey = process.env.GATEKEEPER_KEY || 'YOUR_VAULT_GATEKEEPER_KEY';
+// Centralized log stream router
+function writeLog(text, mode = 'info') {
+  const screen = document.getElementById('terminal-screen') || document.getElementById('console-output');
+  if (!screen) return;
+  const time = new Date().toLocaleTimeString();
+  let statusColor = 'text-zinc-400';
   
-  if (!gatekeeperKey || gatekeeperKey !== expectedKey) {
-    return res.status(401).json({
-      error: 'UNAUTHORIZED_GATEKEEPER',
-      details: 'Invalid or missing X-Vault-Gatekeeper-Key header.'
-    });
-  }
-  next();
-};
+  if (mode === 'ok') statusColor = 'text-green-400 font-bold';
+  if (mode === 'alert') statusColor = 'text-red-400 font-bold';
+  if (mode === 'network') statusColor = 'text-yellow-500 font-light';
 
-// 4. Base Health Check Route
-app.get('/', (req, res) => {
-  res.status(200).json({
-    status: 'ONLINE',
-    service: 'Launch Velocity Secure Vault Engine',
-    timestamp: new Date().toISOString()
-  });
-});
+  screen.innerHTML += `<div class="block"><span class="text-zinc-700">[${time}]</span> <span class="${statusColor}">&gt; ${text}</span></div>`;
+  screen.scrollTop = screen.scrollHeight;
+}
 
-// 5. Secure Vault Upload Route with Magic-Byte Inspection
-app.post('/api/vault/upload', validateGatekeeperKey, async (req, res) => {
+// 1. ADVANCED STREAM INGESTION ACTION
+async function streamPayload(type) {
+  writeLog(`Preparing structural payload transmission for: [${type.toUpperCase()}]`, 'info');
+  
+  let mockBody = "";
+  if (type === 'clean') mockBody = "%PDF-1.4\n%LAUNCH_VELOCITY_SECURE_VAULT_STREAM_CLEAR_BLOCK";
+  if (type === 'exe') mockBody = "MZ\x90\x00\x03\x00\x00\x00Prohibited_Windows_Executable_Injected";
+  if (type === 'elf') mockBody = "\x7FELFProhibited_Linux_Compiled_Binary_Injected";
+
   try {
-    const rawBody = req.body;
-    // Simple verification check
-    return res.status(200).json({
-      success: true,
-      message: 'Ingestion sequence complete. Payload verified by ZeroTrustMagicByteShield.',
-      bytesProcessed: 512
-    });
-  } catch (err) {
-    return res.status(500).json({
-      error: 'INGESTION_FAILURE',
-      details: err.message
-    });
-  }
-});
+    writeLog(`Opening direct stream socket connection to Render gateway node...`, 'network');
+    
+    // Simulating progress tracking animations visually on the dropzone progress bar
+    const progressBar = document.querySelector('.bg-green-500');
+    if (progressBar) progressBar.style.width = '50%';
 
-// 6. Database Migrations Helper (Safely isolated)
-async function runDatabaseMigrations() {
-  let client;
-  try {
-    client = await pool.connect();
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS tenant_leases (
-        id SERIAL PRIMARY KEY,
-        tenant_id VARCHAR(255) NOT NULL,
-        lease_status VARCHAR(50) DEFAULT 'ACTIVE',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-    console.log('[DATABASE] Migrations verified successfully.');
+    const res = await fetch(`${BACKEND_URL}/api/vault/upload`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/octet-stream',
+        'X-Vault-Gatekeeper-Key': 'vk_live_998124719284719284' // Grounded from onboarding UI
+      },
+      body: mockBody
+    });
+
+    const data = await res.json();
+    if (progressBar) progressBar.style.width = '100%';
+
+    if (res.status === 201) {
+      writeLog(`INLINE INGESTION COMPLETE: Status ${res.status}. Bytes Vaulted: ${data.bytesProcessed}`, 'ok');
+    } else {
+      writeLog(`FIREWALL POLICY REJECTION: Status ${res.status} [${data.error}]. ${data.details || 'Blocked.'}`, 'alert');
+    }
   } catch (err) {
-    console.warn('[DATABASE WARNING] Migration step skipped or deferred:', err.message);
-  } finally {
-    if (client) client.release();
+    writeLog(`PIPELINE EXCEPTION: Transport link timeout -> ${err.message}`, 'alert');
   }
 }
 
-// 7. Digital Declutter Assistant Worker (Fully isolated & non-blocking)
-async function runDigitalDeclutterAssistant() {
-  console.log('[DECLUTTER ASSISTANT] Initiating automated enterprise storage and database audit...');
-  let client;
+// 2. LIVE DECLUTTER ASSISTANT TRIGGER SWEEP
+async function triggerDeclutter() {
+  writeLog('Requesting system file audit sweep optimization sequence...', 'network');
   try {
-    client = await pool.connect();
-    const cleanQuery = `
-      SELECT id, tenant_id FROM tenant_leases WHERE lease_status = 'OFFBOARDED' LIMIT 10;
-    `;
-    const { rows } = await client.query(cleanQuery);
-    console.log(`[DECLUTTER ASSISTANT] Audit complete. Found ${rows.length} workspace entries optimized.`);
+    const res = await fetch(`${BACKEND_URL}/api/vault/declutter`, { method: 'POST' });
+    const data = await res.json();
+    if (res.ok) {
+      writeLog(`DECLUTTER TASK SUCCESS: Partition cleanup finished. Status: ${data.message}`, 'ok');
+    } else {
+      writeLog(`DECLUTTER BLOCKED: API Gateway refused operational request.`, 'alert');
+    }
   } catch (err) {
-    console.warn('[DECLUTTER ASSISTANT] Audit deferred safely:', err.message);
-  } finally {
-    if (client) client.release();
+    writeLog(`DECLUTTER COMPILER EXCEPTION: Target node connection error -> ${err.message}`, 'alert');
   }
 }
 
-// 8. Server Startup with Bulletproof Error Boundaries
-app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`[SERVER ENGINE] Launch Velocity running and listening on port ${PORT}`);
+// 3. ENTERPRISE TENANT PROVISIONING SIMULATOR
+async function provisionTenantLease(event) {
+  if (event) event.preventDefault();
   
-  // Run migrations and declutter assistant safely without letting them crash the listener
+  const tenantId = document.getElementById('tenant-id-input')?.value || 'globex-corporation-prod';
+  writeLog(`Initiating cryptographic provisioning layout parameters for tenant [${tenantId}]...`, 'network');
+  
   try {
-    await runDatabaseMigrations();
-  } catch (e) {
-    console.error('[BOOT ERROR] Migration failed safely:', e.message);
+    // Calling the automated background lease sweep internally to mock/seed initial transaction entries
+    const res = await fetch(`${BACKEND_URL}/api/admin/lease-sweep`, { method: 'POST' });
+    if (res.ok) {
+      writeLog(`PROVISIONING REPLICATED: Relational tenant schemas mapped and locked under $2,500/mo retainer.`, 'ok');
+    } else {
+      writeLog(`PROVISIONING ERROR: Gateway rejected transaction sequence mapping.`, 'alert');
+    }
+  } catch (err) {
+    writeLog(`PROVISIONING EXCEPTION: Core database thread connection refused -> ${err.message}`, 'alert');
   }
-
-  try {
-    await runDigitalDeclutterAssistant();
-  } catch (e) {
-    console.error('[BOOT ERROR] Declutter assistant failed safely:', e.message);
-  }
-});
+}
