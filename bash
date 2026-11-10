@@ -1,3 +1,3 @@
-git add src/app.js
-git commit -m "fix: replace app.js with fully isolated error boundaries and clean database query syntax"
+git add index.html
+git commit -m "feat: deploy elite cyberpunk client welcome portal"
 git push origin main
