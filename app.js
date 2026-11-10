@@ -1,277 +1,78 @@
-import express from 'express';
-import cors from 'cors';
-import { pipeline } from 'stream/promises';
-import { Transform, Writable } from 'stream'; // Import Writable cleanly up here
-import pkg from 'pg';
-const { Pool } = pkg;
+// Vault Gatekeeper Key Manager
+const GatekeeperAuth = {
+  STORAGE_KEY: 'lv_vault_gatekeeper_key',
 
-// =========================================================================
-// 1. GLOBAL INITIALIZATION & CONFIGURATION
-// =========================================================================
-const app = express(); 
-const PORT = process.env.PORT || 10000;
+  init() {
+    this.modal = document.getElementById('gatekeeperModal');
+    this.keyInput = document.getElementById('gatekeeperKeyInput');
+    this.statusMsg = document.getElementById('authStatusMessage');
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
+    document.getElementById('saveGatekeeperKeyBtn').addEventListener('click', () => this.saveKey());
+    document.getElementById('clearGatekeeperKeyBtn').addEventListener('click', () => this.clearKey());
 
-// Configure whitelisted domain access safely
-app.use(cors({ origin: 'https://github.io' }));
-
-// Base pass-through rate limiter
-async function redisRateLimiter(req, res, next) {
-  next();
-}
-app.use(redisRateLimiter);
-
-// =========================================================================
-// 2. ZERO-TRUST STREAM TRANSFORM MODULES
-// =========================================================================
-class MaxLengthLimiter extends Transform {
-  constructor(maxBytes) {
-    super();
-    this.maxBytes = maxBytes;
-    this.bytesRead = 0;
-  }
-  _transform(chunk, encoding, callback) {
-    this.bytesRead += chunk.length;
-    if (this.bytesRead > this.maxBytes) {
-      return callback(new Error('PAYLOAD_TOO_LARGE'));
+    // Pre-fill key if stored locally
+    const savedKey = localStorage.getItem(this.STORAGE_KEY);
+    if (savedKey) {
+      this.keyInput.value = savedKey;
     }
-    this.push(chunk);
-    callback();
-  }
-  _destroy(err, callback) {
-    this.bytesRead = 0;
-    this.removeAllListeners();
-    callback(err);
-  }
-}
+  },
 
-class ZeroTrustMagicByteShield extends Transform {
-  constructor() {
-    super();
-    this.headBuffer = Buffer.alloc(0);
-    this.checked = false;
-  }
-  _transform(chunk, encoding, callback) {
-    if (!this.checked) {
-      this.headBuffer = Buffer.concat([this.headBuffer, chunk]);
-      if (this.headBuffer.length >= 4) {
-        const magicHex = this.headBuffer.toString('hex', 0, 4).toUpperCase();
-        if (magicHex.startsWith('4D5A') || magicHex === '7F454C46') {
-          return callback(new Error('MALICIOUS_BINARY_DETECTED'));
-        }
-        this.checked = true;
-      }
-    }
-    this.push(chunk);
-    callback();
-  }
-  _destroy(err, callback) {
-    this.headBuffer = null;
-    this.removeAllListeners();
-    callback(err);
-  }
-}
+  getKey() {
+    return localStorage.getItem(this.STORAGE_KEY) || '';
+  },
 
-// Clean ES module initialization without require()
-const getAirGappedStorageStream = () => {
-  return new Writable({ write(chunk, enc, cb) { cb(); } });
-};
+  openModal() {
+    this.modal.classList.remove('hidden');
+  },
 
-// =========================================================================
-// 3. AUTOMATED ENTERPRISE DATABASE MIGRATION ENGINE
-// =========================================================================
-async function runDatabaseMigrations() {
-  console.log('[MIGRATION ENGINE] Checking enterprise relational table schemas...');
-  let client;
-  try {
-    client = await pool.connect();
-    await client.query('BEGIN;');
+  closeModal() {
+    this.modal.classList.add('hidden');
+  },
 
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS tenant_leases (
-        id SERIAL PRIMARY KEY,
-        tenant_id VARCHAR(255) NOT NULL,
-        partition_name VARCHAR(255) NOT NULL,
-        lease_status VARCHAR(50) DEFAULT 'GRACE_PERIOD',
-        expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-        finalized_at TIMESTAMP WITH TIME ZONE
-      );
-    `);
-
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS tenant_data_partitions (
-        id SERIAL,
-        tenant_id VARCHAR(255) NOT NULL,
-        data JSONB,
-        PRIMARY KEY (id, tenant_id)
-      );
-    `);
-
-    await client.query('COMMIT;');
-    console.log('[MIGRATION ENGINE] Database schema verified: All systems green.');
-  } catch (migrationErr) {
-    if (client) await client.query('ROLLBACK;');
-    console.error('[CRITICAL MIGRATION FAILURE] Automatic initialization failed:', migrationErr.message);
-  } finally {
-    if (client) client.release();
-  }
-}
-
-// =========================================================================
-// 4. POSTGRESQL MULTI-TENANT LEASE Lifecycle AUDIT WORKER
-// =========================================================================
-export async function executeTenantOffboardingAudit() {
-  console.log('[LEASE WORKER] Initiating automated corporate lease expiration audit...');
-  let lockClient;
-  try {
-    lockClient = await pool.connect();
-    await lockClient.query('BEGIN;');
-
-    const targetingQuery = `
-      SELECT id, tenant_id, partition_name 
-      FROM tenant_leases 
-      WHERE expires_at <= NOW() - INTERVAL '7 days' 
-        AND lease_status = 'GRACE_PERIOD'
-      LIMIT 5
-      FOR UPDATE SKIP LOCKED;
-    `;
-    
-    const { rows: expiredTenants } = await lockClient.query(targetingQuery);
-
-    if (expiredTenants.length === 0) {
-      console.log('[LEASE WORKER] Audit complete. Zero expired enterprise leases found.');
-      await lockClient.query('COMMIT;');
+  saveKey() {
+    const keyVal = this.keyInput.value.trim();
+    if (!keyVal) {
+      this.showStatus('Please enter a valid key.', '#f85149');
       return;
     }
 
-    for (const tenant of expiredTenants) {
-      await lockClient.query(
-        "UPDATE tenant_leases SET lease_status = 'OFFBOARDING_IN_PROGRESS' WHERE id = $1;",
-        [tenant.id]
-      );
-    }
-    await lockClient.query('COMMIT;');
+    localStorage.setItem(this.STORAGE_KEY, keyVal);
+    this.showStatus('Gatekeeper Key Authorized & Saved.', '#3fb950');
+    setTimeout(() => this.closeModal(), 1000);
+  },
 
-    for (const tenant of expiredTenants) {
-      const ddlClient = await pool.connect();
-      try {
-        await ddlClient.query('BEGIN;');
-        await ddlClient.query('LOCK TABLE tenant_data_partitions IN ACCESS EXCLUSIVE MODE;');
-        const safePartitionName = tenant.partition_name.replace(/[^a-zA-Z0-9_]/g, '');
-        await ddlClient.query(`ALTER TABLE tenant_data_partitions DETACH PARTITION ${safePartitionName};`);
-        await ddlClient.query(
-          "UPDATE tenant_leases SET lease_status = 'OFFBOARDED', finalized_at = NOW() WHERE id = $1;",
-          [tenant.id]
-        );
-        await ddlClient.query('COMMIT;');
-      } catch (ddlError) {
-        await ddlClient.query('ROLLBACK;');
-        console.error(`[DDL FAILURE] Skipped partition for tenant ${tenant.tenant_id}:`, ddlError.message);
-        await pool.query("UPDATE tenant_leases SET lease_status = 'GRACE_PERIOD' WHERE id = $1;", [tenant.id]);
-      } finally {
-        ddlClient.release();
-      }
-    }
-  } catch (workerError) {
-    if (lockClient) await lockClient.query('ROLLBACK;');
-    console.error('[LEASE WORKER ERROR] Audit iteration deferred safely:', workerError.message);
-  } finally {
-    if (lockClient) lockClient.release();
+  clearKey() {
+    localStorage.removeItem(this.STORAGE_KEY);
+    this.keyInput.value = '';
+    this.showStatus('Key cleared from session.', '#e3b341');
+  },
+
+  showStatus(msg, color) {
+    this.statusMsg.style.color = color;
+    this.statusMsg.textContent = msg;
   }
-}
+};
 
-// =========================================================================
-// 5. DIGITAL DECLUTTER ASSISTANT LAYER
-// =========================================================================
-async function runDigitalDeclutterAssistant() {
-  console.log('[DECLUTTER ASSISTANT] Initiating automated enterprise storage and database audit...');
-  let client;
-  try {
-    client = await pool.connect();
-    
-    const cleanQuery = `
-      SELECT id, tenant_id FROM tenant_leases 
-      WHERE lease_status = 'OFFBOARDED' 
-      LIMIT 10;
-    `;
-    
-    const { rows } = await client.query(cleanQuery);
-    console.log(`[DECLUTTER ASSISTANT] Audit complete. Found ${rows.length} workspace entries optimized.`);
-  } catch (err) {
-    console.error('[DECLUTTER ERROR] Audit execution failed safely:', err.message);
-  } finally {
-    if (client) client.release();
-  }
-}
+// Auto-initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => GatekeeperAuth.init());
 
-// =========================================================================
-// 6. APPLICATION ROUTING HANDLERS
-// =========================================================================
-app.post('/api/vault/upload', async (req, res) => {
-  const MAX_500MB = 500 * 1024 * 1024;
-  if (req.destroyed) return res.status(400).json({ error: 'Connection aborted.' });
-
-  const limiter = new MaxLengthLimiter(MAX_500MB);
-  const shield = new ZeroTrustMagicByteShield();
-  const secureDestination = getAirGappedStorageStream();
-
-  try {
-    await pipeline(req, limiter, shield, secureDestination);
-    return res.status(201).json({ status: 'success', bytesProcessed: limiter.bytesRead });
-  } catch (err) {
-    if (secureDestination && typeof secureDestination.destroy === 'function') {
-      try { secureDestination.destroy(); } catch (_) {}
-    }
-    if (err.message === 'MALICIOUS_BINARY_DETECTED') {
-      return res.status(400).json({ error: 'Security Policy Violation', details: 'Executables blocked.' });
-    }
-    if (err.message === 'PAYLOAD_TOO_LARGE') {
-      res.setHeader('Connection', 'close');
-      return res.status(413).json({ error: 'Quota Exceeded', details: 'Exceeds 500MB cap.' });
-    }
-    return res.status(500).json({ error: 'Internal pipeline error.' });
-  }
-});
-
-app.post('/api/vault/declutter', async (req, res) => {
-  try {
-    await runDigitalDeclutterAssistant();
-    return res.status(200).json({ status: 'success', message: 'Declutter execution complete.' });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-});
-
-app.post('/api/admin/lease-sweep', async (req, res) => {
-  try {
-    await executeTenantOffboardingAudit();
-    return res.json({ status: 'sweep_executed' });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-});
-
-// =========================================================================
-// 7. CRASH-PROOF LIFECYCLE LISTENERS
-// =========================================================================
-app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`[SERVER ENGINE] Launch Velocity running and listening on port ${PORT}`);
+// Authenticated Upload Helper
+async function uploadVaultFile(fileBuffer, mimeType = 'application/octet-stream') {
+  const gatekeeperKey = GatekeeperAuth.getKey();
   
-  await runDatabaseMigrations();
-  
-  try {
-    await executeTenantOffboardingAudit();
-  } catch (startupErr) {
-    console.warn('[STARTUP NOTICE] Background lease task sitting idle:', startupErr.message);
+  if (!gatekeeperKey) {
+    GatekeeperAuth.openModal();
+    throw new Error('Authentication required: Gatekeeper Key missing.');
   }
 
-  try {
-    await runDigitalDeclutterAssistant();
-  } catch (declutterErr) {
-    console.warn('[STARTUP NOTICE] Declutter task sitting idle:', declutterErr.message);
-  }
-});
+  const response = await fetch('https://revenue-engine-dc8d.onrender.com/api/vault/upload', {
+    method: 'POST',
+    headers: {
+      'Content-Type': mimeType,
+      'X-Vault-Gatekeeper-Key': gatekeeperKey
+    },
+    body: fileBuffer
+  });
+
+  return response;
+}
