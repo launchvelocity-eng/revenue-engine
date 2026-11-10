@@ -1,1 +1,2 @@
-npm error JSON.parse Invalid package.json: JSONParseError: Unexpected non-whitespace character after JSON at position 14 (line 1 column 15) while parsing near '\"dependencies\": \n {\"cors\": \"^2.8....'
+ReferenceError: document is not defined
+    at file:///opt/render/project/src/app.js:57:1
