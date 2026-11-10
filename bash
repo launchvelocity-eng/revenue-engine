@@ -1,3 +1,3 @@
 git add index.html
-git commit -m "feat: add browser telemetry dashboard for digital declutter and storage metrics"
+git commit -m "feat: add enterprise waitlist and onboarding lead flow form"
 git push origin main
