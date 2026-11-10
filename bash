@@ -1,3 +1,3 @@
-git add app.js
-git commit -m "fix: remove DOM references from app.js backend file"
+git add index.html
+git commit -m "feat: add real-time digital declutter & storage dashboard telemetry"
 git push origin main
