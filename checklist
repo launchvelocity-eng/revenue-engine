@@ -1,12 +1,13 @@
 {
-  "categories": ["Backend API", "Database & Environment", "Vault Storage Pipeline"],
+  "categories": ["Backend API", "Database & Environment", "Vault Storage Pipeline", "Enterprise Business Model"],
   "items": [
-    { "id": "1", "label": "Configure app.js and Express server routing", "category": "Backend API", "checked": true },
-    { "id": "2", "label": "Deploy Web Service successfully on Render", "category": "Backend API", "checked": true },
+    { "id": "1", "label": "Configure app.js and HTTP routing", "category": "Backend API", "checked": true },
+    { "id": "2", "label": "Deploy Web Service live on Render", "category": "Backend API", "checked": true },
     { "id": "3", "label": "Connect PostgreSQL database (revenue-dn) and set DATABASE_URL", "category": "Database & Environment", "checked": true },
-    { "id": "4", "label": "Deploy Background Worker & automated lease audit worker", "category": "Database & Environment", "checked": true },
-    { "id": "5", "label": "Wire up frontend waitlist portal to /api/execute endpoint", "category": "Backend API", "checked": true },
+    { "id": "4", "label": "Deploy Background Worker for grace-period & offboarding audits", "category": "Database & Environment", "checked": true },
+    { "id": "5", "label": "Wire up dark-mode waitlist portal to /api/execute endpoint", "category": "Backend API", "checked": true },
     { "id": "6", "label": "Implement Vault Gatekeeper key validation middleware", "category": "Vault Storage Pipeline", "checked": true },
-    { "id": "7", "label": "Build authenticated file upload & threat inspection route", "category": "Vault Storage Pipeline", "checked": true }
+    { "id": "7", "label": "Build authenticated file upload & threat inspection route", "category": "Vault Storage Pipeline", "checked": true },
+    { "id": "8", "label": "Enshrine $2,500/mo $100M+ corporate pricing model & 10TB base tier into blueprints", "category": "Enterprise Business Model", "checked": true }
   ]
 }
