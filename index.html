@@ -1,44 +1,85 @@
-<!-- Gatekeeper Authentication Trigger & Status Bar -->
-<div id="gatekeeper-bar" class="gatekeeper-bar">
-  <div class="status-indicator">
-    <span id="gatekeeper-badge" class="badge locked">🔒 Gatekeeper Unauthenticated</span>
-    <span id="active-tenant-display" class="tenant-label">Session Key: None</span>
-  </div>
-  <button id="open-auth-modal-btn" class="btn btn-secondary">Manage Vault Key</button>
-</div>
+<script>
+  (function () {
+    const STORAGE_KEY = 'X-Vault-Gatekeeper-Key';
 
-<!-- Secure Gatekeeper Authentication UI Modal -->
-<div id="auth-modal-overlay" class="modal-overlay hidden">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3>🔐 Corporate Gatekeeper Authentication</h3>
-      <button id="close-auth-modal-btn" class="close-btn">&times;</button>
-    </div>
-    
-    <div class="modal-body">
-      <p class="modal-description">
-        Enter your enterprise validation key below. The key is securely cached in your browser's session storage and dynamically injected as <code>X-Vault-Gatekeeper-Key</code> for raw payload uploads and telemetry sync.
-      </p>
+    // DOM Elements
+    const overlay = document.getElementById('auth-modal-overlay');
+    const openBtn = document.getElementById('open-auth-modal-btn');
+    const closeBtn = document.getElementById('close-auth-modal-btn');
+    const form = document.getElementById('gatekeeper-form');
+    const keyInput = document.getElementById('gatekeeper-key-input');
+    const clearBtn = document.getElementById('clear-key-btn');
+    const feedback = document.getElementById('auth-feedback');
+    const badge = document.getElementById('gatekeeper-badge');
+    const tenantDisplay = document.getElementById('active-tenant-display');
 
-      <form id="gatekeeper-form" onsubmit="return false;">
-        <div class="form-group">
-          <label for="gatekeeper-key-input">X-Vault-Gatekeeper-Key</label>
-          <input 
-            type="password" 
-            id="gatekeeper-key-input" 
-            placeholder="e.g. gkq_live_99f28a38b10..." 
-            autocomplete="off"
-            required
-          />
-        </div>
+    // UI State Management
+    function updateUIState() {
+      const activeKey = sessionStorage.getItem(STORAGE_KEY);
+      if (activeKey) {
+        badge.textContent = '🔒 Gatekeeper Authenticated';
+        badge.className = 'badge authenticated';
+        const masked = activeKey.substring(0, 6) + '...' + activeKey.slice(-4);
+        tenantDisplay.textContent = `Session Key: ${masked}`;
+        keyInput.value = activeKey;
+      } else {
+        badge.textContent = '🔒 Gatekeeper Unauthenticated';
+        badge.className = 'badge locked';
+        tenantDisplay.textContent = 'Session Key: None';
+        keyInput.value = '';
+      }
+    }
 
-        <div id="auth-feedback" class="feedback-msg hidden"></div>
+    // Modal Control
+    openBtn.addEventListener('click', () => overlay.classList.remove('hidden'));
+    closeBtn.addEventListener('click', () => overlay.classList.add('hidden'));
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.classList.add('hidden');
+    });
 
-        <div class="modal-actions">
-          <button type="button" id="clear-key-btn" class="btn btn-danger">Clear Key</button>
-          <button type="submit" id="save-key-btn" class="btn btn-primary">Authenticate & Save</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+    // Save Credential
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = keyInput.value.trim();
+      if (!val) return;
+
+      sessionStorage.setItem(STORAGE_KEY, val);
+      updateUIState();
+
+      feedback.textContent = 'Gatekeeper key active for session.';
+      feedback.className = 'feedback-msg success';
+      feedback.classList.remove('hidden');
+
+      setTimeout(() => {
+        feedback.classList.add('hidden');
+        overlay.classList.add('hidden');
+      }, 1000);
+    });
+
+    // Clear Credential
+    clearBtn.addEventListener('click', () => {
+      sessionStorage.removeItem(STORAGE_KEY);
+      updateUIState();
+      feedback.textContent = 'Key cleared from browser memory.';
+      feedback.className = 'feedback-msg error';
+      feedback.classList.remove('hidden');
+
+      setTimeout(() => feedback.classList.add('hidden'), 1500);
+    });
+
+    // Initialize UI on load
+    updateUIState();
+
+    // Helper function to perform authorized fetch requests
+    window.secureVaultFetch = async function (url, options = {}) {
+      const activeKey = sessionStorage.getItem(STORAGE_KEY);
+      const headers = new Headers(options.headers || {});
+
+      if (activeKey) {
+        headers.set(STORAGE_KEY, activeKey);
+      }
+
+      return fetch(url, { ...options, headers });
+    };
+  })();
+</script>
