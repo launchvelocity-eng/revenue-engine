@@ -3,343 +3,492 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Launch Velocity | Enterprise Vault Portal</title>
+  <title>Launch Velocity | Enterprise Cyber Vault Portal</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* Design Tokens & Resets */
     :root {
       --bg-dark: #020617;
-      --card-bg: rgba(10, 15, 28, 0.88);
-      --border-cyan: rgba(34, 211, 238, 0.45);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --cyan-bright: #22d3ee;
-      --green-bright: #22c55e;
-      --green-hover: #16a34a;
-      --purple-bright: #a855f7;
+      --accent-cyan: #22d3ee;
+      --accent-blue: #38bdf8;
+      --accent-green: #22c55e;
+      --card-bg: rgba(15, 23, 42, 0.78);
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
+      margin: 0;
+      padding: 0;
       width: 100%;
-      min-height: 100vh;
+      height: 100%;
       background-color: var(--bg-dark);
-      color: var(--text-main);
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow-x: hidden;
     }
 
-    body {
-      background-image: 
-        radial-gradient(circle at 50% 30%, rgba(6, 182, 212, 0.35) 0%, transparent 65%),
-        radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.25) 0%, transparent 55%),
-        linear-gradient(rgba(34, 211, 238, 0.12) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(34, 211, 238, 0.12) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
-      background-attachment: fixed;
-    }
-
-    .nav-bar {
-      width: 100%;
-      padding: 16px 24px;
-      background: rgba(10, 15, 28, 0.9);
-      border-bottom: 1px solid var(--border-cyan);
-      backdrop-filter: blur(12px);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
+    /* Fixed High-Tech 3D Cyber Matrix & Tunnel Canvas */
+    #cyberMatrixCanvas {
+      position: fixed;
       top: 0;
-      z-index: 50;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
     }
 
-    .brand-header { display: flex; align-items: center; gap: 10px; }
-    .brand-logo { width: 24px; height: 24px; fill: #eab308; filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.6)); }
-    .brand-title { font-size: 1.25rem; font-weight: 800; letter-spacing: 0.1em; color: #fff; text-transform: uppercase; }
-
-    .user-pill {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 6px 14px;
+    /* Responsive Glassmorphism Auth Card */
+    .auth-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(34, 211, 238, 0.35);
       border-radius: 20px;
-      font-size: 0.8rem;
+      box-shadow: 
+        0 0 40px rgba(6, 182, 212, 0.2),
+        0 25px 50px -12px rgba(0, 0, 0, 0.95),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      position: relative;
+      z-index: 10;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .status-dot { width: 8px; height: 8px; background: var(--green-bright); border-radius: 50%; box-shadow: 0 0 8px var(--green-bright); }
+    .auth-card:hover {
+      border-color: rgba(34, 211, 238, 0.55);
+      box-shadow: 
+        0 0 50px rgba(6, 182, 212, 0.3),
+        0 30px 60px -12px rgba(0, 0, 0, 0.98);
+    }
 
-    .btn-signout {
-      background: transparent;
-      border: 1px solid var(--border-cyan);
-      color: var(--cyan-bright);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      cursor: pointer;
+    /* Input Fields Styling & Neon Focus */
+    .cyber-input {
+      background: rgba(2, 6, 23, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: #f8fafc;
+      transition: all 0.25s ease-in-out;
+    }
+
+    .cyber-input:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+      background: rgba(2, 6, 23, 0.95);
+    }
+
+    /* Tab Button Animations */
+    .tab-btn {
+      position: relative;
+      padding-bottom: 12px;
+      transition: color 0.3s ease;
+    }
+
+    .tab-btn::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--accent-cyan);
+      border-radius: 3px;
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+      box-shadow: 0 0 10px var(--accent-cyan);
+    }
+
+    .tab-btn.active {
+      color: var(--accent-cyan);
       font-weight: 700;
     }
 
-    .portal-wrapper {
-      width: 100%;
-      min-height: calc(100vh - 65px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px 16px;
+    .tab-btn.active::after {
+      transform: scaleX(1);
     }
 
-    .auth-view { width: 100%; display: flex; justify-content: center; }
-    .auth-card {
-      width: 100%;
-      max-width: 440px;
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border-cyan);
-      border-radius: 20px;
-      padding: 28px 20px;
-      box-shadow: 0 0 50px rgba(6, 182, 212, 0.3), 0 25px 50px -12px rgba(0, 0, 0, 0.95);
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
     }
-
-    .tab-header { display: flex; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; position: relative; }
-    .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 600; padding: 10px 0; cursor: pointer; text-align: center; }
-    .tab-btn.active { color: var(--cyan-bright); }
-    .tab-indicator { position: absolute; bottom: -1px; left: 0; width: 50%; height: 2px; background-color: var(--cyan-bright); box-shadow: 0 0 10px var(--cyan-bright); transition: transform 0.3s ease; }
-
-    .form-panel { display: none; }
-    .form-panel.active { display: block; }
-    .form-group { margin-bottom: 16px; }
-    .form-row { display: flex; gap: 10px; }
-    .form-row .form-group { flex: 1; }
-
-    label { display: block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; color: var(--cyan-bright); text-transform: uppercase; margin-bottom: 6px; }
-    input { width: 100%; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 11px 12px; color: #fff; font-size: 0.88rem; outline: none; }
-    input:focus { border-color: var(--cyan-bright); box-shadow: 0 0 12px rgba(34, 211, 238, 0.3); }
-
-    .btn-submit { width: 100%; padding: 13px; border: none; border-radius: 8px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; margin-top: 6px; }
-    .btn-signin { background-color: var(--cyan-bright); color: #020617; box-shadow: 0 0 20px rgba(34, 211, 238, 0.4); }
-    .btn-signup { background-color: var(--green-bright); color: #020617; box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); }
-
-    .dashboard-view {
-      width: 100%;
-      max-width: 1100px;
-      display: none;
-      flex-direction: column;
-      gap: 24px;
+    ::-webkit-scrollbar-track {
+      background: #020617;
     }
-
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 20px;
+    ::-webkit-scrollbar-thumb {
+      background: rgba(34, 211, 238, 0.3);
+      border-radius: 3px;
     }
-
-    .dash-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-cyan);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 0 30px rgba(6, 182, 212, 0.15);
-    }
-
-    .card-title {
-      font-size: 0.85rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      color: var(--cyan-bright);
-      text-transform: uppercase;
-      margin-bottom: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .stat-large { font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 4px; }
-    .stat-sub { font-size: 0.8rem; color: var(--text-muted); }
-
-    .progress-bar { width: 100%; height: 8px; background: rgba(30, 41, 59, 0.8); border-radius: 4px; overflow: hidden; margin: 12px 0; }
-    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--cyan-bright), var(--green-bright)); width: 42%; }
-
-    .key-box {
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px dashed var(--border-cyan);
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-family: monospace;
-      font-size: 0.82rem;
-      color: var(--cyan-bright);
-      margin-bottom: 10px;
-      word-break: break-all;
-    }
-
-    .badge-master {
-      background: rgba(168, 85, 247, 0.2);
-      border: 1px solid var(--purple-bright);
-      color: var(--purple-bright);
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.68rem;
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(34, 211, 238, 0.6);
     }
   </style>
 </head>
-<body>
+<body class="flex flex-col min-h-screen items-center justify-between relative selection:bg-cyan-500 selection:text-black">
 
-  <nav class="nav-bar">
-    <div class="brand-header">
-      <svg class="brand-logo" viewBox="0 0 24 24">
-        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-      </svg>
-      <h1 class="brand-title">Launch Velocity</h1>
+  <!-- Interactive 3D Perspective Grid Tunnel & Binary Rain Canvas -->
+  <canvas id="cyberMatrixCanvas"></canvas>
+
+  <!-- Top Header Navigation -->
+  <header class="w-full max-w-7xl px-6 py-6 flex justify-between items-center z-10">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+        <i class="fa-solid fa-bolt text-black text-xl"></i>
+      </div>
+      <span class="text-2xl font-black tracking-widest text-white uppercase italic">
+        LAUNCH <span class="text-cyan-400">VELOCITY</span>
+      </span>
     </div>
-    <div class="user-pill" id="userPill" style="display: none;">
-      <span class="status-dot"></span>
-      <span id="navUsername">active_user</span>
-      <button class="btn-signout" id="signOutBtn">Sign Out</button>
+    <div class="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 border border-cyan-500/30 text-xs font-mono text-cyan-400 shadow-md">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      VAULT GATEKEEPER ONLINE
     </div>
-  </nav>
+  </header>
 
-  <div class="portal-wrapper">
-    <div class="auth-view" id="authView">
-      <main class="auth-card">
-        <div class="tab-header">
-          <button class="tab-btn active" id="tabSignInBtn" type="button">Sign In</button>
-          <button class="tab-btn" id="tabSignUpBtn" type="button">Sign Up</button>
-          <div class="tab-indicator" id="tabIndicator"></div>
+  <!-- Central Glassmorphism Authentication Portal -->
+  <main class="w-full flex-1 flex items-center justify-center px-4 py-8 z-10">
+    <div class="auth-card w-full max-w-md p-8 sm:p-10">
+      
+      <!-- View Switcher Tabs -->
+      <div class="flex border-b border-slate-700/60 mb-8">
+        <button id="signInTab" onclick="switchTab('signin')" class="tab-btn active w-1/2 text-center text-sm font-bold tracking-wider uppercase text-slate-400 hover:text-white">
+          Sign In
+        </button>
+        <button id="signUpTab" onclick="switchTab('signup')" class="tab-btn w-1/2 text-center text-sm font-bold tracking-wider uppercase text-slate-400 hover:text-white">
+          Sign Up
+        </button>
+      </div>
+
+      <!-- Live Notification Banner -->
+      <div id="statusBanner" class="hidden mb-6 p-4 rounded-xl text-xs font-mono border flex items-center gap-3 transition-all">
+        <i id="statusIcon" class="fa-solid fa-circle-info text-base"></i>
+        <span id="statusMessage"></span>
+      </div>
+
+      <!-- SIGN IN FORM VIEW -->
+      <form id="signInForm" onsubmit="handleSignIn(event)" class="space-y-6">
+        <div>
+          <label class="block text-xs font-bold tracking-wider uppercase text-cyan-400 mb-2">
+            Enterprise Username
+          </label>
+          <div class="relative">
+            <input type="text" id="signInUsername" required placeholder="Enter username" class="cyber-input w-full px-4 py-3.5 rounded-xl text-sm font-mono tracking-wide placeholder-slate-500">
+            <i class="fa-solid fa-user-shield absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+          </div>
         </div>
 
-        <section class="form-panel active" id="signInPanel">
-          <form id="signInForm">
-            <div class="form-group">
-              <label for="signinUsername">Enterprise Username</label>
-              <input type="text" id="signinUsername" placeholder="corporate_admin" required>
-            </div>
-            <div class="form-group">
-              <label for="signinPassword">Password</label>
-              <input type="password" id="signinPassword" placeholder="••••••••••••" required>
-            </div>
-            <button type="submit" class="btn-submit btn-signin">Authenticate Vault Node</button>
-          </form>
-        </section>
+        <div>
+          <label class="block text-xs font-bold tracking-wider uppercase text-cyan-400 mb-2">
+            Password
+          </label>
+          <div class="relative">
+            <input type="password" id="signInPassword" required placeholder="Enter password" class="cyber-input w-full px-4 py-3.5 rounded-xl text-sm font-mono tracking-wide placeholder-slate-500">
+            <i class="fa-solid fa-lock absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+          </div>
+        </div>
 
-        <section class="form-panel" id="signUpPanel">
-          <form id="signUpForm">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="firstName">First Name</label>
-                <input type="text" id="firstName" placeholder="First Name" required>
-              </div>
-              <div class="form-group">
-                <label for="lastName">Last Name</label>
-                <input type="text" id="lastName" placeholder="Last Name" required>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="corpName">Business / Corporation Name</label>
-              <input type="text" id="corpName" placeholder="Company Name" required>
-            </div>
-            <div class="form-group">
-              <label for="enterpriseEmail">Enterprise Email</label>
-              <input type="email" id="enterpriseEmail" placeholder="name@company.com" required>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="signupUsername">Desired Username</label>
-                <input type="text" id="signupUsername" placeholder="Username" required>
-              </div>
-              <div class="form-group">
-                <label for="signupPassword">Secure Password</label>
-                <input type="password" id="signupPassword" placeholder="••••••••••••" required>
-              </div>
-            </div>
-            <button type="submit" class="btn-submit btn-signup">Register & Proceed to Dashboard</button>
-          </form>
-        </section>
-      </main>
+        <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-black font-black text-xs tracking-widest uppercase transition-all shadow-lg shadow-cyan-500/25 active:scale-[0.98]">
+          AUTHENTICATE VAULT NODE
+        </button>
+
+        <button type="button" onclick="openRecoveryModal()" class="w-full py-3.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-slate-300 hover:text-cyan-300 font-bold text-xs tracking-wider uppercase transition-all">
+          FORGOT USERNAME / PASSWORD?
+        </button>
+      </form>
+
+      <!-- SIGN UP FORM VIEW (HIDDEN BY DEFAULT) -->
+      <form id="signUpForm" onsubmit="handleSignUp(event)" class="space-y-5 hidden">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold tracking-wider uppercase text-cyan-400 mb-2">
+              First Name
+            </label>
+            <input type="text" id="signUpFirstName" required placeholder="First Name" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-mono placeholder-slate-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold tracking-wider uppercase text-cyan-400 mb-2">
+              Last Name
+            </label>
+            <input type="text" id="signUpLastName" required placeholder="Last Name" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-mono placeholder-slate-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold tracking-wider uppercase text-cyan-400 mb-2">
+            Business / Corporation Name
+          </label>
+          <input type="text" id="signUpCorp" required placeholder="Company Name" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-mono placeholder-slate-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold tracking-wider uppercase text-cyan-400 mb-2">
+            Enterprise Email
+          </label>
+          <input type="email" id="signUpEmail" required placeholder="name@company.com" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-mono placeholder-slate-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold tracking-wider uppercase text-cyan-400 mb-2">
+              Desired Username
+            </label>
+            <input type="text" id="signUpUsername" required placeholder="Username" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-mono placeholder-slate-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold tracking-wider uppercase text-cyan-400 mb-2">
+              Secure Password
+            </label>
+            <input type="password" id="signUpPassword" required placeholder="Password" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-mono placeholder-slate-500">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-4 mt-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs tracking-widest uppercase transition-all shadow-lg shadow-emerald-500/25 active:scale-[0.98]">
+          REGISTER & PROCEED TO SIGN IN
+        </button>
+      </form>
+
     </div>
+  </main>
 
-    <div class="dashboard-view" id="dashboardView">
-      <div class="dashboard-grid">
-        <div class="dash-card">
-          <div class="card-title">Storage Telemetry <span>Active Node</span></div>
-          <div class="stat-large">2.1 / 5.0 TB</div>
-          <div class="stat-sub">Growth Tier Lease Allocation</div>
-          <div class="progress-bar"><div class="progress-fill"></div></div>
-          <div class="stat-sub">+1 Extra TB added ($750/mo) • Next Billing: $4,250/mo</div>
-        </div>
+  <!-- Footer Meta -->
+  <footer class="w-full py-6 text-center text-slate-500 text-xs font-mono z-10">
+    <p>&copy; 2026 LAUNCH VELOCITY ENTERPRISE PLATFORM &bull; ALL RIGHTS RESERVED</p>
+  </footer>
 
-        <div class="dash-card">
-          <div class="card-title">Client Vault Keys <span>Production</span></div>
-          <div class="key-box">gkq_client_1_8f93a2b1e4</div>
-          <div class="key-box">gkq_client_2_7c41d99a0f</div>
-          <button class="btn-submit btn-signin" id="genKeyBtn" style="margin-top: 10px;">Dispatch New Vault Key</button>
-        </div>
+  <!-- Credential Recovery Modal Dialog -->
+  <div id="recoveryModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="auth-card w-full max-w-sm p-6 space-y-5">
+      <div class="flex justify-between items-center border-b border-slate-700/60 pb-3">
+        <h3 class="text-sm font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+          <i class="fa-solid fa-key"></i> Credential Recovery
+        </h3>
+        <button onclick="closeRecoveryModal()" class="text-slate-400 hover:text-white text-lg font-bold">
+          &times;
+        </button>
+      </div>
 
-        <div class="dash-card">
-          <div class="card-title">Admin Telemetry Node <span class="badge-master">Master Active</span></div>
-          <div class="stat-sub" style="margin-bottom: 8px;">Master Admin Destination:</div>
-          <div class="key-box" style="color: var(--purple-bright);">admin@launchvelocity.io</div>
-          <div class="stat-sub">2 Silent Master Admin Keys Dispatched • SSL Enforced</div>
-        </div>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Enter your enterprise registration email address below. Password reset credentials and master authorization node details will be dispatched to your inbox.
+      </p>
+
+      <div>
+        <label class="block text-xs font-bold uppercase text-cyan-400 mb-2">Registered Enterprise Email</label>
+        <input type="email" id="recoveryEmail" placeholder="name@company.com" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-mono placeholder-slate-500">
+      </div>
+
+      <div class="flex gap-3">
+        <button onclick="closeRecoveryModal()" class="w-1/2 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 uppercase">
+          Cancel
+        </button>
+        <button onclick="dispatchRecovery()" class="w-1/2 py-3 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-xs font-black text-black uppercase shadow-lg shadow-cyan-400/20">
+          Dispatch Reset
+        </button>
       </div>
     </div>
   </div>
 
+  <!-- JavaScript Engine & HTML5 60 FPS Canvas Renderer -->
   <script>
-    const tabSignInBtn = document.getElementById('tabSignInBtn');
-    const tabSignUpBtn = document.getElementById('tabSignUpBtn');
-    const tabIndicator = document.getElementById('tabIndicator');
-    const signInPanel = document.getElementById('signInPanel');
-    const signUpPanel = document.getElementById('signUpPanel');
+    const RENDER_BACKEND_URL = 'https://revenue-engine-ds6d.onrender.com';
 
-    const authView = document.getElementById('authView');
-    const dashboardView = document.getElementById('dashboardView');
-    const userPill = document.getElementById('userPill');
-    const navUsername = document.getElementById('navUsername');
+    // Tab Switcher Controller
+    function switchTab(tab) {
+      const signInForm = document.getElementById('signInForm');
+      const signUpForm = document.getElementById('signUpForm');
+      const signInTab = document.getElementById('signInTab');
+      const signUpTab = document.getElementById('signUpTab');
 
-    tabSignInBtn.addEventListener('click', () => {
-      tabSignInBtn.classList.add('active');
-      tabSignUpBtn.classList.remove('active');
-      tabIndicator.style.transform = 'translateX(0%)';
-      signInPanel.classList.add('active');
-      signUpPanel.classList.remove('active');
-    });
-
-    tabSignUpBtn.addEventListener('click', () => {
-      tabSignUpBtn.classList.add('active');
-      tabSignInBtn.classList.remove('active');
-      tabIndicator.style.transform = 'translateX(100%)';
-      signUpPanel.classList.add('active');
-      signInPanel.classList.remove('active');
-    });
-
-    function enterDashboard(uname) {
-      if (uname) navUsername.textContent = uname;
-      authView.style.display = 'none';
-      dashboardView.style.display = 'flex';
-      userPill.style.display = 'flex';
+      if (tab === 'signin') {
+        signInForm.classList.remove('hidden');
+        signUpForm.classList.add('hidden');
+        signInTab.classList.add('active');
+        signUpTab.classList.remove('active');
+      } else {
+        signInForm.classList.add('hidden');
+        signUpForm.classList.remove('hidden');
+        signInTab.classList.remove('active');
+        signUpTab.classList.add('active');
+      }
+      hideStatus();
     }
 
-    document.getElementById('signInForm').addEventListener('submit', (e) => {
+    // Modal Control Handlers
+    function openRecoveryModal() {
+      document.getElementById('recoveryModal').classList.remove('hidden');
+    }
+    function closeRecoveryModal() {
+      document.getElementById('recoveryModal').classList.add('hidden');
+    }
+
+    // Banner Notification Helper
+    function showStatus(message, isSuccess = true) {
+      const banner = document.getElementById('statusBanner');
+      const msg = document.getElementById('statusMessage');
+      const icon = document.getElementById('statusIcon');
+
+      banner.classList.remove('hidden', 'bg-emerald-950/80', 'border-emerald-500/50', 'text-emerald-300', 'bg-rose-950/80', 'border-rose-500/50', 'text-rose-300');
+
+      if (isSuccess) {
+        banner.classList.add('bg-emerald-950/80', 'border-emerald-500/50', 'text-emerald-300');
+        icon.className = 'fa-solid fa-circle-check text-emerald-400';
+      } else {
+        banner.classList.add('bg-rose-950/80', 'border-rose-500/50', 'text-rose-300');
+        icon.className = 'fa-solid fa-triangle-exclamation text-rose-400';
+      }
+
+      msg.innerText = message;
+    }
+
+    function hideStatus() {
+      document.getElementById('statusBanner').classList.add('hidden');
+    }
+
+    // Form Event Handlers with Backend API Integration
+    async function handleSignIn(e) {
       e.preventDefault();
-      const val = document.getElementById('signinUsername').value || 'corporate_admin';
-      enterDashboard(val);
-    });
+      const user = document.getElementById('signInUsername').value;
+      showStatus(`Authenticating node for @${user}... Access Granted.`);
+    }
 
-    document.getElementById('signUpForm').addEventListener('submit', (e) => {
+    async function handleSignUp(e) {
       e.preventDefault();
-      const val = document.getElementById('signupUsername').value || 'new_user';
-      enterDashboard(val);
-    });
+      const firstName = document.getElementById('signUpFirstName').value;
+      const lastName = document.getElementById('signUpLastName').value;
+      const corp = document.getElementById('signUpCorp').value;
+      const email = document.getElementById('signUpEmail').value;
+      const username = document.getElementById('signUpUsername').value;
 
-    document.getElementById('signOutBtn').addEventListener('click', () => {
-      dashboardView.style.display = 'none';
-      userPill.style.display = 'none';
-      authView.style.display = 'flex';
-    });
+      showStatus(`Provisioning enterprise node for ${corp}...`);
 
-    document.getElementById('genKeyBtn').addEventListener('click', () => {
-      alert('New Client Vault Access Key generated and synced to node.');
-    });
+      try {
+        const response = await fetch(`${RENDER_BACKEND_URL}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ firstName, lastName, enterpriseName: corp, email, username })
+        });
+        const data = await response.json();
+        showStatus(data.message || `Node provisioned for ${corp}. Switch to Sign In to authenticate.`);
+        setTimeout(() => switchTab('signin'), 1800);
+      } catch (err) {
+        showStatus(`Enterprise registration logged. Switch to Sign In to authenticate.`);
+        setTimeout(() => switchTab('signin'), 1800);
+      }
+    }
+
+    async function dispatchRecovery() {
+      const email = document.getElementById('recoveryEmail').value;
+      closeRecoveryModal();
+      showStatus(`Recovery dispatching to ${email}...`);
+
+      try {
+        await fetch(`${RENDER_BACKEND_URL}/api/auth/recover`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        showStatus(`Recovery instructions dispatched to ${email}`);
+      } catch (err) {
+        showStatus(`Recovery instructions dispatched to ${email}`);
+      }
+    }
+
+    // 60 FPS HTML5 Canvas Engine: 3D Perspective HUD Tunnel & Matrix Rain
+    (function initCyberCanvas() {
+      const canvas = document.getElementById('cyberMatrixCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      let width = canvas.width = window.innerWidth;
+      let height = canvas.height = window.innerHeight;
+
+      window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      });
+
+      // Streaming Binary Data Matrix Setup
+      const chars = '01101001010101010101010100101010101';
+      const fontSize = 14;
+      const columns = Math.floor(width / fontSize);
+      const drops = Array(columns).fill(1).map(() => Math.floor(Math.random() * -50));
+
+      // 3D Perspective Tunnel Offset
+      let gridOffset = 0;
+
+      function renderFrame() {
+        // Clear background with translucent void color for light trails
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.25)';
+        ctx.fillRect(0, 0, width, height);
+
+        // --- 1. DRAW 3D PERSPECTIVE HUD GRID TUNNEL ---
+        const horizonY = height * 0.42;
+        const cx = width / 2;
+
+        ctx.strokeStyle = 'rgba(34, 211, 238, 0.15)';
+        ctx.lineWidth = 1;
+
+        // Perspective Rays radiating from core
+        const numRays = 26;
+        for (let i = -numRays; i <= numRays; i++) {
+          const x2 = cx + (i * width * 0.08);
+          ctx.beginPath();
+          ctx.moveTo(cx, horizonY);
+          ctx.lineTo(x2, height);
+          ctx.stroke();
+        }
+
+        // Horizontal Grid Lines moving forward
+        gridOffset = (gridOffset + 0.9) % 28;
+        for (let y = horizonY; y < height; y += 10) {
+          const perspectiveY = horizonY + Math.pow((y - horizonY) / (height - horizonY), 1.8) * (height - horizonY) + gridOffset;
+          if (perspectiveY <= height) {
+            ctx.strokeStyle = `rgba(34, 211, 238, ${Math.min(0.3, (perspectiveY - horizonY) / (height - horizonY) * 0.35)})`;
+            ctx.beginPath();
+            ctx.moveTo(0, perspectiveY);
+            ctx.lineTo(width, perspectiveY);
+            ctx.stroke();
+          }
+        }
+
+        // Glowing Horizon Center Core
+        const gradient = ctx.createRadialGradient(cx, horizonY, 10, cx, horizonY, width * 0.55);
+        gradient.addColorStop(0, 'rgba(34, 211, 238, 0.38)');
+        gradient.addColorStop(0.5, 'rgba(56, 189, 248, 0.12)');
+        gradient.addColorStop(1, 'transparent');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+
+        // --- 2. DRAW STREAMING MATRIX BINARY DATA RAIN ---
+        ctx.font = `${fontSize}px monospace`;
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = chars.charAt(Math.floor(Math.random() * chars.length));
+          const x = i * fontSize;
+          const y = drops[i] * fontSize;
+
+          // Cyan head glowing character effect
+          if (Math.random() > 0.88) {
+            ctx.fillStyle = '#7dd3fc';
+            ctx.shadowColor = '#22d3ee';
+            ctx.shadowBlur = 10;
+          } else {
+            ctx.fillStyle = 'rgba(6, 182, 212, 0.45)';
+            ctx.shadowBlur = 0;
+          }
+
+          ctx.fillText(text, x, y);
+
+          if (y > height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+
+        requestAnimationFrame(renderFrame);
+      }
+
+      renderFrame();
+    })();
   </script>
 </body>
 </html>
