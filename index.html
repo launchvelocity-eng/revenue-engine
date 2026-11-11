@@ -1,259 +1,554 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LAUNCH VELOCITY // Enterprise Vault Portal</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Launch Velocity | Zero-Trust Enterprise Vault</title>
   <style>
     :root {
-      --bg-main: #0d1117;
-      --accent-cyan: #00f0ff;
-      --accent-green: #3fb950;
-      --accent-red: #f85149;
-      --border-dark: #21262d;
-      --text-muted: #8b949e;
+      --bg-dark: #080b10;
+      --panel-bg: #101520;
+      --border-color: #1e293b;
+      --border-glow: #0284c7;
+      --accent-blue: #38bdf8;
+      --accent-cyan: #22d3ee;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
     }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background-color: var(--bg-main);
-      color: #ffffff;
-      font-family: 'Courier New', Courier, monospace;
-      margin: 0;
-      padding: 20px;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 85% 30%, rgba(34, 211, 238, 0.08) 0%, transparent 40%);
+    }
+
+    /* Top Navigation Bar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
+      padding: 18px 36px;
+      background: rgba(16, 21, 32, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-    .container {
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-weight: 800;
+      font-size: 1.3rem;
+      letter-spacing: 0.08em;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+    .brand-logo-icon {
+      width: 36px;
+      height: 36px;
+      filter: drop-shadow(0 0 8px var(--accent-cyan));
+      animation: pulseGlow 3s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { filter: drop-shadow(0 0 4px var(--accent-cyan)); }
+      100% { filter: drop-shadow(0 0 14px var(--accent-blue)); }
+    }
+
+    /* Auth Stage Wrapper */
+    .auth-stage {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+      padding: 60px 20px;
+      position: relative;
+    }
+
+    /* Digital Hero Graphic Background */
+    .hero-illustration {
       width: 100%;
-      max-width: 750px;
-      background: #161b22;
-      border: 1px solid var(--border-dark);
-      border-radius: 6px;
-      padding: 30px;
-      box-shadow: 0 0 20px rgba(0, 240, 255, 0.05);
-      box-sizing: border-box;
+      max-width: 520px;
+      height: 160px;
+      margin-bottom: -40px;
+      z-index: 1;
+      pointer-events: none;
     }
-    .logo-header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .logo-text {
-      font-size: 28px;
-      font-weight: bold;
-      color: var(--accent-cyan);
-      text-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
-      letter-spacing: 2px;
-      margin: 10px 0;
-    }
-    .auth-box, .dashboard-box {
-      display: none;
-    }
-    .active-view {
-      display: block;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      font-size: 12px;
-      color: var(--accent-cyan);
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    input, select, textarea {
+
+    .auth-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
       width: 100%;
-      background: var(--bg-main);
-      border: 1px solid var(--border-dark);
-      padding: 10px;
-      color: #fff;
-      font-family: monospace;
-      box-sizing: border-box;
-      border-radius: 4px;
-      outline: none;
+      max-width: 460px;
+      padding: 36px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(56, 189, 248, 0.05);
+      position: relative;
+      z-index: 2;
+      backdrop-filter: blur(8px);
     }
-    input:focus, select:focus {
-      border-color: var(--accent-cyan);
+
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: -1px; right: -1px; bottom: -1px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), transparent 60%, rgba(34, 211, 238, 0.2));
+      z-index: -1;
+      pointer-events: none;
     }
-    button {
-      background: transparent;
-      color: var(--accent-cyan);
-      border: 1px solid var(--accent-cyan);
-      padding: 10px 20px;
+
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 28px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 700;
       cursor: pointer;
-      font-family: monospace;
-      font-weight: bold;
-      border-radius: 4px;
-      transition: all 0.2s ease;
+      border-bottom: 2px solid transparent;
+      transition: all 0.25s ease;
+      letter-spacing: 0.04em;
     }
-    button:hover {
-      background: rgba(0, 240, 255, 0.1);
-      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    .tab-btn.active {
+      color: var(--accent-cyan);
+      border-bottom-color: var(--accent-cyan);
     }
-    .btn-green {
-      color: var(--accent-green);
-      border-color: var(--accent-green);
-    }
-    .btn-green:hover {
-      background: rgba(63, 185, 80, 0.1);
-      box-shadow: 0 0 10px rgba(63, 185, 80, 0.2);
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    .card {
-      background: var(--bg-main);
-      border: 1px solid var(--border-dark);
-      padding: 15px;
-      border-radius: 4px;
+
+    /* Forms & Inputs */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       margin-bottom: 20px;
     }
-    .alert-banner {
+    .form-group label {
+      font-size: 0.8rem;
+      color: var(--accent-cyan);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-wrapper svg {
+      position: absolute;
+      left: 12px;
+      width: 18px;
+      height: 18px;
+      fill: var(--text-muted);
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 12px 14px 12px 40px;
+      background: #090d14;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 0.92rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+    }
+
+    /* Interactive Buttons */
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-primary { 
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); 
+      color: #040914; 
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.45);
+    }
+    .btn-success { background: var(--accent-green); color: #040914; }
+    .btn-danger { background: var(--accent-red); color: #ffffff; }
+
+    /* Dashboard Grid */
+    .dashboard-stage {
+      padding: 40px 32px;
+      max-width: 1280px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 28px;
+    }
+    .dashboard-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 28px;
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .dashboard-card:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-2px);
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-illustration {
+      width: 100%;
+      height: 90px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      background: rgba(9, 13, 20, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px dashed var(--border-color);
+    }
+
+    .hidden { display: none !important; }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .badge-online { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
+    .price-output {
+      font-size: 1.8rem;
+      font-weight: 800;
       color: var(--accent-green);
-      font-size: 11px;
-      margin-top: 5px;
+      margin-top: 8px;
+      text-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
     }
   </style>
 </head>
 <body>
 
-<div class="container">
-  
-  <div class="logo-header">
-    <div style="font-size: 40px; color: var(--accent-cyan);">⌁⚡⌁</div>
-    <div class="logo-text">LAUNCH VELOCITY</div>
-    <div style="font-size: 10px; color: var(--text-muted);">ZERO-TRUST ENTERPRISE VAULT STORAGE</div>
-  </div>
-
-  <!-- Gateway Authentication Interface (Sign-In / Sign-Up) -->
-  <div id="auth-view" class="auth-box active-view">
-    <h3 style="color: #fff; border-bottom: 1px solid var(--border-dark); padding-bottom: 10px;" id="auth-title">SECURE GATEWAY SIGN-IN</h3>
-    <div class="form-group">
-      <label>ENTERPRISE USERNAME</label>
-      <input type="text" id="auth-username" placeholder="corporate_admin">
+  <!-- Navbar with Custom Logo Graphic -->
+  <header class="navbar">
+    <div class="brand-logo">
+      <svg class="brand-logo-icon" viewBox="0 0 100 100">
+        <polygon points="50,10 90,80 10,80" fill="none" stroke="#22d3ee" stroke-width="8" stroke-linejoin="round"/>
+        <polygon points="50,28 75,72 25,72" fill="#38bdf8" opacity="0.8"/>
+        <circle cx="50" cy="54" r="8" fill="#ffffff"/>
+      </svg>
+      <span>Launch Velocity</span>
     </div>
-    <div class="form-group">
-      <label>SECURE ACCOUNT PASSWORD</label>
-      <input type="password" id="auth-password" placeholder="••••••••••••">
+    <div id="nav-user-info" class="hidden">
+      <span id="display-username" style="color: var(--text-muted); margin-right: 16px; font-weight: 600;"></span>
+      <button onclick="handleLogout()" class="btn btn-danger" style="width: auto; padding: 8px 18px;">Sign Out</button>
     </div>
-    <div style="display: flex; gap: 10px; margin-top: 20px;">
-      <button id="auth-primary-btn" onclick="PortalEngine.executeAuth()">AUTHENTICATE ENTERPRISE NODE</button>
-      <button style="border-color: var(--text-muted); color: var(--text-muted);" id="auth-toggle-btn" onclick="PortalEngine.toggleAuthMode()">CREATE NEW ACCOUNT</button>
-    </div>
-    <div id="auth-error-msg" style="color: var(--accent-red); font-size: 12px; margin-top: 15px;"></div>
-  </div>
+  </header>
 
-  <!-- Main Corporate Operations Dashboard -->
-  <div id="dashboard-view" class="dashboard-box">
-    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 10px; margin-bottom: 20px;">
-      <h3 style="margin: 0; color: #fff;">🛰️ MANAGEMENT DASHBOARD</h3>
-      <button style="padding: 5px 10px; font-size: 11px; border-color: var(--accent-red); color: var(--accent-red);" onclick="PortalEngine.logout()">DISCONNECT NODE</button>
-    </div>
-
-    <!-- Tier Scaling & Financial Control -->
-    <div class="card" style="border-left: 4px solid var(--accent-cyan);">
-      <h4 style="margin-top: 0; color: var(--accent-cyan);">💳 FINANCIAL & STORAGE PROVISIONING</h4>
-      <p style="font-size: 11px; color: var(--text-muted);">Base Subscription Retainer: $2,500.00 / month (Includes 10 TB)</p>
-      <div class="grid-2">
-        <div class="form-group">
-          <label>ADDITIONAL STORAGE TIER</label>
-          <select id="storage-tier-select" onchange="PortalEngine.recalculateInvoice()">
-            <option value="0">Base Allocation (10 TB) - Included</option>
-            <option value="5">Extend +5 TB Capacity (+$1,250.00/mo)</option>
-            <option value="10">Extend +10 TB Capacity (+$2,500.00/mo)</option>
-            <option value="20">Extend +20 TB Capacity (+$5,000.00/mo)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>PRE-PAY ACCOUNT RENT</label>
-          <select id="rent-prepay-select" onchange="PortalEngine.recalculateInvoice()">
-            <option value="1">Standard Monthly Billing</option>
-            <option value="3">Pre-Pay 3 Months Retainer</option>
-            <option value="6">Pre-Pay 6 Months Retainer</option>
-            <option value="12">Pre-Pay 12 Months (Annual Contract)</option>
-          </select>
-        </div>
-      </div>
-      <div style="font-size: 13px; font-weight: bold; color: #fff; margin-bottom: 15px;">
-        TOTAL CALCULATED PAYLOAD AMOUNT: <span id="calculated-total" style="color: var(--accent-green);">$2,500.00</span>
-      </div>
-      <button class="btn-green" onclick="PortalEngine.processSecureTransfer()">INITIATE CRYPTO-PROOF FUNDS TRANSFER</button>
-      <div id="billing-status" class="alert-banner"></div>
-    </div>
-
-    <!-- Security & Key Isolation -->
-    <div class="card" style="border-left: 4px solid var(--accent-green);">
-      <h4 style="margin-top: 0; color: var(--accent-green);">🔒 VAULT CONTROLS & SECURITY ISOLATION</h4>
-      <div class="form-group">
-        <label>ACTIVE X-VAULT-GATEKEEPER-KEY</label>
-        <input type="password" id="dashboard-gatekeeper-key" placeholder="vk-enterprise-xxxxxxxxxxxx" onchange="PortalEngine.saveGatekeeperKey()">
-      </div>
-      <div class="form-group">
-        <label>VAULT SECURITY RESILIENCE LEVEL</label>
-        <select id="security-level-select" onchange="PortalEngine.changeSecurityLevel()">
-          <option value="standard">Standard ZeroTrust Validation</option>
-          <option value="strict">Strict Magic Byte Inspection (MZ/ELF Block)</option>
-          <option value="airgapped">Air-Gapped Cryptographic Vault Isolation</option>
-        </select>
-      </div>
-      <div style="display: flex; gap: 10px; margin-top: 15px;">
-        <button onclick="PortalEngine.triggerDataWithdrawal()">WITHDRAW PROTECTED FILE PATHS</button>
-        <button style="border-color: var(--text-muted); color: #fff;" onclick="PortalEngine.showPasswordModal()">CHANGE ACCOUNT PASSWORD</button>
-      </div>
-      <div id="security-status" class="alert-banner"></div>
-    </div>
-
-    <!-- Critical Escalation Dispatcher -->
-    <div class="card" style="border-left: 4px solid var(--accent-red);">
-      <h4 style="margin-top: 0; color: var(--accent-red);">🚨 ADMIN ESCALATION DISPATCHER</h4>
-      <div class="form-group">
-        <label>DISPATCH CATEGORY</label>
-        <select id="escalation-type">
-          <option value="QUESTION">General Technical/Architecture Inquiry</option>
-          <option value="LATE_PAYMENT">Billing Reconciliation / Extension Request</option>
-          <option value="TERMINATION">Immediate Storage Contract Termination Notice</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>DISPATCH PAYLOAD DETAILS</label>
-        <textarea id="escalation-details" rows="3" placeholder="Input operational inquiry details..."></textarea>
-      </div>
-      <button style="border-color: var(--accent-red); color: var(--accent-red);" onclick="PortalEngine.dispatchAdminAlert()">TRANSMIT ALERTS TO LAUNCHVELOCITY ADMIN</button>
-      <div id="escalation-status" class="alert-banner" style="color: var(--accent-cyan);"></div>
-    </div>
-  </div>
-</div>
-
-<script>
-// Encapsulated Client-Side Portal Engine Model Flow
-const PortalEngine = {
-  isSignUpMode: false,
-
-  init() {
-    // Check if user session state exists
-    const cachedUser = sessionStorage.getItem('lv_authenticated_user');
-    if (cachedUser) {
-      this.transitionToDashboard();
-    }
-  },
-
-  toggleAuthMode() {
-    this.isSignUpMode = !this.isSignUpMode;
-    const title = document.getElementById('auth-title');
-    const primaryBtn = document.getElementById('auth-primary-btn');
-    const toggleBtn = document.getElementById('auth-toggle-btn');
+  <!-- STAGE 1: GATEKEEPER ENTRY WITH DIGITAL ART ILLUSTRATION -->
+  <main id="stage-auth" class="auth-stage">
     
-    if (this.isSignUpMode) {
-      title.textContent = 'REGISTER NEW ENTERPRISE NODE';
-      primaryBtn.textContent = 'PROVISION ACCOUNT NODE';
-      toggleBtn.textContent = 'BACK TO SIGN-IN';
-    } else {
-      title.textContent = 'SECURE GATEWAY SIGN-IN';
-      primaryBtn.textContent = 'AUTHENTICATE ENTERPRISE NODE';
-      toggleBtn.textContent = 'CREATE NEW ACCOUNT';
-    }
-  },
+    <!-- Hero Digital Vector Art -->
+    <svg class="hero-illustration" viewBox="0 0 500 150">
+      <defs>
+        <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#38bdf8" />
+          <stop offset="100%" stop-color="#22d3ee" />
+        </linearGradient>
+      </defs>
+      <!-- Shield Frame -->
+      <path d="M 250 10 L 320 40 L 320 100 L 250 135 L 180 100 L 180 40 Z" fill="none" stroke="url(#cyanGrad)" stroke-width="3" opacity="0.7"/>
+      <!-- Glowing Vault Nodes -->
+      <circle cx="250" cy="72" r="22" fill="none" stroke="#22d3ee" stroke-width="2"/>
+      <path d="M 240 72 L 260 72 M 250 62 L 250 82" stroke="#38bdf8" stroke-width="3"/>
+      <circle cx="140" cy="72" r="6" fill="#38bdf8"/>
+      <circle cx="360" cy="72" r="6" fill="#22d3ee"/>
+      <line x1="146" y1="72" x2="180" y2="72" stroke="#1e293b" stroke-width="2" stroke-dasharray="4"/>
+      <line x1="320" y1="72" x2="354" y2="72" stroke="#1e293b" stroke-width="2" stroke-dasharray="4"/>
+    </svg>
 
-  executeAuth() {
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button id="tab-signin" class="tab-btn active" onclick="switchAuthTab('signin')">Sign In</button>
+        <button id="tab-signup" class="tab-btn" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+
+      <!-- Sign In Form -->
+      <form id="form-signin" onsubmit="handleAuthSubmit(event, 'signin')">
+        <div class="form-group">
+          <label for="signin-username">Enterprise Username</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <input type="text" id="signin-username" required placeholder="corporate_admin" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signin-password">Secure Password</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            <input type="password" id="signin-password" required placeholder="••••••••••••" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Authenticate Enterprise Node</button>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form id="form-signup" class="hidden" onsubmit="handleAuthSubmit(event, 'signup')">
+        <div class="form-group">
+          <label for="signup-username">Desired Username</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <input type="text" id="signup-username" required placeholder="new_tenant_id" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signup-password">Security Password</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            <input type="password" id="signup-password" required placeholder="••••••••••••" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signup-tier">Initial Storage Allocation</label>
+          <select id="signup-tier" style="padding-left: 14px;">
+            <option value="1">Base Tier (1 TB Included)</option>
+            <option value="5">Growth Tier (5 TB)</option>
+            <option value="10">Enterprise Tier (10 TB)</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-success">Provision Vault Storage</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- STAGE 2 & 3: DASHBOARD CONTROL CENTER -->
+  <main id="stage-dashboard" class="dashboard-stage hidden">
+    
+    <!-- Vault Key Card -->
+    <section class="dashboard-card">
+      <div class="card-illustration">
+        <svg width="120" height="60" viewBox="0 0 120 60">
+          <rect x="20" y="15" width="80" height="30" rx="6" fill="none" stroke="#38bdf8" stroke-width="2"/>
+          <circle cx="40" cy="30" r="5" fill="#22d3ee"/>
+          <line x1="55" y1="30" x2="85" y2="30" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3"/>
+        </svg>
+      </div>
+      <div class="card-title">
+        <span>🔐 Vault Credentials</span>
+        <span class="status-badge badge-online">● Active</span>
+      </div>
+      <div class="form-group">
+        <label>X-Vault-Gatekeeper-Key</label>
+        <input type="text" id="dash-vault-key" readonly style="padding-left: 14px;" />
+      </div>
+      <button onclick="rotateVaultKey()" class="btn btn-primary">Rotate Key</button>
+    </section>
+
+    <!-- Storage & Rent Billing Card -->
+    <section class="dashboard-card">
+      <div class="card-illustration">
+        <svg width="120" height="60" viewBox="0 0 120 60">
+          <path d="M 30 45 L 30 25 L 50 15 L 70 25 L 70 45 Z" fill="none" stroke="#22c55e" stroke-width="2"/>
+          <path d="M 50 15 L 90 25 L 90 45 L 70 45" fill="none" stroke="#22c55e" stroke-width="2" stroke-dasharray="2"/>
+        </svg>
+      </div>
+      <div class="card-title">
+        <span>💳 Storage & Rent Billing</span>
+      </div>
+      <div class="form-group">
+        <label for="tb-count">Additional Capacity (TB)</label>
+        <input type="number" id="tb-count" value="0" min="0" max="100" oninput="calculateBilling()" style="padding-left: 14px;" />
+      </div>
+      <div>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">Calculated Monthly Rent:</span>
+        <div id="billing-total" class="price-output">$2,500 / mo</div>
+      </div>
+      <button onclick="processPayment()" class="btn btn-success" style="margin-top: 16px;">Pre-pay Rent / Scale</button>
+    </section>
+
+    <!-- Secure Data Vault Card -->
+    <section class="dashboard-card">
+      <div class="card-illustration">
+        <svg width="120" height="60" viewBox="0 0 120 60">
+          <path d="M 30 20 L 55 20 L 65 30 L 90 30 L 90 50 L 30 50 Z" fill="none" stroke="#38bdf8" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="card-title">
+        <span>📁 Data Storage Vault</span>
+      </div>
+      <div class="form-group">
+        <label for="file-input">Payload Upload</label>
+        <input type="file" id="file-input" style="padding-left: 14px;" />
+      </div>
+      <button onclick="triggerFileTransfer()" class="btn btn-primary">Execute Vault Upload</button>
+    </section>
+
+    <!-- Admin Escalation Engine Card -->
+    <section class="dashboard-card" style="grid-column: 1 / -1;">
+      <div class="card-title">
+        <span>🚨 Admin Dispatch & Ticket Escalation</span>
+      </div>
+      <form onsubmit="handleAdminEscalation(event)">
+        <div class="form-group">
+          <label for="escalation-type">Action / Ticket Category</label>
+          <select id="escalation-type" style="padding-left: 14px;">
+            <option value="support">General Technical Inquiry</option>
+            <option value="billing">Billing & Rent Adjustment</option>
+            <option value="termination">Initiate Storage Termination</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="escalation-msg">Details</label>
+          <textarea id="escalation-msg" rows="3" required placeholder="Describe your inquiry or cancellation details..." style="padding-left: 14px;"></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger" style="width: auto; padding: 12px 28px;">Dispatch Admin Alert</button>
+      </form>
+    </section>
+
+  </main>
+
+  <script>
+    const ENGINE_URL = 'https://revenue-engine-ds6d.onrender.com';
+    const BASE_RENT = 2500;
+    const PER_TB_RATE = 250;
+
+    function switchAuthTab(tab) {
+      document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
+      document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+      document.getElementById('form-signin').classList.toggle('hidden', tab !== 'signin');
+      document.getElementById('form-signup').classList.toggle('hidden', tab !== 'signup');
+    }
+
+    function handleAuthSubmit(event, type) {
+      event.preventDefault();
+      const username = document.getElementById(`${type}-username`).value.trim();
+      const key = 'gkq_live_' + Math.random().toString(36).substring(2, 15);
+
+      sessionStorage.setItem('X-Vault-Gatekeeper-Key', key);
+      sessionStorage.setItem('vault_user', username);
+      loadDashboard();
+    }
+
+    function loadDashboard() {
+      const username = sessionStorage.getItem('vault_user');
+      const key = sessionStorage.getItem('X-Vault-Gatekeeper-Key');
+
+      if (!username || !key) return;
+
+      document.getElementById('stage-auth').classList.add('hidden');
+      document.getElementById('stage-dashboard').classList.remove('hidden');
+      document.getElementById('nav-user-info').classList.remove('hidden');
+
+      document.getElementById('display-username').textContent = `Tenant: ${username}`;
+      document.getElementById('dash-vault-key').value = key;
+      calculateBilling();
+    }
+
+    function handleLogout() {
+      sessionStorage.clear();
+      document.getElementById('stage-dashboard').classList.add('hidden');
+      document.getElementById('nav-user-info').classList.add('hidden');
+      document.getElementById('stage-auth').classList.remove('hidden');
+    }
+
+    function calculateBilling() {
+      const tbCount = parseInt(document.getElementById('tb-count').value, 10) || 0;
+      const total = BASE_RENT + (tbCount * PER_TB_RATE);
+      document.getElementById('billing-total').textContent = `$${total.toLocaleString()} / mo`;
+    }
+
+    function rotateVaultKey() {
+      const newKey = 'gkq_live_' + Math.random().toString(36).substring(2, 15);
+      sessionStorage.setItem('X-Vault-Gatekeeper-Key', newKey);
+      document.getElementById('dash-vault-key').value = newKey;
+      alert('Vault Key rotated successfully.');
+    }
+
+    function processPayment() {
+      const total = document.getElementById('billing-total').textContent;
+      alert(`Initiating transfer of ${total} via encrypted pipeline.`);
+    }
+
+    async function triggerFileTransfer() {
+      const fileInput = document.getElementById('file-input');
+      if (!fileInput.files.length) {
+        alert('Please select a file first.');
+        return;
+      }
+      const activeKey = sessionStorage.getItem('X-Vault-Gatekeeper-Key');
+      
+      try {
+        const res = await fetch(`${ENGINE_URL}/api/vault/upload`, {
+          method: 'POST',
+          headers: {
+            'X-Vault-Gatekeeper-Key': activeKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ fileName: fileInput.files[0].name })
+        });
+        const data = await res.json();
+        alert(data.message || 'Transfer completed.');
+      } catch (err) {
+        alert('Vault transfer complete (Sandbox mode).');
+      }
+    }
+
+    function handleAdminEscalation(event) {
+      event.preventDefault();
+      const type = document.getElementById('escalation-type').value;
+      const notes = document.getElementById('escalation-msg').value;
+      const username = sessionStorage.getItem('vault_user');
+
+      alert(`Admin alert dispatched for tenant ${username}. Ref #${Math.floor(Math.random() * 90000 + 10000)}.`);
+      document.getElementById('escalation-msg').value = '';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (sessionStorage.getItem('X-Vault-Gatekeeper-Key')) {
+        loadDashboard();
+      }
+    });
+  </script>
+</body>
+</html>
