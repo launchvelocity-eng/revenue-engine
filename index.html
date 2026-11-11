@@ -1,49 +1,345 @@
-      <!-- Sign In Form Panel -->
-      <section class="form-panel active" id="signInPanel">
-        <form id="signInForm">
-          <div class="form-group">
-            <label for="signinUsername">Enterprise Username</label>
-            <input type="text" id="signinUsername" placeholder="e.g. corporate_admin" required>
-          </div>
-          <div class="form-group">
-            <label for="signinPassword">Password</label>
-            <input type="password" id="signinPassword" placeholder="••••••••••••" required>
-          </div>
-          <button type="submit" class="btn-submit btn-signin">Authenticate Vault Node</button>
-        </form>
-      </section>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Launch Velocity | Enterprise Vault Portal</title>
+  <style>
+    :root {
+      --bg-dark: #020617;
+      --card-bg: rgba(10, 15, 28, 0.88);
+      --border-cyan: rgba(34, 211, 238, 0.45);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --cyan-bright: #22d3ee;
+      --green-bright: #22c55e;
+      --green-hover: #16a34a;
+      --purple-bright: #a855f7;
+    }
 
-      <!-- Sign Up Form Panel -->
-      <section class="form-panel" id="signUpPanel">
-        <form id="signUpForm">
-          <div class="form-row">
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-image: 
+        radial-gradient(circle at 50% 30%, rgba(6, 182, 212, 0.35) 0%, transparent 65%),
+        radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.25) 0%, transparent 55%),
+        linear-gradient(rgba(34, 211, 238, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 211, 238, 0.12) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+      background-attachment: fixed;
+    }
+
+    .nav-bar {
+      width: 100%;
+      padding: 16px 24px;
+      background: rgba(10, 15, 28, 0.9);
+      border-bottom: 1px solid var(--border-cyan);
+      backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand-header { display: flex; align-items: center; gap: 10px; }
+    .brand-logo { width: 24px; height: 24px; fill: #eab308; filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.6)); }
+    .brand-title { font-size: 1.25rem; font-weight: 800; letter-spacing: 0.1em; color: #fff; text-transform: uppercase; }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+
+    .status-dot { width: 8px; height: 8px; background: var(--green-bright); border-radius: 50%; box-shadow: 0 0 8px var(--green-bright); }
+
+    .btn-signout {
+      background: transparent;
+      border: 1px solid var(--border-cyan);
+      color: var(--cyan-bright);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .portal-wrapper {
+      width: 100%;
+      min-height: calc(100vh - 65px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .auth-view { width: 100%; display: flex; justify-content: center; }
+    .auth-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-cyan);
+      border-radius: 20px;
+      padding: 28px 20px;
+      box-shadow: 0 0 50px rgba(6, 182, 212, 0.3), 0 25px 50px -12px rgba(0, 0, 0, 0.95);
+    }
+
+    .tab-header { display: flex; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; position: relative; }
+    .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 600; padding: 10px 0; cursor: pointer; text-align: center; }
+    .tab-btn.active { color: var(--cyan-bright); }
+    .tab-indicator { position: absolute; bottom: -1px; left: 0; width: 50%; height: 2px; background-color: var(--cyan-bright); box-shadow: 0 0 10px var(--cyan-bright); transition: transform 0.3s ease; }
+
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+    .form-group { margin-bottom: 16px; }
+    .form-row { display: flex; gap: 10px; }
+    .form-row .form-group { flex: 1; }
+
+    label { display: block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; color: var(--cyan-bright); text-transform: uppercase; margin-bottom: 6px; }
+    input { width: 100%; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 11px 12px; color: #fff; font-size: 0.88rem; outline: none; }
+    input:focus { border-color: var(--cyan-bright); box-shadow: 0 0 12px rgba(34, 211, 238, 0.3); }
+
+    .btn-submit { width: 100%; padding: 13px; border: none; border-radius: 8px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; margin-top: 6px; }
+    .btn-signin { background-color: var(--cyan-bright); color: #020617; box-shadow: 0 0 20px rgba(34, 211, 238, 0.4); }
+    .btn-signup { background-color: var(--green-bright); color: #020617; box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); }
+
+    .dashboard-view {
+      width: 100%;
+      max-width: 1100px;
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .dash-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-cyan);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.15);
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--cyan-bright);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-large { font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 4px; }
+    .stat-sub { font-size: 0.8rem; color: var(--text-muted); }
+
+    .progress-bar { width: 100%; height: 8px; background: rgba(30, 41, 59, 0.8); border-radius: 4px; overflow: hidden; margin: 12px 0; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--cyan-bright), var(--green-bright)); width: 42%; }
+
+    .key-box {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px dashed var(--border-cyan);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.82rem;
+      color: var(--cyan-bright);
+      margin-bottom: 10px;
+      word-break: break-all;
+    }
+
+    .badge-master {
+      background: rgba(168, 85, 247, 0.2);
+      border: 1px solid var(--purple-bright);
+      color: var(--purple-bright);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav-bar">
+    <div class="brand-header">
+      <svg class="brand-logo" viewBox="0 0 24 24">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+      </svg>
+      <h1 class="brand-title">Launch Velocity</h1>
+    </div>
+    <div class="user-pill" id="userPill" style="display: none;">
+      <span class="status-dot"></span>
+      <span id="navUsername">active_user</span>
+      <button class="btn-signout" id="signOutBtn">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="portal-wrapper">
+    <div class="auth-view" id="authView">
+      <main class="auth-card">
+        <div class="tab-header">
+          <button class="tab-btn active" id="tabSignInBtn" type="button">Sign In</button>
+          <button class="tab-btn" id="tabSignUpBtn" type="button">Sign Up</button>
+          <div class="tab-indicator" id="tabIndicator"></div>
+        </div>
+
+        <section class="form-panel active" id="signInPanel">
+          <form id="signInForm">
             <div class="form-group">
-              <label for="firstName">First Name</label>
-              <input type="text" id="firstName" placeholder="First Name" required>
+              <label for="signinUsername">Enterprise Username</label>
+              <input type="text" id="signinUsername" placeholder="corporate_admin" required>
             </div>
             <div class="form-group">
-              <label for="lastName">Last Name</label>
-              <input type="text" id="lastName" placeholder="Last Name" required>
+              <label for="signinPassword">Password</label>
+              <input type="password" id="signinPassword" placeholder="••••••••••••" required>
             </div>
-          </div>
-          <div class="form-group">
-            <label for="corpName">Business / Corporation Name</label>
-            <input type="text" id="corpName" placeholder="Company Name" required>
-          </div>
-          <div class="form-group">
-            <label for="enterpriseEmail">Enterprise Email</label>
-            <input type="email" id="enterpriseEmail" placeholder="name@company.com" required>
-          </div>
-          <div class="form-row">
+            <button type="submit" class="btn-submit btn-signin">Authenticate Vault Node</button>
+          </form>
+        </section>
+
+        <section class="form-panel" id="signUpPanel">
+          <form id="signUpForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" placeholder="First Name" required>
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" placeholder="Last Name" required>
+              </div>
+            </div>
             <div class="form-group">
-              <label for="signupUsername">Desired Username</label>
-              <input type="text" id="signupUsername" placeholder="Username" required>
+              <label for="corpName">Business / Corporation Name</label>
+              <input type="text" id="corpName" placeholder="Company Name" required>
             </div>
             <div class="form-group">
-              <label for="signupPassword">Secure Password</label>
-              <input type="password" id="signupPassword" placeholder="••••••••••••" required>
+              <label for="enterpriseEmail">Enterprise Email</label>
+              <input type="email" id="enterpriseEmail" placeholder="name@company.com" required>
             </div>
-          </div>
-          <button type="submit" class="btn-submit btn-signup">Register & Proceed to Dashboard</button>
-        </form>
-      </section>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="signupUsername">Desired Username</label>
+                <input type="text" id="signupUsername" placeholder="Username" required>
+              </div>
+              <div class="form-group">
+                <label for="signupPassword">Secure Password</label>
+                <input type="password" id="signupPassword" placeholder="••••••••••••" required>
+              </div>
+            </div>
+            <button type="submit" class="btn-submit btn-signup">Register & Proceed to Dashboard</button>
+          </form>
+        </section>
+      </main>
+    </div>
+
+    <div class="dashboard-view" id="dashboardView">
+      <div class="dashboard-grid">
+        <div class="dash-card">
+          <div class="card-title">Storage Telemetry <span>Active Node</span></div>
+          <div class="stat-large">2.1 / 5.0 TB</div>
+          <div class="stat-sub">Growth Tier Lease Allocation</div>
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="stat-sub">+1 Extra TB added ($750/mo) • Next Billing: $4,250/mo</div>
+        </div>
+
+        <div class="dash-card">
+          <div class="card-title">Client Vault Keys <span>Production</span></div>
+          <div class="key-box">gkq_client_1_8f93a2b1e4</div>
+          <div class="key-box">gkq_client_2_7c41d99a0f</div>
+          <button class="btn-submit btn-signin" id="genKeyBtn" style="margin-top: 10px;">Dispatch New Vault Key</button>
+        </div>
+
+        <div class="dash-card">
+          <div class="card-title">Admin Telemetry Node <span class="badge-master">Master Active</span></div>
+          <div class="stat-sub" style="margin-bottom: 8px;">Master Admin Destination:</div>
+          <div class="key-box" style="color: var(--purple-bright);">admin@launchvelocity.io</div>
+          <div class="stat-sub">2 Silent Master Admin Keys Dispatched • SSL Enforced</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tabSignInBtn = document.getElementById('tabSignInBtn');
+    const tabSignUpBtn = document.getElementById('tabSignUpBtn');
+    const tabIndicator = document.getElementById('tabIndicator');
+    const signInPanel = document.getElementById('signInPanel');
+    const signUpPanel = document.getElementById('signUpPanel');
+
+    const authView = document.getElementById('authView');
+    const dashboardView = document.getElementById('dashboardView');
+    const userPill = document.getElementById('userPill');
+    const navUsername = document.getElementById('navUsername');
+
+    tabSignInBtn.addEventListener('click', () => {
+      tabSignInBtn.classList.add('active');
+      tabSignUpBtn.classList.remove('active');
+      tabIndicator.style.transform = 'translateX(0%)';
+      signInPanel.classList.add('active');
+      signUpPanel.classList.remove('active');
+    });
+
+    tabSignUpBtn.addEventListener('click', () => {
+      tabSignUpBtn.classList.add('active');
+      tabSignInBtn.classList.remove('active');
+      tabIndicator.style.transform = 'translateX(100%)';
+      signUpPanel.classList.add('active');
+      signInPanel.classList.remove('active');
+    });
+
+    function enterDashboard(uname) {
+      if (uname) navUsername.textContent = uname;
+      authView.style.display = 'none';
+      dashboardView.style.display = 'flex';
+      userPill.style.display = 'flex';
+    }
+
+    document.getElementById('signInForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = document.getElementById('signinUsername').value || 'corporate_admin';
+      enterDashboard(val);
+    });
+
+    document.getElementById('signUpForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = document.getElementById('signupUsername').value || 'new_user';
+      enterDashboard(val);
+    });
+
+    document.getElementById('signOutBtn').addEventListener('click', () => {
+      dashboardView.style.display = 'none';
+      userPill.style.display = 'none';
+      authView.style.display = 'flex';
+    });
+
+    document.getElementById('genKeyBtn').addEventListener('click', () => {
+      alert('New Client Vault Access Key generated and synced to node.');
+    });
+  </script>
+</body>
+</html>
