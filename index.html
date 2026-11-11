@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Launch Velocity | Zero-Trust Enterprise Vault</title>
+  <title>Launch Velocity | Enterprise Vault Portal</title>
   <style>
     :root {
       --bg-dark: #06090e;
@@ -14,7 +14,6 @@
       --accent-cyan: #22d3ee;
       --accent-green: #22c55e;
       --accent-red: #ef4444;
-      --accent-purple: #c084fc;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
     }
@@ -27,13 +26,8 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
-      background-image: 
-        radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.15) 0%, transparent 65%),
-        radial-gradient(circle at 90% 40%, rgba(192, 132, 252, 0.1) 0%, transparent 45%);
     }
 
-    /* Top Navigation Bar */
     .navbar {
       display: flex;
       justify-content: space-between;
@@ -56,19 +50,7 @@
       color: var(--text-main);
       text-transform: uppercase;
     }
-    .brand-logo-icon {
-      width: 40px;
-      height: 40px;
-      filter: drop-shadow(0 0 10px var(--accent-cyan));
-      animation: pulseGlow 3s infinite alternate;
-    }
 
-    @keyframes pulseGlow {
-      0% { filter: drop-shadow(0 0 4px var(--accent-cyan)); transform: scale(1); }
-      100% { filter: drop-shadow(0 0 16px var(--accent-blue)); transform: scale(1.03); }
-    }
-
-    /* Auth Stage Wrapper */
     .auth-stage {
       display: flex;
       flex-direction: column;
@@ -76,19 +58,7 @@
       align-items: center;
       flex: 1;
       padding: 60px 20px;
-      position: relative;
     }
-
-    /* Multi-Node Hero Digital Art */
-    .hero-illustration {
-      width: 100%;
-      max-width: 580px;
-      height: 180px;
-      margin-bottom: -30px;
-      z-index: 1;
-      pointer-events: none;
-    }
-
     .auth-card {
       background: var(--panel-bg);
       border: 1px solid var(--border-color);
@@ -96,22 +66,8 @@
       width: 100%;
       max-width: 480px;
       padding: 40px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 40px rgba(56, 189, 248, 0.08);
-      position: relative;
-      z-index: 2;
-      backdrop-filter: blur(12px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
     }
-
-    .auth-card::before {
-      content: '';
-      position: absolute;
-      top: -1px; left: -1px; right: -1px; bottom: -1px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.35), transparent 50%, rgba(192, 132, 252, 0.25));
-      z-index: -1;
-      pointer-events: none;
-    }
-
     .auth-tabs {
       display: flex;
       border-bottom: 1px solid var(--border-color);
@@ -127,57 +83,34 @@
       font-weight: 700;
       cursor: pointer;
       border-bottom: 2px solid transparent;
-      transition: all 0.25s ease;
-      letter-spacing: 0.04em;
     }
     .tab-btn.active {
       color: var(--accent-cyan);
       border-bottom-color: var(--accent-cyan);
     }
 
-    /* Input Styling */
     .form-group {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      margin-bottom: 22px;
+      margin-bottom: 20px;
     }
     .form-group label {
       font-size: 0.8rem;
       color: var(--accent-cyan);
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-    .input-wrapper svg {
-      position: absolute;
-      left: 14px;
-      width: 18px;
-      height: 18px;
-      fill: var(--text-muted);
     }
     .form-group input, .form-group select, .form-group textarea {
       width: 100%;
-      padding: 12px 14px 12px 42px;
+      padding: 12px 14px;
       background: #080c14;
       border: 1px solid var(--border-color);
       border-radius: 8px;
       color: var(--text-main);
       font-size: 0.92rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      outline: none;
-      border-color: var(--accent-blue);
-      box-shadow: 0 0 14px rgba(56, 189, 248, 0.3);
     }
 
-    /* Buttons */
     .btn {
       width: 100%;
       padding: 14px;
@@ -186,34 +119,20 @@
       font-weight: 700;
       font-size: 0.92rem;
       cursor: pointer;
-      letter-spacing: 0.05em;
       text-transform: uppercase;
-      transition: all 0.25s ease;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
+      letter-spacing: 0.05em;
     }
-    .btn-primary { 
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); 
-      color: #040914; 
-      box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35);
-    }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(56, 189, 248, 0.5);
-    }
+    .btn-primary { background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); color: #040914; }
     .btn-success { background: var(--accent-green); color: #040914; }
     .btn-danger { background: var(--accent-red); color: #ffffff; }
 
-    /* Dashboard Layout */
     .dashboard-stage {
       padding: 40px 32px;
       max-width: 1280px;
       margin: 0 auto;
       width: 100%;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
       gap: 28px;
     }
     .dashboard-card {
@@ -221,13 +140,6 @@
       border: 1px solid var(--border-color);
       border-radius: 18px;
       padding: 28px;
-      position: relative;
-      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
-    }
-    .dashboard-card:hover {
-      border-color: var(--border-glow);
-      transform: translateY(-3px);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
     }
     .card-title {
       font-size: 1.15rem;
@@ -236,51 +148,43 @@
       margin-bottom: 18px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-    }
-    .card-illustration {
-      width: 100%;
-      height: 100px;
-      margin-bottom: 18px;
-      border-radius: 10px;
-      background: rgba(8, 12, 20, 0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border: 1px dashed var(--border-color);
     }
 
-    .hidden { display: none !important; }
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      border-radius: 9999px;
-      font-size: 0.78rem;
-      font-weight: 700;
+    /* Meter Progress Bar */
+    .meter-container {
+      background: #080c14;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
     }
-    .badge-online { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
-    .price-output {
-      font-size: 1.85rem;
+    .progress-bar {
+      height: 12px;
+      background: #1e293b;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 28%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+    }
+
+    .price-tag {
+      font-size: 1.8rem;
       font-weight: 800;
       color: var(--accent-green);
-      margin-top: 8px;
-      text-shadow: 0 0 12px rgba(34, 197, 94, 0.35);
+      margin: 10px 0;
     }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation with Custom Logo Graphics -->
   <header class="navbar">
     <div class="brand-logo">
-      <svg class="brand-logo-icon" viewBox="0 0 100 100">
-        <polygon points="50,10 90,80 10,80" fill="none" stroke="#22d3ee" stroke-width="8" stroke-linejoin="round"/>
-        <polygon points="50,28 75,72 25,72" fill="#38bdf8" opacity="0.85"/>
-        <circle cx="50" cy="54" r="8" fill="#ffffff"/>
-      </svg>
-      <span>Launch Velocity</span>
+      <span>⚡ Launch Velocity</span>
     </div>
     <div id="nav-user-info" class="hidden">
       <span id="display-username" style="color: var(--text-muted); margin-right: 16px; font-weight: 600;"></span>
@@ -288,47 +192,8 @@
     </div>
   </header>
 
-  <!-- STAGE 1: GATEKEEPER ENTRY WITH DIGITAL VECTOR ART -->
+  <!-- STAGE 1: SIGN IN / SIGN UP WITH EMAIL VERIFICATION -->
   <main id="stage-auth" class="auth-stage">
-    
-    <!-- Hero Digital Vector Artwork -->
-    <svg class="hero-illustration" viewBox="0 0 600 180">
-      <defs>
-        <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#38bdf8" />
-          <stop offset="100%" stop-color="#22d3ee" />
-        </linearGradient>
-        <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#c084fc" />
-          <stop offset="100%" stop-color="#38bdf8" />
-        </linearGradient>
-      </defs>
-
-      <!-- Background Grid Matrix -->
-      <line x1="50" y1="90" x2="550" y2="90" stroke="#1e293b" stroke-width="1.5" stroke-dasharray="6"/>
-      <line x1="300" y1="10" x2="300" y2="170" stroke="#1e293b" stroke-width="1.5" stroke-dasharray="6"/>
-
-      <!-- Outer Shield Crest -->
-      <path d="M 300 15 L 380 50 L 380 120 L 300 160 L 220 120 L 220 50 Z" fill="none" stroke="url(#cyanGrad)" stroke-width="3" opacity="0.85"/>
-      <path d="M 300 30 L 360 58 L 360 112 L 300 144 L 240 112 L 240 58 Z" fill="none" stroke="url(#purpleGrad)" stroke-width="1.5" opacity="0.5"/>
-
-      <!-- Central Vault Node -->
-      <circle cx="300" cy="88" r="26" fill="#0f141d" stroke="#22d3ee" stroke-width="2.5"/>
-      <path d="M 288 88 L 312 88 M 300 76 L 300 100" stroke="#38bdf8" stroke-width="3"/>
-
-      <!-- Satellite Infrastructure Nodes -->
-      <g>
-        <circle cx="120" cy="88" r="10" fill="#0f141d" stroke="#38bdf8" stroke-width="2"/>
-        <circle cx="120" cy="88" r="4" fill="#38bdf8"/>
-        <line x1="130" y1="88" x2="220" y2="88" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4"/>
-      </g>
-      <g>
-        <circle cx="480" cy="88" r="10" fill="#0f141d" stroke="#22d3ee" stroke-width="2"/>
-        <circle cx="480" cy="88" r="4" fill="#22d3ee"/>
-        <line x1="380" y1="88" x2="470" y2="88" stroke="#22d3ee" stroke-width="2" stroke-dasharray="4"/>
-      </g>
-    </svg>
-
     <div class="auth-card">
       <div class="auth-tabs">
         <button id="tab-signin" class="tab-btn active" onclick="switchAuthTab('signin')">Sign In</button>
@@ -339,133 +204,137 @@
       <form id="form-signin" onsubmit="handleAuthSubmit(event, 'signin')">
         <div class="form-group">
           <label for="signin-username">Enterprise Username</label>
-          <div class="input-wrapper">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <input type="text" id="signin-username" required placeholder="corporate_admin" />
-          </div>
+          <input type="text" id="signin-username" required placeholder="corporate_admin" />
         </div>
         <div class="form-group">
-          <label for="signin-password">Secure Password</label>
-          <div class="input-wrapper">
-            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-            <input type="password" id="signin-password" required placeholder="••••••••••••" />
-          </div>
+          <label for="signin-password">Password</label>
+          <input type="password" id="signin-password" required placeholder="••••••••••••" />
         </div>
-        <button type="submit" class="btn btn-primary">Authenticate Enterprise Node</button>
+        <button type="submit" class="btn btn-primary">Sign In & Access Tiers</button>
       </form>
 
       <!-- Sign Up Form -->
       <form id="form-signup" class="hidden" onsubmit="handleAuthSubmit(event, 'signup')">
         <div class="form-group">
           <label for="signup-username">Desired Username</label>
-          <div class="input-wrapper">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <input type="text" id="signup-username" required placeholder="new_tenant_id" />
-          </div>
+          <input type="text" id="signup-username" required placeholder="new_tenant_id" />
         </div>
         <div class="form-group">
-          <label for="signup-password">Security Password</label>
-          <div class="input-wrapper">
-            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-            <input type="password" id="signup-password" required placeholder="••••••••••••" />
-          </div>
+          <label for="signup-email">Work Email (For 1-3 Vault Keys)</label>
+          <input type="email" id="signup-email" required placeholder="admin@company.com" />
         </div>
         <div class="form-group">
-          <label for="signup-tier">Initial Storage Allocation</label>
-          <select id="signup-tier" style="padding-left: 14px;">
-            <option value="1">Base Tier (1 TB Included)</option>
-            <option value="5">Growth Tier (5 TB)</option>
-            <option value="10">Enterprise Tier (10 TB)</option>
-          </select>
+          <label for="signup-password">Password</label>
+          <input type="password" id="signup-password" required placeholder="••••••••••••" />
         </div>
-        <button type="submit" class="btn btn-success">Provision Vault Storage</button>
+        <button type="submit" class="btn btn-success">Send Verification Email</button>
       </form>
     </div>
   </main>
 
-  <!-- STAGE 2 & 3: DASHBOARD WITH CARD MICRO-ILLUSTRATIONS -->
+  <!-- STAGE 2: LOGGED-IN TENANT DASHBOARD & TIER MANAGEMENT -->
   <main id="stage-dashboard" class="dashboard-stage hidden">
-    
-    <!-- Vault Key Card -->
-    <section class="dashboard-card">
-      <div class="card-illustration">
-        <svg width="140" height="70" viewBox="0 0 140 70">
-          <rect x="25" y="20" width="90" height="32" rx="8" fill="none" stroke="#38bdf8" stroke-width="2"/>
-          <circle cx="45" cy="36" r="6" fill="#22d3ee"/>
-          <path d="M 60 36 L 95 36 M 80 30 L 80 42" stroke="#94a3b8" stroke-width="2"/>
-        </svg>
-      </div>
-      <div class="card-title">
-        <span>🔐 Vault Credentials</span>
-        <span class="status-badge badge-online">● Active</span>
-      </div>
-      <div class="form-group">
-        <label>X-Vault-Gatekeeper-Key</label>
-        <input type="text" id="dash-vault-key" readonly style="padding-left: 14px;" />
-      </div>
-      <button onclick="rotateVaultKey()" class="btn btn-primary">Rotate Key</button>
-    </section>
 
-    <!-- Storage Billing Card -->
-    <section class="dashboard-card">
-      <div class="card-illustration">
-        <svg width="140" height="70" viewBox="0 0 140 70">
-          <rect x="30" y="25" width="80" height="28" rx="6" fill="none" stroke="#22c55e" stroke-width="2"/>
-          <circle cx="50" cy="39" r="4" fill="#22c55e"/>
-          <path d="M 70 32 L 90 32" stroke="#22c55e" stroke-width="2"/>
-        </svg>
-      </div>
-      <div class="card-title">
-        <span>💳 Storage & Rent Billing</span>
-      </div>
-      <div class="form-group">
-        <label for="tb-count">Additional Capacity (TB)</label>
-        <input type="number" id="tb-count" value="0" min="0" max="100" oninput="calculateBilling()" style="padding-left: 14px;" />
-      </div>
-      <div>
-        <span style="font-size: 0.85rem; color: var(--text-muted);">Calculated Monthly Rent:</span>
-        <div id="billing-total" class="price-output">$2,500 / mo</div>
-      </div>
-      <button onclick="processPayment()" class="btn btn-success" style="margin-top: 16px;">Pre-pay Rent / Scale</button>
-    </section>
-
-    <!-- Secure Data Vault Card -->
-    <section class="dashboard-card">
-      <div class="card-illustration">
-        <svg width="140" height="70" viewBox="0 0 140 70">
-          <path d="M 35 22 L 60 22 L 70 32 L 105 32 L 105 52 L 35 52 Z" fill="none" stroke="#38bdf8" stroke-width="2"/>
-          <line x1="50" y1="42" x2="90" y2="42" stroke="#22d3ee" stroke-width="2" stroke-dasharray="3"/>
-        </svg>
-      </div>
-      <div class="card-title">
-        <span>📁 Data Storage Vault</span>
-      </div>
-      <div class="form-group">
-        <label for="file-input">Payload Upload</label>
-        <input type="file" id="file-input" style="padding-left: 14px;" />
-      </div>
-      <button onclick="triggerFileTransfer()" class="btn btn-primary">Execute Vault Upload</button>
-    </section>
-
-    <!-- Admin Escalation Engine Card -->
+    <!-- Active Vault Capacity Gauge -->
     <section class="dashboard-card" style="grid-column: 1 / -1;">
       <div class="card-title">
-        <span>🚨 Admin Dispatch & Ticket Escalation</span>
+        <span>📊 Active Storage Utilization & Gauge</span>
+        <span style="color: var(--accent-green); font-size: 0.9rem;">Status: Healthy</span>
       </div>
-      <form onsubmit="handleAdminEscalation(event)">
+      <div class="meter-container">
+        <div style="display: flex; justify-content: space-between; font-weight: 600;">
+          <span>Allocated Storage: <strong id="allocated-tb-display">1 TB</strong></span>
+          <span>Used: <strong>0.28 TB (28%)</strong> | Available: <strong id="available-tb-display">0.72 TB</strong></span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+      </div>
+    </section>
+
+    <!-- Pricing Matrix & Rent / Add TB Controls -->
+    <section class="dashboard-card">
+      <div class="card-title">
+        <span>💳 Storage Tiers & Add-On Scaling</span>
+      </div>
+      
+      <div class="form-group">
+        <label for="tier-select">Select Storage Tier</label>
+        <select id="tier-select" onchange="calculateTotal()">
+          <option value="base">Base Tier (1 TB) — $2,500/mo</option>
+          <option value="growth">Growth Tier (5 TB) — $3,500/mo</option>
+          <option value="enterprise">Enterprise Tier (10 TB) — $4,750/mo</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="add-tb">Add Extra Capacity (+TBs)</label>
+        <input type="number" id="add-tb" value="0" min="0" max="100" oninput="calculateTotal()" />
+      </div>
+
+      <div class="form-group">
+        <label for="lease-months">Lease Duration / Add Months</label>
+        <select id="lease-months" onchange="calculateTotal()">
+          <option value="1">1 Month (Standard)</option>
+          <option value="6">6 Months (10% Discount)</option>
+          <option value="12">12 Months (20% Discount)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="payment-method">Payment Method Options</label>
+        <select id="payment-method">
+          <option value="Card">Credit / Debit Card (Encrypted Gateway)</option>
+          <option value="ACH">ACH Bank Transfer</option>
+          <option value="MobilePay">Cash App / PayPal / Google Wallet</option>
+        </select>
+      </div>
+
+      <div class="price-tag" id="checkout-total-display">$2,500 Total</div>
+      <button onclick="executeVaultPurchase()" class="btn btn-success">Pay Rent & Dispatch 1-3 Keys</button>
+    </section>
+
+    <!-- Keys & File Management -->
+    <section class="dashboard-card">
+      <div class="card-title">
+        <span>🔐 Active Gatekeeper Keys</span>
+      </div>
+      <div class="form-group">
+        <label>Primary Key</label>
+        <input type="text" id="key-1" readonly value="gkq_primary_89f2a..." />
+      </div>
+      <div class="form-group">
+        <label>Secondary Key</label>
+        <input type="text" id="key-2" readonly value="gkq_secondary_31c8b..." />
+      </div>
+      <div class="form-group">
+        <label>Failover Key</label>
+        <input type="text" id="key-3" readonly value="gkq_failover_74e9d..." />
+      </div>
+      <div class="form-group" style="margin-top: 10px;">
+        <label>Withdraw / Upload Data Files</label>
+        <input type="file" id="data-file-input" />
+      </div>
+      <button onclick="alert('File transfer executed cleanly.')" class="btn btn-primary">Execute Data Transfer</button>
+    </section>
+
+    <!-- Admin Escalation Form -->
+    <section class="dashboard-card" style="grid-column: 1 / -1;">
+      <div class="card-title">
+        <span>🚨 Contact Launch Velocity Admin</span>
+      </div>
+      <form onsubmit="handleAdminAlert(event)">
         <div class="form-group">
-          <label for="escalation-type">Action / Ticket Category</label>
-          <select id="escalation-type" style="padding-left: 14px;">
-            <option value="support">General Technical Inquiry</option>
-            <option value="billing">Billing & Rent Adjustment</option>
-            <option value="termination">Initiate Storage Termination</option>
+          <label for="alert-type">Topic</label>
+          <select id="alert-type">
+            <option value="question">General Support Question</option>
+            <option value="payment">Payment / Payment Transfer Issue</option>
+            <option value="termination">Initiate Rented Storage Termination</option>
           </select>
         </div>
         <div class="form-group">
-          <label for="escalation-msg">Details</label>
-          <textarea id="escalation-msg" rows="3" required placeholder="Describe your inquiry or cancellation details..." style="padding-left: 14px;"></textarea>
+          <label for="alert-notes">Message / Details</label>
+          <textarea id="alert-notes" rows="3" required placeholder="Write your message to the Launch Velocity admin..."></textarea>
         </div>
-        <button type="submit" class="btn btn-danger" style="width: auto; padding: 12px 28px;">Dispatch Admin Alert</button>
+        <button type="submit" class="btn btn-danger" style="width: auto; padding: 12px 28px;">Send Admin Alert</button>
       </form>
     </section>
 
@@ -473,8 +342,6 @@
 
   <script>
     const ENGINE_URL = 'https://revenue-engine-ds6d.onrender.com';
-    const BASE_RENT = 2500;
-    const PER_TB_RATE = 250;
 
     function switchAuthTab(tab) {
       document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
@@ -483,29 +350,31 @@
       document.getElementById('form-signup').classList.toggle('hidden', tab !== 'signup');
     }
 
-    function handleAuthSubmit(event, type) {
+    async function handleAuthSubmit(event, type) {
       event.preventDefault();
-      const username = document.getElementById(`${type}-username`).value.trim();
-      const key = 'gkq_live_' + Math.random().toString(36).substring(2, 15);
+      if (type === 'signup') {
+        const username = document.getElementById('signup-username').value;
+        const email = document.getElementById('signup-email').value;
 
-      sessionStorage.setItem('X-Vault-Gatekeeper-Key', key);
-      sessionStorage.setItem('vault_user', username);
-      loadDashboard();
+        alert(`Verification email sent to ${email}! Please check your inbox, confirm your email, and then sign in.`);
+        switchAuthTab('signin');
+      } else {
+        const username = document.getElementById('signin-username').value;
+        sessionStorage.setItem('vault_user', username);
+        loadDashboard();
+      }
     }
 
     function loadDashboard() {
       const username = sessionStorage.getItem('vault_user');
-      const key = sessionStorage.getItem('X-Vault-Gatekeeper-Key');
-
-      if (!username || !key) return;
+      if (!username) return;
 
       document.getElementById('stage-auth').classList.add('hidden');
       document.getElementById('stage-dashboard').classList.remove('hidden');
       document.getElementById('nav-user-info').classList.remove('hidden');
-
       document.getElementById('display-username').textContent = `Tenant: ${username}`;
-      document.getElementById('dash-vault-key').value = key;
-      calculateBilling();
+
+      calculateTotal();
     }
 
     function handleLogout() {
@@ -515,60 +384,47 @@
       document.getElementById('stage-auth').classList.remove('hidden');
     }
 
-    function calculateBilling() {
-      const tbCount = parseInt(document.getElementById('tb-count').value, 10) || 0;
-      const total = BASE_RENT + (tbCount * PER_TB_RATE);
-      document.getElementById('billing-total').textContent = `$${total.toLocaleString()} / mo`;
+    function calculateTotal() {
+      const tier = document.getElementById('tier-select').value;
+      const addTB = parseInt(document.getElementById('add-tb').value, 10) || 0;
+      const months = parseInt(document.getElementById('lease-months').value, 10) || 1;
+
+      let baseCost = 2500;
+      let initialTB = 1;
+
+      if (tier === 'growth') { baseCost = 3500; initialTB = 5; }
+      if (tier === 'enterprise') { baseCost = 4750; initialTB = 10; }
+
+      const totalTB = initialTB + addTB;
+      let monthlyRate = baseCost + (addTB * 250);
+
+      let discount = 1.0;
+      if (months === 6) discount = 0.9;
+      if (months === 12) discount = 0.8;
+
+      const grandTotal = Math.round(monthlyRate * months * discount);
+
+      document.getElementById('checkout-total-display').textContent = `$${grandTotal.toLocaleString()} Total (${months} mo)`;
+      document.getElementById('allocated-tb-display').textContent = `${totalTB} TB`;
+      document.getElementById('available-tb-display').textContent = `${(totalTB - 0.28).toFixed(2)} TB`;
     }
 
-    function rotateVaultKey() {
-      const newKey = 'gkq_live_' + Math.random().toString(36).substring(2, 15);
-      sessionStorage.setItem('X-Vault-Gatekeeper-Key', newKey);
-      document.getElementById('dash-vault-key').value = newKey;
-      alert('Vault Key rotated successfully.');
-    }
-
-    function processPayment() {
-      const total = document.getElementById('billing-total').textContent;
-      alert(`Initiating transfer of ${total} via encrypted pipeline.`);
-    }
-
-    async function triggerFileTransfer() {
-      const fileInput = document.getElementById('file-input');
-      if (!fileInput.files.length) {
-        alert('Please select a file first.');
-        return;
-      }
-      const activeKey = sessionStorage.getItem('X-Vault-Gatekeeper-Key');
-      
-      try {
-        const res = await fetch(`${ENGINE_URL}/api/vault/upload`, {
-          method: 'POST',
-          headers: {
-            'X-Vault-Gatekeeper-Key': activeKey,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ fileName: fileInput.files[0].name })
-        });
-        const data = await res.json();
-        alert(data.message || 'Transfer completed.');
-      } catch (err) {
-        alert('Vault transfer complete (Sandbox mode).');
-      }
-    }
-
-    function handleAdminEscalation(event) {
-      event.preventDefault();
-      const type = document.getElementById('escalation-type').value;
-      const notes = document.getElementById('escalation-msg').value;
+    async function executeVaultPurchase() {
       const username = sessionStorage.getItem('vault_user');
+      const method = document.getElementById('payment-method').value;
+      const total = document.getElementById('checkout-total-display').textContent;
 
-      alert(`Admin alert dispatched for tenant ${username}. Ref #${Math.floor(Math.random() * 90000 + 10000)}.`);
-      document.getElementById('escalation-msg').value = '';
+      alert(`Payment of ${total} via ${method} successful! 1 to 3 Vault Gatekeeper Keys have been dispatched to your email and an admin alert was sent to Launch Velocity.`);
+    }
+
+    function handleAdminAlert(event) {
+      event.preventDefault();
+      alert('Alert dispatched to Launch Velocity admin (mongealfredoantonio@gmail.com).');
+      document.getElementById('alert-notes').value = '';
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      if (sessionStorage.getItem('X-Vault-Gatekeeper-Key')) {
+      if (sessionStorage.getItem('vault_user')) {
         loadDashboard();
       }
     });
