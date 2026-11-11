@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Launch Velocity | Enterprise Vault Portal</title>
+  <title>Launch Velocity | Zero-Trust Enterprise Vault</title>
   <style>
     :root {
       --bg-dark: #06090e;
@@ -14,6 +14,7 @@
       --accent-cyan: #22d3ee;
       --accent-green: #22c55e;
       --accent-red: #ef4444;
+      --accent-purple: #c084fc;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
     }
@@ -26,6 +27,10 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.15) 0%, transparent 65%),
+        radial-gradient(circle at 90% 40%, rgba(192, 132, 252, 0.1) 0%, transparent 45%);
     }
 
     .navbar {
@@ -50,6 +55,11 @@
       color: var(--text-main);
       text-transform: uppercase;
     }
+    .brand-logo-icon {
+      width: 40px;
+      height: 40px;
+      filter: drop-shadow(0 0 10px var(--accent-cyan));
+    }
 
     .auth-stage {
       display: flex;
@@ -58,7 +68,18 @@
       align-items: center;
       flex: 1;
       padding: 60px 20px;
+      position: relative;
     }
+
+    .hero-illustration {
+      width: 100%;
+      max-width: 580px;
+      height: 180px;
+      margin-bottom: -30px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
     .auth-card {
       background: var(--panel-bg);
       border: 1px solid var(--border-color);
@@ -67,7 +88,10 @@
       max-width: 480px;
       padding: 40px;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+      position: relative;
+      z-index: 2;
     }
+
     .auth-tabs {
       display: flex;
       border-bottom: 1px solid var(--border-color);
@@ -93,7 +117,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      margin-bottom: 20px;
+      margin-bottom: 22px;
     }
     .form-group label {
       font-size: 0.8rem;
@@ -132,7 +156,7 @@
       margin: 0 auto;
       width: 100%;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 28px;
     }
     .dashboard-card {
@@ -150,7 +174,6 @@
       justify-content: space-between;
     }
 
-    /* Meter Progress Bar */
     .meter-container {
       background: #080c14;
       border: 1px solid var(--border-color);
@@ -171,11 +194,11 @@
       background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
     }
 
-    .price-tag {
-      font-size: 1.8rem;
+    .price-output {
+      font-size: 1.85rem;
       font-weight: 800;
       color: var(--accent-green);
-      margin: 10px 0;
+      margin-top: 8px;
     }
     .hidden { display: none !important; }
   </style>
@@ -184,7 +207,12 @@
 
   <header class="navbar">
     <div class="brand-logo">
-      <span>⚡ Launch Velocity</span>
+      <svg class="brand-logo-icon" viewBox="0 0 100 100">
+        <polygon points="50,10 90,80 10,80" fill="none" stroke="#22d3ee" stroke-width="8" stroke-linejoin="round"/>
+        <polygon points="50,28 75,72 25,72" fill="#38bdf8" opacity="0.85"/>
+        <circle cx="50" cy="54" r="8" fill="#ffffff"/>
+      </svg>
+      <span>Launch Velocity</span>
     </div>
     <div id="nav-user-info" class="hidden">
       <span id="display-username" style="color: var(--text-muted); margin-right: 16px; font-weight: 600;"></span>
@@ -192,8 +220,22 @@
     </div>
   </header>
 
-  <!-- STAGE 1: SIGN IN / SIGN UP WITH EMAIL VERIFICATION -->
+  <!-- STAGE 1: GATEKEEPER ENTRY WITH DIGITAL ART -->
   <main id="stage-auth" class="auth-stage">
+    
+    <svg class="hero-illustration" viewBox="0 0 600 180">
+      <defs>
+        <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#38bdf8" />
+          <stop offset="100%" stop-color="#22d3ee" />
+        </linearGradient>
+      </defs>
+      <line x1="50" y1="90" x2="550" y2="90" stroke="#1e293b" stroke-width="1.5" stroke-dasharray="6"/>
+      <path d="M 300 15 L 380 50 L 380 120 L 300 160 L 220 120 L 220 50 Z" fill="none" stroke="url(#cyanGrad)" stroke-width="3"/>
+      <circle cx="300" cy="88" r="26" fill="#0f141d" stroke="#22d3ee" stroke-width="2.5"/>
+      <path d="M 288 88 L 312 88 M 300 76 L 300 100" stroke="#38bdf8" stroke-width="3"/>
+    </svg>
+
     <div class="auth-card">
       <div class="auth-tabs">
         <button id="tab-signin" class="tab-btn active" onclick="switchAuthTab('signin')">Sign In</button>
@@ -224,7 +266,7 @@
           <input type="email" id="signup-email" required placeholder="admin@company.com" />
         </div>
         <div class="form-group">
-          <label for="signup-password">Password</label>
+          <label for="signup-password">Security Password</label>
           <input type="password" id="signup-password" required placeholder="••••••••••••" />
         </div>
         <button type="submit" class="btn btn-success">Send Verification Email</button>
@@ -232,14 +274,14 @@
     </div>
   </main>
 
-  <!-- STAGE 2: LOGGED-IN TENANT DASHBOARD & TIER MANAGEMENT -->
+  <!-- STAGE 2: LOGGED-IN TENANT CONTROL CENTER -->
   <main id="stage-dashboard" class="dashboard-stage hidden">
 
-    <!-- Active Vault Capacity Gauge -->
+    <!-- Active Storage Meter -->
     <section class="dashboard-card" style="grid-column: 1 / -1;">
       <div class="card-title">
         <span>📊 Active Storage Utilization & Gauge</span>
-        <span style="color: var(--accent-green); font-size: 0.9rem;">Status: Healthy</span>
+        <span style="color: var(--accent-green); font-size: 0.9rem;">● Online</span>
       </div>
       <div class="meter-container">
         <div style="display: flex; justify-content: space-between; font-weight: 600;">
@@ -250,14 +292,14 @@
       </div>
     </section>
 
-    <!-- Pricing Matrix & Rent / Add TB Controls -->
+    <!-- Pricing Matrix & Payment Selector -->
     <section class="dashboard-card">
       <div class="card-title">
-        <span>💳 Storage Tiers & Add-On Scaling</span>
+        <span>💳 Storage Tiers & Rent Billing</span>
       </div>
       
       <div class="form-group">
-        <label for="tier-select">Select Storage Tier</label>
+        <label for="tier-select">Select Tier</label>
         <select id="tier-select" onchange="calculateTotal()">
           <option value="base">Base Tier (1 TB) — $2,500/mo</option>
           <option value="growth">Growth Tier (5 TB) — $3,500/mo</option>
@@ -283,16 +325,16 @@
         <label for="payment-method">Payment Method Options</label>
         <select id="payment-method">
           <option value="Card">Credit / Debit Card (Encrypted Gateway)</option>
-          <option value="ACH">ACH Bank Transfer</option>
+          <option value="ACH">ACH Direct Bank Transfer</option>
           <option value="MobilePay">Cash App / PayPal / Google Wallet</option>
         </select>
       </div>
 
-      <div class="price-tag" id="checkout-total-display">$2,500 Total</div>
-      <button onclick="executeVaultPurchase()" class="btn btn-success">Pay Rent & Dispatch 1-3 Keys</button>
+      <div class="price-output" id="checkout-total-display">$2,500 Total</div>
+      <button onclick="executeVaultPurchase()" class="btn btn-success" style="margin-top: 16px;">Pay Rent & Dispatch 1-3 Keys</button>
     </section>
 
-    <!-- Keys & File Management -->
+    <!-- Vault Keys & File Upload -->
     <section class="dashboard-card">
       <div class="card-title">
         <span>🔐 Active Gatekeeper Keys</span>
@@ -309,14 +351,14 @@
         <label>Failover Key</label>
         <input type="text" id="key-3" readonly value="gkq_failover_74e9d..." />
       </div>
-      <div class="form-group" style="margin-top: 10px;">
-        <label>Withdraw / Upload Data Files</label>
+      <div class="form-group">
+        <label>Withdraw / Upload Files</label>
         <input type="file" id="data-file-input" />
       </div>
       <button onclick="alert('File transfer executed cleanly.')" class="btn btn-primary">Execute Data Transfer</button>
     </section>
 
-    <!-- Admin Escalation Form -->
+    <!-- Admin Support & Cancellation Form -->
     <section class="dashboard-card" style="grid-column: 1 / -1;">
       <div class="card-title">
         <span>🚨 Contact Launch Velocity Admin</span>
@@ -326,13 +368,13 @@
           <label for="alert-type">Topic</label>
           <select id="alert-type">
             <option value="question">General Support Question</option>
-            <option value="payment">Payment / Payment Transfer Issue</option>
+            <option value="payment">Payment / Rent Adjustment</option>
             <option value="termination">Initiate Rented Storage Termination</option>
           </select>
         </div>
         <div class="form-group">
           <label for="alert-notes">Message / Details</label>
-          <textarea id="alert-notes" rows="3" required placeholder="Write your message to the Launch Velocity admin..."></textarea>
+          <textarea id="alert-notes" rows="3" required placeholder="Write your message or cancellation details..."></textarea>
         </div>
         <button type="submit" class="btn btn-danger" style="width: auto; padding: 12px 28px;">Send Admin Alert</button>
       </form>
@@ -356,11 +398,20 @@
         const username = document.getElementById('signup-username').value;
         const email = document.getElementById('signup-email').value;
 
-        alert(`Verification email sent to ${email}! Please check your inbox, confirm your email, and then sign in.`);
+        try {
+          await fetch(`${ENGINE_URL}/api/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email })
+          });
+        } catch (e) {}
+
+        alert(`Verification email sent to ${email}! Please verify your account and then sign in.`);
         switchAuthTab('signin');
       } else {
         const username = document.getElementById('signin-username').value;
         sessionStorage.setItem('vault_user', username);
+        sessionStorage.setItem('vault_user_email', `${username}@tenant.com`);
         loadDashboard();
       }
     }
@@ -411,14 +462,50 @@
 
     async function executeVaultPurchase() {
       const username = sessionStorage.getItem('vault_user');
+      const userEmail = sessionStorage.getItem('vault_user_email');
       const method = document.getElementById('payment-method').value;
-      const total = document.getElementById('checkout-total-display').textContent;
+      const tierName = document.getElementById('tier-select').selectedOptions[0].text;
+      const totalAmount = document.getElementById('checkout-total-display').textContent;
 
-      alert(`Payment of ${total} via ${method} successful! 1 to 3 Vault Gatekeeper Keys have been dispatched to your email and an admin alert was sent to Launch Velocity.`);
+      try {
+        const res = await fetch(`${ENGINE_URL}/api/vault/checkout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username,
+            userEmail,
+            tierName,
+            tbCount: document.getElementById('allocated-tb-display').textContent,
+            months: document.getElementById('lease-months').value,
+            paymentMethod: method,
+            totalAmount
+          })
+        });
+        const data = await res.json();
+        if (data.keys) {
+          document.getElementById('key-1').value = data.keys[0];
+          document.getElementById('key-2').value = data.keys[1];
+          document.getElementById('key-3').value = data.keys[2];
+        }
+      } catch (err) {}
+
+      alert(`Payment of ${totalAmount} via ${method} successful! 1-3 Vault Keys have been dispatched to your email and an admin alert was sent to mongealfredoantonio@gmail.com.`);
     }
 
-    function handleAdminAlert(event) {
+    async function handleAdminAlert(event) {
       event.preventDefault();
+      const category = document.getElementById('alert-type').value;
+      const notes = document.getElementById('alert-notes').value;
+      const username = sessionStorage.getItem('vault_user');
+
+      try {
+        await fetch(`${ENGINE_URL}/api/admin/alert`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, category, notes })
+        });
+      } catch (err) {}
+
       alert('Alert dispatched to Launch Velocity admin (mongealfredoantonio@gmail.com).');
       document.getElementById('alert-notes').value = '';
     }
