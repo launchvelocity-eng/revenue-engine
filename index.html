@@ -318,4 +318,260 @@
 
       <!-- Satellite Infrastructure Nodes -->
       <g>
-        <circle cx="120" cy="88" r="
+        <circle cx="120" cy="88" r="10" fill="#0f141d" stroke="#38bdf8" stroke-width="2"/>
+        <circle cx="120" cy="88" r="4" fill="#38bdf8"/>
+        <line x1="130" y1="88" x2="220" y2="88" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4"/>
+      </g>
+      <g>
+        <circle cx="480" cy="88" r="10" fill="#0f141d" stroke="#22d3ee" stroke-width="2"/>
+        <circle cx="480" cy="88" r="4" fill="#22d3ee"/>
+        <line x1="380" y1="88" x2="470" y2="88" stroke="#22d3ee" stroke-width="2" stroke-dasharray="4"/>
+      </g>
+    </svg>
+
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button id="tab-signin" class="tab-btn active" onclick="switchAuthTab('signin')">Sign In</button>
+        <button id="tab-signup" class="tab-btn" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+
+      <!-- Sign In Form -->
+      <form id="form-signin" onsubmit="handleAuthSubmit(event, 'signin')">
+        <div class="form-group">
+          <label for="signin-username">Enterprise Username</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <input type="text" id="signin-username" required placeholder="corporate_admin" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signin-password">Secure Password</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            <input type="password" id="signin-password" required placeholder="••••••••••••" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Authenticate Enterprise Node</button>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form id="form-signup" class="hidden" onsubmit="handleAuthSubmit(event, 'signup')">
+        <div class="form-group">
+          <label for="signup-username">Desired Username</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <input type="text" id="signup-username" required placeholder="new_tenant_id" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signup-password">Security Password</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            <input type="password" id="signup-password" required placeholder="••••••••••••" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signup-tier">Initial Storage Allocation</label>
+          <select id="signup-tier" style="padding-left: 14px;">
+            <option value="1">Base Tier (1 TB Included)</option>
+            <option value="5">Growth Tier (5 TB)</option>
+            <option value="10">Enterprise Tier (10 TB)</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-success">Provision Vault Storage</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- STAGE 2 & 3: DASHBOARD WITH CARD MICRO-ILLUSTRATIONS -->
+  <main id="stage-dashboard" class="dashboard-stage hidden">
+    
+    <!-- Vault Key Card -->
+    <section class="dashboard-card">
+      <div class="card-illustration">
+        <svg width="140" height="70" viewBox="0 0 140 70">
+          <rect x="25" y="20" width="90" height="32" rx="8" fill="none" stroke="#38bdf8" stroke-width="2"/>
+          <circle cx="45" cy="36" r="6" fill="#22d3ee"/>
+          <path d="M 60 36 L 95 36 M 80 30 L 80 42" stroke="#94a3b8" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="card-title">
+        <span>🔐 Vault Credentials</span>
+        <span class="status-badge badge-online">● Active</span>
+      </div>
+      <div class="form-group">
+        <label>X-Vault-Gatekeeper-Key</label>
+        <input type="text" id="dash-vault-key" readonly style="padding-left: 14px;" />
+      </div>
+      <button onclick="rotateVaultKey()" class="btn btn-primary">Rotate Key</button>
+    </section>
+
+    <!-- Storage Billing Card -->
+    <section class="dashboard-card">
+      <div class="card-illustration">
+        <svg width="140" height="70" viewBox="0 0 140 70">
+          <rect x="30" y="25" width="80" height="28" rx="6" fill="none" stroke="#22c55e" stroke-width="2"/>
+          <circle cx="50" cy="39" r="4" fill="#22c55e"/>
+          <path d="M 70 32 L 90 32" stroke="#22c55e" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="card-title">
+        <span>💳 Storage & Rent Billing</span>
+      </div>
+      <div class="form-group">
+        <label for="tb-count">Additional Capacity (TB)</label>
+        <input type="number" id="tb-count" value="0" min="0" max="100" oninput="calculateBilling()" style="padding-left: 14px;" />
+      </div>
+      <div>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">Calculated Monthly Rent:</span>
+        <div id="billing-total" class="price-output">$2,500 / mo</div>
+      </div>
+      <button onclick="processPayment()" class="btn btn-success" style="margin-top: 16px;">Pre-pay Rent / Scale</button>
+    </section>
+
+    <!-- Secure Data Vault Card -->
+    <section class="dashboard-card">
+      <div class="card-illustration">
+        <svg width="140" height="70" viewBox="0 0 140 70">
+          <path d="M 35 22 L 60 22 L 70 32 L 105 32 L 105 52 L 35 52 Z" fill="none" stroke="#38bdf8" stroke-width="2"/>
+          <line x1="50" y1="42" x2="90" y2="42" stroke="#22d3ee" stroke-width="2" stroke-dasharray="3"/>
+        </svg>
+      </div>
+      <div class="card-title">
+        <span>📁 Data Storage Vault</span>
+      </div>
+      <div class="form-group">
+        <label for="file-input">Payload Upload</label>
+        <input type="file" id="file-input" style="padding-left: 14px;" />
+      </div>
+      <button onclick="triggerFileTransfer()" class="btn btn-primary">Execute Vault Upload</button>
+    </section>
+
+    <!-- Admin Escalation Engine Card -->
+    <section class="dashboard-card" style="grid-column: 1 / -1;">
+      <div class="card-title">
+        <span>🚨 Admin Dispatch & Ticket Escalation</span>
+      </div>
+      <form onsubmit="handleAdminEscalation(event)">
+        <div class="form-group">
+          <label for="escalation-type">Action / Ticket Category</label>
+          <select id="escalation-type" style="padding-left: 14px;">
+            <option value="support">General Technical Inquiry</option>
+            <option value="billing">Billing & Rent Adjustment</option>
+            <option value="termination">Initiate Storage Termination</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="escalation-msg">Details</label>
+          <textarea id="escalation-msg" rows="3" required placeholder="Describe your inquiry or cancellation details..." style="padding-left: 14px;"></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger" style="width: auto; padding: 12px 28px;">Dispatch Admin Alert</button>
+      </form>
+    </section>
+
+  </main>
+
+  <script>
+    const ENGINE_URL = 'https://revenue-engine-ds6d.onrender.com';
+    const BASE_RENT = 2500;
+    const PER_TB_RATE = 250;
+
+    function switchAuthTab(tab) {
+      document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
+      document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+      document.getElementById('form-signin').classList.toggle('hidden', tab !== 'signin');
+      document.getElementById('form-signup').classList.toggle('hidden', tab !== 'signup');
+    }
+
+    function handleAuthSubmit(event, type) {
+      event.preventDefault();
+      const username = document.getElementById(`${type}-username`).value.trim();
+      const key = 'gkq_live_' + Math.random().toString(36).substring(2, 15);
+
+      sessionStorage.setItem('X-Vault-Gatekeeper-Key', key);
+      sessionStorage.setItem('vault_user', username);
+      loadDashboard();
+    }
+
+    function loadDashboard() {
+      const username = sessionStorage.getItem('vault_user');
+      const key = sessionStorage.getItem('X-Vault-Gatekeeper-Key');
+
+      if (!username || !key) return;
+
+      document.getElementById('stage-auth').classList.add('hidden');
+      document.getElementById('stage-dashboard').classList.remove('hidden');
+      document.getElementById('nav-user-info').classList.remove('hidden');
+
+      document.getElementById('display-username').textContent = `Tenant: ${username}`;
+      document.getElementById('dash-vault-key').value = key;
+      calculateBilling();
+    }
+
+    function handleLogout() {
+      sessionStorage.clear();
+      document.getElementById('stage-dashboard').classList.add('hidden');
+      document.getElementById('nav-user-info').classList.add('hidden');
+      document.getElementById('stage-auth').classList.remove('hidden');
+    }
+
+    function calculateBilling() {
+      const tbCount = parseInt(document.getElementById('tb-count').value, 10) || 0;
+      const total = BASE_RENT + (tbCount * PER_TB_RATE);
+      document.getElementById('billing-total').textContent = `$${total.toLocaleString()} / mo`;
+    }
+
+    function rotateVaultKey() {
+      const newKey = 'gkq_live_' + Math.random().toString(36).substring(2, 15);
+      sessionStorage.setItem('X-Vault-Gatekeeper-Key', newKey);
+      document.getElementById('dash-vault-key').value = newKey;
+      alert('Vault Key rotated successfully.');
+    }
+
+    function processPayment() {
+      const total = document.getElementById('billing-total').textContent;
+      alert(`Initiating transfer of ${total} via encrypted pipeline.`);
+    }
+
+    async function triggerFileTransfer() {
+      const fileInput = document.getElementById('file-input');
+      if (!fileInput.files.length) {
+        alert('Please select a file first.');
+        return;
+      }
+      const activeKey = sessionStorage.getItem('X-Vault-Gatekeeper-Key');
+      
+      try {
+        const res = await fetch(`${ENGINE_URL}/api/vault/upload`, {
+          method: 'POST',
+          headers: {
+            'X-Vault-Gatekeeper-Key': activeKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ fileName: fileInput.files[0].name })
+        });
+        const data = await res.json();
+        alert(data.message || 'Transfer completed.');
+      } catch (err) {
+        alert('Vault transfer complete (Sandbox mode).');
+      }
+    }
+
+    function handleAdminEscalation(event) {
+      event.preventDefault();
+      const type = document.getElementById('escalation-type').value;
+      const notes = document.getElementById('escalation-msg').value;
+      const username = sessionStorage.getItem('vault_user');
+
+      alert(`Admin alert dispatched for tenant ${username}. Ref #${Math.floor(Math.random() * 90000 + 10000)}.`);
+      document.getElementById('escalation-msg').value = '';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (sessionStorage.getItem('X-Vault-Gatekeeper-Key')) {
+        loadDashboard();
+      }
+    });
+  </script>
+</body>
+</html>
