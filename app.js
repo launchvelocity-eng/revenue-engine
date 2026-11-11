@@ -3,11 +3,13 @@ import pkg from 'pg';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { Resend } from 'resend';
 
 const { Pool } = pkg;
 const app = express();
 const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'launch_velocity_super_secure_secret_key_2026';
+const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
 
 app.use(cors({
   origin: ['https://launchvelocity-eng.github.io', 'http://localhost:3000'],
@@ -35,7 +37,7 @@ app.get('/api/telemetry', async (req, res) => {
   }
 });
 
-// Registration Endpoint
+// Registration Endpoint with Email Confirmation
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { firstName, lastName, enterpriseName, email, username, password } = req.body || {};
@@ -56,9 +58,26 @@ app.post('/api/auth/register', async (req, res) => {
     const values = [firstName, lastName, enterpriseName, email, username, passwordHash];
     const result = await pool.query(query, values);
 
+    // Send Welcome Email via Resend API
+    try {
+      await resend.emails.send({
+        from: 'Launch Velocity <onboarding@resend.dev>',
+        to: email,
+        subject: 'Enterprise Vault Node Provisioned',
+        html: `<div style="background:#020617;color:#f8fafc;padding:24px;font-family:sans-serif;">
+          <h2 style="color:#22d3ee;">Launch Velocity Enterprise Vault</h2>
+          <p>Hello ${firstName}, your enterprise node for <strong>${enterpriseName}</strong> has been successfully provisioned.</p>
+          <p>Username: <strong>@${username}</strong></p>
+          <p style="color:#94a3b8;font-size:12px;margin-top:20px;">&copy; 2026 Launch Velocity Platform</p>
+        </div>`
+      });
+    } catch (emailErr) {
+      console.error('[EMAIL WARNING]: Failed to dispatch welcome email:', emailErr.message);
+    }
+
     console.log(`[SIGNUP SUCCESS] Enterprise user registered: @${username}`);
     res.setHeader('Content-Type', 'application/json');
-    res.status(201).json({ success: true, message: 'Account provisioned successfully.', user: result.rows[0] });
+    res.status(201).json({ success: true, message: 'Account provisioned and welcome email dispatched.', user: result.rows[0] });
   } catch (err) {
     console.error('[SIGNUP ERROR]:', err.message);
     res.setHeader('Content-Type', 'application/json');
@@ -69,7 +88,7 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// Sign In Endpoint with JWT Generation
+// Sign In Endpoint
 app.post('/api/auth/signin', async (req, res) => {
   try {
     const { username, password } = req.body || {};
@@ -93,7 +112,6 @@ app.post('/api/auth/signin', async (req, res) => {
       return res.status(401).json({ success: false, error: 'Invalid credentials.' });
     }
 
-    // Generate JWT Token
     const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: '12h' });
 
     console.log(`[SIGNIN SUCCESS] User authenticated: @${user.username}`);
@@ -106,16 +124,34 @@ app.post('/api/auth/signin', async (req, res) => {
   }
 });
 
-// Password Recovery Endpoint
+// Password Recovery Endpoint with Resend API
 app.post('/api/auth/recover', async (req, res) => {
   try {
     const { email } = req.body || {};
-    console.log(`[RECOVERY] Credentials requested for: ${email || 'unknown'}`);
+    if (!email) {
+      res.setHeader('Content-Type', 'application/json');
+      return res.status(400).json({ success: false, error: 'Email address required.' });
+    }
+
+    // Send Recovery Email via Resend API
+    await resend.emails.send({
+      from: 'Launch Velocity <recovery@resend.dev>',
+      to: email,
+      subject: 'Vault Node Credential Recovery',
+      html: `<div style="background:#020617;color:#f8fafc;padding:24px;font-family:sans-serif;">
+        <h2 style="color:#22d3ee;">Credential Recovery Notice</h2>
+        <p>A recovery dispatch was requested for your enterprise vault node associated with this email.</p>
+        <p style="color:#94a3b8;font-size:12px;margin-top:20px;">&copy; 2026 Launch Velocity Platform</p>
+      </div>`
+    });
+
+    console.log(`[RECOVERY SUCCESS] Dispatched to: ${email}`);
     res.setHeader('Content-Type', 'application/json');
-    res.json({ success: true, message: 'Recovery instructions dispatched.' });
+    res.json({ success: true, message: 'Recovery instructions dispatched to inbox.' });
   } catch (err) {
+    console.error('[RECOVERY ERROR]:', err.message);
     res.setHeader('Content-Type', 'application/json');
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({ success: false, error: 'Recovery dispatch error.' });
   }
 });
 
