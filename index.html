@@ -35,4 +35,452 @@
     /* Fullscreen Canvas Background */
     #cyberMatrixCanvas {
       position: fixed;
-      top:
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Main Flex Wrapper */
+    .portal-wrapper {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    /* Top Brand Header */
+    .brand-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+
+    .brand-logo {
+      width: 26px;
+      height: 26px;
+      fill: #eab308;
+      filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.6));
+    }
+
+    .brand-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: #ffffff;
+      text-transform: uppercase;
+    }
+
+    /* Glassmorphism Auth Card */
+    .auth-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-cyan);
+      border-radius: 20px;
+      padding: 28px 20px;
+      box-shadow: 0 0 50px rgba(6, 182, 212, 0.3), 0 25px 50px -12px rgba(0, 0, 0, 0.95);
+    }
+
+    /* Tab Switcher */
+    .tab-header {
+      display: flex;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 10px 0;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      text-align: center;
+    }
+
+    .tab-btn.active {
+      color: var(--cyan-bright);
+    }
+
+    .tab-indicator {
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 50%;
+      height: 2px;
+      background-color: var(--cyan-bright);
+      box-shadow: 0 0 10px var(--cyan-bright);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Form Panels */
+    .form-panel {
+      display: none;
+    }
+
+    .form-panel.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--cyan-bright);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 11px 12px;
+      color: #ffffff;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus {
+      border-color: var(--cyan-bright);
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.3);
+    }
+
+    /* Action Buttons */
+    .btn-submit {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 6px;
+    }
+
+    .btn-signin {
+      background-color: var(--cyan-bright);
+      color: #020617;
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+    }
+
+    .btn-signin:hover {
+      background-color: #38bdf8;
+    }
+
+    .btn-signup {
+      background-color: var(--green-bright);
+      color: #020617;
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn-signup:hover {
+      background-color: var(--green-hover);
+    }
+
+    .btn-recovery {
+      width: 100%;
+      background: rgba(30, 41, 59, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    /* Recovery Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(2, 6, 23, 0.9);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: #0f172a;
+      border: 1px solid var(--border-cyan);
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 0 40px rgba(6, 182, 212, 0.3);
+    }
+
+    .modal-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--cyan-bright);
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Canvas -->
+  <canvas id="cyberMatrixCanvas"></canvas>
+
+  <div class="portal-wrapper">
+    <!-- Brand Header -->
+    <header class="brand-header">
+      <svg class="brand-logo" viewBox="0 0 24 24">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+      </svg>
+      <h1 class="brand-title">Launch Velocity</h1>
+    </header>
+
+    <!-- Floating Auth Card -->
+    <main class="auth-card">
+      <div class="tab-header">
+        <button class="tab-btn active" id="tabSignInBtn" type="button">Sign In</button>
+        <button class="tab-btn" id="tabSignUpBtn" type="button">Sign Up</button>
+        <div class="tab-indicator" id="tabIndicator"></div>
+      </div>
+
+      <!-- Sign In Panel -->
+      <section class="form-panel active" id="signInPanel">
+        <form id="signInForm">
+          <div class="form-group">
+            <label for="signinUsername">Enterprise Username</label>
+            <input type="text" id="signinUsername" placeholder="corporate_admin" required>
+          </div>
+          <div class="form-group">
+            <label for="signinPassword">Password</label>
+            <input type="password" id="signinPassword" placeholder="••••••••••••" required>
+          </div>
+          <button type="submit" class="btn-submit btn-signin">Authenticate Vault Node</button>
+          <button type="button" class="btn-recovery" id="openRecoveryBtn">Forgot Username / Password?</button>
+        </form>
+      </section>
+
+      <!-- Sign Up Panel -->
+      <section class="form-panel" id="signUpPanel">
+        <form id="signUpForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" placeholder="Alfredo" required>
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" placeholder="Monge" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="corpName">Business / Corporation Name</label>
+            <input type="text" id="corpName" placeholder="Launch Velocity Corp" required>
+          </div>
+          <div class="form-group">
+            <label for="enterpriseEmail">Enterprise Email</label>
+            <input type="email" id="enterpriseEmail" placeholder="mongealfredoantonio@gmail.com" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="signupUsername">Desired Username</label>
+              <input type="text" id="signupUsername" placeholder="monge_eng" required>
+            </div>
+            <div class="form-group">
+              <label for="signupPassword">Secure Password</label>
+              <input type="password" id="signupPassword" placeholder="••••••••••••" required>
+            </div>
+          </div>
+          <button type="submit" class="btn-submit btn-signup">Register & Proceed to Sign In</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <!-- Recovery Modal -->
+  <div class="modal-overlay" id="recoveryModal">
+    <div class="modal-content">
+      <h2 class="modal-title">Reset Credentials</h2>
+      <p class="modal-desc">Enter your registered enterprise email address to dispatch automated password recovery instructions.</p>
+      <form id="recoveryForm">
+        <div class="form-group">
+          <label for="recoveryEmail">Enterprise Email</label>
+          <input type="email" id="recoveryEmail" placeholder="mongealfredoantonio@gmail.com" required>
+        </div>
+        <button type="submit" class="btn-submit btn-signin">Send Recovery Trigger</button>
+        <button type="button" class="btn-recovery" id="closeRecoveryBtn" style="margin-top: 6px;">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Canvas Animation Engine
+    const canvas = document.getElementById('cyberMatrixCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      initMatrix();
+    });
+
+    const characters = '01010101010101010101010101010101';
+    const fontSize = 14;
+    let columns = Math.floor(width / fontSize);
+    let drops = [];
+
+    function initMatrix() {
+      columns = Math.floor(width / fontSize);
+      drops = Array(columns).fill(1);
+    }
+    initMatrix();
+
+    function renderEngine() {
+      // Fade layer
+      ctx.fillStyle = 'rgba(2, 6, 23, 0.18)';
+      ctx.fillRect(0, 0, width, height);
+
+      // Central Horizon Radial Glow
+      const glow = ctx.createRadialGradient(
+        width / 2, height * 0.4, 10,
+        width / 2, height * 0.4, width * 0.5
+      );
+      glow.addColorStop(0, 'rgba(6, 182, 212, 0.22)');
+      glow.addColorStop(0.6, 'rgba(14, 165, 233, 0.05)');
+      glow.addColorStop(1, 'transparent');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, width, height);
+
+      // HUD Grid Lines
+      ctx.strokeStyle = 'rgba(34, 211, 238, 0.08)';
+      ctx.lineWidth = 1;
+      const gridSize = 36;
+      for (let x = 0; x < width; x += gridSize) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+      }
+      for (let y = 0; y < height; y += gridSize) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+      }
+
+      // Streaming Binary Matrix Rain
+      ctx.fillStyle = '#22d3ee';
+      ctx.font = `${fontSize}px monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = characters.charAt(Math.floor(Math.random() * characters.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+
+      requestAnimationFrame(renderEngine);
+    }
+    renderEngine();
+
+    // Tab Navigation
+    const tabSignInBtn = document.getElementById('tabSignInBtn');
+    const tabSignUpBtn = document.getElementById('tabSignUpBtn');
+    const tabIndicator = document.getElementById('tabIndicator');
+    const signInPanel = document.getElementById('signInPanel');
+    const signUpPanel = document.getElementById('signUpPanel');
+
+    tabSignInBtn.addEventListener('click', () => {
+      tabSignInBtn.classList.add('active');
+      tabSignUpBtn.classList.remove('active');
+      tabIndicator.style.transform = 'translateX(0%)';
+      signInPanel.classList.add('active');
+      signUpPanel.classList.remove('active');
+    });
+
+    tabSignUpBtn.addEventListener('click', () => {
+      tabSignUpBtn.classList.add('active');
+      tabSignInBtn.classList.remove('active');
+      tabIndicator.style.transform = 'translateX(100%)';
+      signUpPanel.classList.add('active');
+      signInPanel.classList.remove('active');
+    });
+
+    // Recovery Modal
+    const recoveryModal = document.getElementById('recoveryModal');
+    document.getElementById('openRecoveryBtn').addEventListener('click', () => recoveryModal.classList.add('active'));
+    document.getElementById('closeRecoveryBtn').addEventListener('click', () => recoveryModal.classList.remove('active'));
+
+    // Submit Handlers
+    document.getElementById('signInForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Vault Node Authentication Request Dispatched.');
+    });
+
+    document.getElementById('signUpForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Enterprise Account Provisioned Successfully!');
+      tabSignInBtn.click();
+    });
+
+    document.getElementById('recoveryForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Password Recovery Trigger Dispatched.');
+      recoveryModal.classList.remove('active');
+    });
+  </script>
+</body>
+</html>
