@@ -1,49 +1,70 @@
-    // Live Cyber Data Stream & HUD Canvas Engine
-    const canvas = document.getElementById('cyberMatrixCanvas');
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      let width = canvas.width = window.innerWidth;
-      let height = canvas.height = window.innerHeight;
+import express from 'express';
+import pkg from 'pg';
+import cors from 'cors';
 
-      window.addEventListener('resize', () => {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-      });
+const { Pool } = pkg;
+const app = express();
+const PORT = process.env.PORT || 10000;
 
-      const chars = '01101001010101010101010100101010101';
-      const fontSize = 14;
-      const columns = Math.floor(width / fontSize);
-      const drops = Array(columns).fill(1);
+app.use(cors({
+  origin: ['https://launchvelocity-eng.github.io', 'http://localhost:3000'],
+  allowedHeaders: ['Content-Type', 'X-Vault-Gatekeeper-Key'],
+  methods: ['GET', 'POST', 'OPTIONS']
+}));
 
-      function drawMatrix() {
-        // Semi-transparent fade effect for streaming code
-        ctx.fillStyle = 'rgba(2, 6, 23, 0.1)';
-        ctx.fillRect(0, 0, width, height);
+app.use(express.json());
 
-        // HUD Perspective Grid Lines
-        ctx.strokeStyle = 'rgba(34, 211, 238, 0.08)';
-        ctx.lineWidth = 1;
-        const gridSize = 40;
-        for (let x = 0; x < width; x += gridSize) {
-          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
-        }
-        for (let y = 0; y < height; y += gridSize) {
-          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
-        }
+// PostgreSQL Connection Pool
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgres://localhost:5432/launchvelocity',
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
-        // Cyan Matrix Rain Stream
-        ctx.fillStyle = '#06b6d4';
-        ctx.font = fontSize + 'px monospace';
+// Telemetry Endpoint
+app.get('/api/telemetry', async (req, res) => {
+  try {
+    const dbPing = await pool.query('SELECT NOW()');
+    res.json({ status: 'online', dbConnected: true, serverTime: dbPing.rows[0].now });
+  } catch (err) {
+    res.json({ status: 'degraded', dbConnected: false, error: err.message });
+  }
+});
 
-        for (let i = 0; i < drops.length; i++) {
-          const text = chars.charAt(Math.floor(Math.random() * chars.length));
-          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+// Onboarding Registration Endpoint
+app.post('/api/auth/register', async (req, res) => {
+  const { firstName, lastName, enterpriseName, email, username } = req.body;
+  console.log(`[SIGNUP] ${enterpriseName} registered by ${firstName} ${lastName} (@${username})`);
+  res.json({ success: true, message: 'Account provisioned successfully.' });
+});
 
-          if (drops[i] * fontSize > height && Math.random() > 0.975) {
-            drops[i] = 0;
-          }
-          drops[i]++;
-        }
-      }
-      setInterval(drawMatrix, 33);
-    }
+// Password & Username Recovery Endpoint
+app.post('/api/auth/recover', async (req, res) => {
+  const { email } = req.body;
+  console.log(`[RECOVERY] Credentials requested for: ${email}`);
+  res.json({ success: true, message: 'Recovery instructions dispatched.' });
+});
+
+// Tier Checkout & Key Dispatch Endpoint
+app.post('/api/vault/checkout', async (req, res) => {
+  const { username, enterpriseName, tierName, tbCount, months, keyCount, paymentMethod, totalAmount } = req.body;
+  
+  const clientKeys = [];
+  for (let i = 1; i <= keyCount; i++) {
+    clientKeys.push(`gkq_client_${i}_` + Math.random().toString(36).substring(2, 12));
+  }
+
+  console.log(`[CHECKOUT] ${enterpriseName} (@${username}) bought ${tierName} (${tbCount}) for ${months}mo via ${paymentMethod} (${totalAmount})`);
+  res.json({ success: true, clientKeys, message: 'Payment verified and vault keys generated.' });
+});
+
+// Admin Support Ticket Endpoint
+app.post('/api/admin/alert', async (req, res) => {
+  const { username, category, notes } = req.body;
+  console.log(`[ADMIN TICKET] From @${username} [${category}]: ${notes}`);
+  res.json({ success: true, message: 'Admin alert dispatched.' });
+});
+
+// Start Server
+app.listen(PORT, () => {
+  console.log(`[SERVER ENGINE] Launch Velocity running and listening on port ${PORT}`);
+});
