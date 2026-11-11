@@ -1,4 +1,70 @@
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" stroke-width="2" style="animation: pulse 2s infinite;">
-  <circle cx="12" cy="12" r="9" stroke-dasharray="4 2" />
-  <circle cx="12" cy="12" r="3" fill="#00f0ff" />
-</svg>
+<script>
+// Launch Velocity Portal Controller - 100% Browser Decoupled State
+const LaunchVelocityPortal = {
+  // Local state persistence context
+  registrationCache: null,
+
+  init() {
+    console.log('[PORTAL ENGINE] Active client navigation listeners establishing...');
+    this.bindDOMEvents();
+  },
+
+  bindDOMEvents() {
+    // 1. Establish Tab Switching Logic
+    const signInTab = document.querySelectorAll('div')[/* Index matching your Sign In text slot */];
+    const signUpTab = document.querySelectorAll('div')[/* Index matching your Sign Up text slot */];
+
+    // Add explicit event listeners to your Tab titles to toggle form container display attributes
+    // e.g., document.getElementById('signin-form').style.display = 'block';
+  },
+
+  // Target event for the green 'REGISTER & PROCEED TO SIGN IN' action layout
+  handleSignUpSubmission(event) {
+    if (event) event.preventDefault();
+    
+    // Select elements based on your layout placeholders
+    const firstName = document.querySelector('input[placeholder="Alfredo"]').value.trim();
+    const lastName = document.querySelector('input[placeholder="Monge"]').value.trim();
+    const corpName = document.querySelector('input[placeholder="Launch Velocity Corp"]').value.trim();
+    const email = document.querySelector('input[placeholder="mongealfredoantonio@gmail.com"]').value.trim();
+    const username = document.querySelector('input[placeholder="monge_eng"]').value.trim();
+    const password = document.querySelectorAll('input[type="password"]')[0].value.trim();
+
+    if (!username || !password || !email) {
+      alert("[PORTAL ERROR] Mandatory enterprise registration parameters are unassigned.");
+      return;
+    }
+
+    this.registrationCache = { firstName, lastName, corpName, email, username, password };
+    console.log('[PORTAL ENGINE] Local registration credentials cached.', this.registrationCache);
+    
+    // Force transition selector view back to Sign In
+    alert("Enterprise Node provisioned locally. Proceeding to identity validation gateway...");
+  },
+
+  // Target event for the cyan 'AUTHENTICATE VAULT NODE' action layout
+  handleSignInSubmission(event) {
+    if (event) event.preventDefault();
+
+    const usernameInput = document.querySelector('input[placeholder="corporate_admin"]').value.trim();
+    const passwordInput = document.querySelectorAll('input[type="password"]')[1]?.value.trim() || document.querySelector('input[type="password"]').value.trim();
+
+    // Verify against our static development node or the newly cached client parameters
+    const validUser = this.registrationCache ? this.registrationCache.username : 'corporate_admin';
+    const validPass = this.registrationCache ? this.registrationCache.password : 'password123';
+
+    if (usernameInput === validUser && passwordInput === validPass) {
+      sessionStorage.setItem('lv_auth_state', 'TRUE');
+      sessionStorage.setItem('lv_active_user', usernameInput);
+      alert("Handshake authorization accepted. Initializing secure telemetry terminal...");
+      // Redirect or unhide your active system worker dashboard view layer
+    } else {
+      alert("[ACCESS DENIED] Invalid security signature. Authorization aborted.");
+    }
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  LaunchVelocityPortal.init();
+});
+</script>
