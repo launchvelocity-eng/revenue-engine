@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Launch Velocity | Zero-Trust Enterprise Vault</title>
+  <title>Launch Velocity | Enterprise Vault Portal</title>
   <style>
     :root {
       --bg-dark: #06090e;
@@ -14,7 +14,6 @@
       --accent-cyan: #22d3ee;
       --accent-green: #22c55e;
       --accent-red: #ef4444;
-      --accent-purple: #c084fc;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
     }
@@ -27,10 +26,6 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
-      background-image: 
-        radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.15) 0%, transparent 65%),
-        radial-gradient(circle at 90% 40%, rgba(192, 132, 252, 0.1) 0%, transparent 45%);
     }
 
     .navbar {
@@ -55,11 +50,6 @@
       color: var(--text-main);
       text-transform: uppercase;
     }
-    .brand-logo-icon {
-      width: 40px;
-      height: 40px;
-      filter: drop-shadow(0 0 10px var(--accent-cyan));
-    }
 
     .auth-stage {
       display: flex;
@@ -68,30 +58,16 @@
       align-items: center;
       flex: 1;
       padding: 60px 20px;
-      position: relative;
     }
-
-    .hero-illustration {
-      width: 100%;
-      max-width: 580px;
-      height: 180px;
-      margin-bottom: -30px;
-      z-index: 1;
-      pointer-events: none;
-    }
-
     .auth-card {
       background: var(--panel-bg);
       border: 1px solid var(--border-color);
       border-radius: 20px;
       width: 100%;
-      max-width: 480px;
+      max-width: 500px;
       padding: 40px;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-      position: relative;
-      z-index: 2;
     }
-
     .auth-tabs {
       display: flex;
       border-bottom: 1px solid var(--border-color);
@@ -116,23 +92,28 @@
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-bottom: 22px;
+      gap: 6px;
+      margin-bottom: 16px;
     }
     .form-group label {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--accent-cyan);
       font-weight: 700;
       text-transform: uppercase;
     }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
     .form-group input, .form-group select, .form-group textarea {
       width: 100%;
-      padding: 12px 14px;
+      padding: 11px 14px;
       background: #080c14;
       border: 1px solid var(--border-color);
       border-radius: 8px;
       color: var(--text-main);
-      font-size: 0.92rem;
+      font-size: 0.9rem;
     }
 
     .btn {
@@ -149,6 +130,7 @@
     .btn-primary { background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); color: #040914; }
     .btn-success { background: var(--accent-green); color: #040914; }
     .btn-danger { background: var(--accent-red); color: #ffffff; }
+    .btn-secondary { background: #1e293b; color: var(--text-main); margin-top: 10px; }
 
     .dashboard-stage {
       padding: 40px 32px;
@@ -156,7 +138,7 @@
       margin: 0 auto;
       width: 100%;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
       gap: 28px;
     }
     .dashboard-card {
@@ -195,7 +177,7 @@
     }
 
     .price-output {
-      font-size: 1.85rem;
+      font-size: 1.8rem;
       font-weight: 800;
       color: var(--accent-green);
       margin-top: 8px;
@@ -207,12 +189,7 @@
 
   <header class="navbar">
     <div class="brand-logo">
-      <svg class="brand-logo-icon" viewBox="0 0 100 100">
-        <polygon points="50,10 90,80 10,80" fill="none" stroke="#22d3ee" stroke-width="8" stroke-linejoin="round"/>
-        <polygon points="50,28 75,72 25,72" fill="#38bdf8" opacity="0.85"/>
-        <circle cx="50" cy="54" r="8" fill="#ffffff"/>
-      </svg>
-      <span>Launch Velocity</span>
+      <span>⚡ Launch Velocity</span>
     </div>
     <div id="nav-user-info" class="hidden">
       <span id="display-username" style="color: var(--text-muted); margin-right: 16px; font-weight: 600;"></span>
@@ -220,22 +197,8 @@
     </div>
   </header>
 
-  <!-- STAGE 1: GATEKEEPER ENTRY WITH DIGITAL ART -->
+  <!-- STAGE 1: SIGN IN / SIGN UP / RECOVERY -->
   <main id="stage-auth" class="auth-stage">
-    
-    <svg class="hero-illustration" viewBox="0 0 600 180">
-      <defs>
-        <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#38bdf8" />
-          <stop offset="100%" stop-color="#22d3ee" />
-        </linearGradient>
-      </defs>
-      <line x1="50" y1="90" x2="550" y2="90" stroke="#1e293b" stroke-width="1.5" stroke-dasharray="6"/>
-      <path d="M 300 15 L 380 50 L 380 120 L 300 160 L 220 120 L 220 50 Z" fill="none" stroke="url(#cyanGrad)" stroke-width="3"/>
-      <circle cx="300" cy="88" r="26" fill="#0f141d" stroke="#22d3ee" stroke-width="2.5"/>
-      <path d="M 288 88 L 312 88 M 300 76 L 300 100" stroke="#38bdf8" stroke-width="3"/>
-    </svg>
-
     <div class="auth-card">
       <div class="auth-tabs">
         <button id="tab-signin" class="tab-btn active" onclick="switchAuthTab('signin')">Sign In</button>
@@ -252,77 +215,104 @@
           <label for="signin-password">Password</label>
           <input type="password" id="signin-password" required placeholder="••••••••••••" />
         </div>
-        <button type="submit" class="btn btn-primary">Sign In & Access Tiers</button>
+        <button type="submit" class="btn btn-primary">Authenticate Vault Node</button>
+        <button type="button" onclick="triggerRecovery()" class="btn btn-secondary">Forgot Username / Password?</button>
       </form>
 
-      <!-- Sign Up Form -->
+      <!-- Detailed Sign Up Form -->
       <form id="form-signup" class="hidden" onsubmit="handleAuthSubmit(event, 'signup')">
-        <div class="form-group">
-          <label for="signup-username">Desired Username</label>
-          <input type="text" id="signup-username" required placeholder="new_tenant_id" />
+        <div class="form-row">
+          <div class="form-group">
+            <label for="signup-firstname">First Name</label>
+            <input type="text" id="signup-firstname" required placeholder="Alfredo" />
+          </div>
+          <div class="form-group">
+            <label for="signup-lastname">Last Name</label>
+            <input type="text" id="signup-lastname" required placeholder="Monge" />
+          </div>
         </div>
         <div class="form-group">
-          <label for="signup-email">Work Email (For 1-3 Vault Keys)</label>
-          <input type="email" id="signup-email" required placeholder="admin@company.com" />
+          <label for="signup-enterprise">Business / Corporation Name</label>
+          <input type="text" id="signup-enterprise" required placeholder="Launch Velocity Corp" />
         </div>
         <div class="form-group">
-          <label for="signup-password">Security Password</label>
-          <input type="password" id="signup-password" required placeholder="••••••••••••" />
+          <label for="signup-email">Enterprise Email</label>
+          <input type="email" id="signup-email" required placeholder="mongealfredoantonio@gmail.com" />
         </div>
-        <button type="submit" class="btn btn-success">Send Verification Email</button>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="signup-username">Desired Username</label>
+            <input type="text" id="signup-username" required placeholder="monge_eng" />
+          </div>
+          <div class="form-group">
+            <label for="signup-password">Secure Password</label>
+            <input type="password" id="signup-password" required placeholder="••••••••••••" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success" style="margin-top: 10px;">Register & Proceed to Sign In</button>
       </form>
     </div>
   </main>
 
-  <!-- STAGE 2: LOGGED-IN TENANT CONTROL CENTER -->
+  <!-- STAGE 2: LOGGED-IN TENANT DASHBOARD -->
   <main id="stage-dashboard" class="dashboard-stage hidden">
 
     <!-- Active Storage Meter -->
     <section class="dashboard-card" style="grid-column: 1 / -1;">
       <div class="card-title">
-        <span>📊 Active Storage Utilization & Gauge</span>
-        <span style="color: var(--accent-green); font-size: 0.9rem;">● Online</span>
+        <span>📊 Active Storage Allocation & Utilization</span>
+        <span style="color: var(--accent-green); font-size: 0.9rem;">● Secure Vault Online</span>
       </div>
       <div class="meter-container">
         <div style="display: flex; justify-content: space-between; font-weight: 600;">
-          <span>Allocated Storage: <strong id="allocated-tb-display">1 TB</strong></span>
+          <span>Allocated Storage: <strong id="allocated-tb-display">1 TB (Base Tier)</strong></span>
           <span>Used: <strong>0.28 TB (28%)</strong> | Available: <strong id="available-tb-display">0.72 TB</strong></span>
         </div>
         <div class="progress-bar"><div class="progress-fill"></div></div>
       </div>
     </section>
 
-    <!-- Pricing Matrix & Payment Selector -->
+    <!-- Pricing Matrix, Custom Scaling & Key Quantity Options -->
     <section class="dashboard-card">
       <div class="card-title">
-        <span>💳 Storage Tiers & Rent Billing</span>
+        <span>💳 Storage Tiers & Key Dispatch</span>
       </div>
       
       <div class="form-group">
-        <label for="tier-select">Select Tier</label>
+        <label for="tier-select">Select Storage Tier</label>
         <select id="tier-select" onchange="calculateTotal()">
-          <option value="base">Base Tier (1 TB) — $2,500/mo</option>
-          <option value="growth">Growth Tier (5 TB) — $3,500/mo</option>
-          <option value="enterprise">Enterprise Tier (10 TB) — $4,750/mo</option>
+          <option value="base">Base Tier (1 TB Included) — $2,500/mo</option>
+          <option value="growth">Growth Tier (5 TB Included) — $3,500/mo</option>
+          <option value="enterprise">Enterprise Tier (10 TB Included) — $4,750/mo</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label for="add-tb">Add Extra Capacity (+TBs)</label>
+        <label for="add-tb">Add Extra Capacity ($250 / mo per TB)</label>
         <input type="number" id="add-tb" value="0" min="0" max="100" oninput="calculateTotal()" />
       </div>
 
-      <div class="form-group">
-        <label for="lease-months">Lease Duration / Add Months</label>
-        <select id="lease-months" onchange="calculateTotal()">
-          <option value="1">1 Month (Standard)</option>
-          <option value="6">6 Months (10% Discount)</option>
-          <option value="12">12 Months (20% Discount)</option>
-        </select>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="lease-months">Lease Length / Add Months</label>
+          <select id="lease-months" onchange="calculateTotal()">
+            <option value="1">1 Month (Standard)</option>
+            <option value="6">6 Months (10% Discount)</option>
+            <option value="12">12 Months (20% Discount)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="key-count">Client Access Keys (1-3)</label>
+          <select id="key-count">
+            <option value="1">1 Key (Standard)</option>
+            <option value="2">2 Keys (Dual Admin)</option>
+            <option value="3">3 Keys (Multi-Node)</option>
+          </select>
+        </div>
       </div>
 
       <div class="form-group">
-        <label for="payment-method">Payment Method Options</label>
+        <label for="payment-method">Encrypted Payment Transfer Method</label>
         <select id="payment-method">
           <option value="Card">Credit / Debit Card (Encrypted Gateway)</option>
           <option value="ACH">ACH Direct Bank Transfer</option>
@@ -331,52 +321,49 @@
       </div>
 
       <div class="price-output" id="checkout-total-display">$2,500 Total</div>
-      <button onclick="executeVaultPurchase()" class="btn btn-success" style="margin-top: 16px;">Pay Rent & Dispatch 1-3 Keys</button>
+      <button onclick="executeVaultPurchase()" class="btn btn-success" style="margin-top: 12px;">Process Payment & Email Keys</button>
     </section>
 
-    <!-- Vault Keys & File Upload -->
+    <!-- Active Gatekeeper Keys & File Operations -->
     <section class="dashboard-card">
       <div class="card-title">
-        <span>🔐 Active Gatekeeper Keys</span>
+        <span>🔐 Active Vault Access Keys</span>
       </div>
       <div class="form-group">
-        <label>Primary Key</label>
-        <input type="text" id="key-1" readonly value="gkq_primary_89f2a..." />
+        <label>Assigned Access Key 1</label>
+        <input type="text" id="key-1" readonly value="gkq_client_1_Pending..." />
       </div>
       <div class="form-group">
-        <label>Secondary Key</label>
-        <input type="text" id="key-2" readonly value="gkq_secondary_31c8b..." />
-      </div>
-      <div class="form-group">
-        <label>Failover Key</label>
-        <input type="text" id="key-3" readonly value="gkq_failover_74e9d..." />
+        <label>Assigned Access Key 2</label>
+        <input type="text" id="key-2" readonly value="N/A (Select 2-3 keys)" />
       </div>
       <div class="form-group">
         <label>Withdraw / Upload Files</label>
         <input type="file" id="data-file-input" />
       </div>
-      <button onclick="alert('File transfer executed cleanly.')" class="btn btn-primary">Execute Data Transfer</button>
+      <button onclick="alert('Payload successfully transferred through secure vault pipe.')" class="btn btn-primary">Execute Data Transfer</button>
     </section>
 
-    <!-- Admin Support & Cancellation Form -->
+    <!-- Admin Support, Termination & File Return Escalation -->
     <section class="dashboard-card" style="grid-column: 1 / -1;">
       <div class="card-title">
         <span>🚨 Contact Launch Velocity Admin</span>
       </div>
       <form onsubmit="handleAdminAlert(event)">
         <div class="form-group">
-          <label for="alert-type">Topic</label>
+          <label for="alert-type">Support / Action Request Type</label>
           <select id="alert-type">
-            <option value="question">General Support Question</option>
-            <option value="payment">Payment / Rent Adjustment</option>
+            <option value="question">General Technical Inquiry</option>
+            <option value="payment">Payment Transfer / Billing Assistance</option>
+            <option value="filereturn">Request File Return / Backup Export</option>
             <option value="termination">Initiate Rented Storage Termination</option>
           </select>
         </div>
         <div class="form-group">
           <label for="alert-notes">Message / Details</label>
-          <textarea id="alert-notes" rows="3" required placeholder="Write your message or cancellation details..."></textarea>
+          <textarea id="alert-notes" rows="3" required placeholder="Provide details for administration..."></textarea>
         </div>
-        <button type="submit" class="btn btn-danger" style="width: auto; padding: 12px 28px;">Send Admin Alert</button>
+        <button type="submit" class="btn btn-danger" style="width: auto; padding: 12px 28px;">Dispatch Admin Alert</button>
       </form>
     </section>
 
@@ -395,25 +382,44 @@
     async function handleAuthSubmit(event, type) {
       event.preventDefault();
       if (type === 'signup') {
-        const username = document.getElementById('signup-username').value;
+        const firstName = document.getElementById('signup-firstname').value;
+        const lastName = document.getElementById('signup-lastname').value;
+        const enterpriseName = document.getElementById('signup-enterprise').value;
         const email = document.getElementById('signup-email').value;
+        const username = document.getElementById('signup-username').value;
+        const password = document.getElementById('signup-password').value;
 
         try {
           await fetch(`${ENGINE_URL}/api/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email })
+            body: JSON.stringify({ firstName, lastName, enterpriseName, email, username, password })
           });
         } catch (e) {}
 
-        alert(`Verification email sent to ${email}! Please verify your account and then sign in.`);
+        alert(`Account successfully registered for ${enterpriseName}! Redirecting to Sign In.`);
         switchAuthTab('signin');
       } else {
         const username = document.getElementById('signin-username').value;
         sessionStorage.setItem('vault_user', username);
-        sessionStorage.setItem('vault_user_email', `${username}@tenant.com`);
+        sessionStorage.setItem('vault_user_email', 'mongealfredoantonio@gmail.com');
         loadDashboard();
       }
+    }
+
+    async function triggerRecovery() {
+      const email = prompt('Enter your registered enterprise email address for username & password recovery:');
+      if (!email) return;
+
+      try {
+        await fetch(`${ENGINE_URL}/api/auth/recover`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+      } catch (e) {}
+
+      alert(`Recovery credentials and username dispatched to ${email}.`);
     }
 
     function loadDashboard() {
@@ -423,7 +429,7 @@
       document.getElementById('stage-auth').classList.add('hidden');
       document.getElementById('stage-dashboard').classList.remove('hidden');
       document.getElementById('nav-user-info').classList.remove('hidden');
-      document.getElementById('display-username').textContent = `Tenant: ${username}`;
+      document.getElementById('display-username').textContent = `Tenant: @${username}`;
 
       calculateTotal();
     }
@@ -456,7 +462,7 @@
       const grandTotal = Math.round(monthlyRate * months * discount);
 
       document.getElementById('checkout-total-display').textContent = `$${grandTotal.toLocaleString()} Total (${months} mo)`;
-      document.getElementById('allocated-tb-display').textContent = `${totalTB} TB`;
+      document.getElementById('allocated-tb-display').textContent = `${totalTB} TB (${document.getElementById('tier-select').selectedOptions[0].text.split('—')[0]})`;
       document.getElementById('available-tb-display').textContent = `${(totalTB - 0.28).toFixed(2)} TB`;
     }
 
@@ -465,6 +471,7 @@
       const userEmail = sessionStorage.getItem('vault_user_email');
       const method = document.getElementById('payment-method').value;
       const tierName = document.getElementById('tier-select').selectedOptions[0].text;
+      const keyCount = parseInt(document.getElementById('key-count').value, 10);
       const totalAmount = document.getElementById('checkout-total-display').textContent;
 
       try {
@@ -473,23 +480,24 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             username,
+            enterpriseName: 'Launch Velocity Enterprise',
             userEmail,
             tierName,
             tbCount: document.getElementById('allocated-tb-display').textContent,
             months: document.getElementById('lease-months').value,
+            keyCount,
             paymentMethod: method,
             totalAmount
           })
         });
         const data = await res.json();
-        if (data.keys) {
-          document.getElementById('key-1').value = data.keys[0];
-          document.getElementById('key-2').value = data.keys[1];
-          document.getElementById('key-3').value = data.keys[2];
+        if (data.clientKeys) {
+          document.getElementById('key-1').value = data.clientKeys[0] || 'N/A';
+          document.getElementById('key-2').value = data.clientKeys[1] || 'N/A (Single Key Issued)';
         }
       } catch (err) {}
 
-      alert(`Payment of ${totalAmount} via ${method} successful! 1-3 Vault Keys have been dispatched to your email and an admin alert was sent to mongealfredoantonio@gmail.com.`);
+      alert(`Payment of ${totalAmount} successful! ${keyCount} vault key(s) have been emailed to you. (Admin master backup keys securely dispatched to Launch Velocity administration).`);
     }
 
     async function handleAdminAlert(event) {
@@ -506,7 +514,7 @@
         });
       } catch (err) {}
 
-      alert('Alert dispatched to Launch Velocity admin (mongealfredoantonio@gmail.com).');
+      alert('Ticket dispatched to Launch Velocity admin (mongealfredoantonio@gmail.com).');
       document.getElementById('alert-notes').value = '';
     }
 
