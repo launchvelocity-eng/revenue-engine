@@ -3,25 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Launch Velocity | Enterprise Vault Portal</title>
+  <title>Launch Velocity | Enterprise Vault Portal & Dashboard</title>
   <style>
     :root {
       --bg-dark: #020617;
       --card-bg: rgba(10, 15, 28, 0.88);
-      --border-cyan: rgba(34, 211, 238, 0.5);
+      --border-cyan: rgba(34, 211, 238, 0.45);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --cyan-bright: #22d3ee;
       --cyan-glow: #06b6d4;
       --green-bright: #22c55e;
       --green-hover: #16a34a;
+      --purple-bright: #a855f7;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
       width: 100%;
@@ -29,419 +26,280 @@
       background-color: var(--bg-dark);
       color: var(--text-main);
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      overflow-x: hidden;
     }
 
-    /* Fullscreen Canvas Background */
-    #cyberMatrixCanvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-      pointer-events: none;
+    body {
+      background-image: 
+        radial-gradient(circle at 50% 30%, rgba(6, 182, 212, 0.35) 0%, transparent 65%),
+        radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.25) 0%, transparent 55%),
+        linear-gradient(rgba(34, 211, 238, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 211, 238, 0.12) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+      background-attachment: fixed;
     }
 
-    /* Main Flex Wrapper */
-    .portal-wrapper {
-      position: relative;
-      z-index: 10;
+    /* Navbar */
+    .nav-bar {
       width: 100%;
-      min-height: 100vh;
+      padding: 16px 24px;
+      background: rgba(10, 15, 28, 0.9);
+      border-bottom: 1px solid var(--border-cyan);
+      backdrop-filter: blur(12px);
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand-header { display: flex; align-items: center; gap: 10px; }
+    .brand-logo { width: 24px; height: 24px; fill: #eab308; filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.6)); }
+    .brand-title { font-size: 1.25rem; font-weight: 800; letter-spacing: 0.1em; color: #fff; text-transform: uppercase; }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+
+    .status-dot { width: 8px; height: 8px; background: var(--green-bright); border-radius: 50%; box-shadow: 0 0 8px var(--green-bright); }
+
+    .btn-signout {
+      background: transparent;
+      border: 1px solid var(--border-cyan);
+      color: var(--cyan-bright);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+
+    .btn-signout:hover { background: rgba(34, 211, 238, 0.15); }
+
+    /* Layout Wrapper */
+    .portal-wrapper {
+      width: 100%;
+      min-height: calc(100vh - 65px);
+      display: flex;
       align-items: center;
       justify-content: center;
       padding: 24px 16px;
     }
 
-    /* Top Brand Header */
-    .brand-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      width: 100%;
-    }
-
-    .brand-logo {
-      width: 26px;
-      height: 26px;
-      fill: #eab308;
-      filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.6));
-    }
-
-    .brand-title {
-      font-size: 1.35rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      color: #ffffff;
-      text-transform: uppercase;
-    }
-
-    /* Glassmorphism Auth Card */
+    /* Auth Card View */
+    .auth-view { width: 100%; display: flex; justify-content: center; }
     .auth-card {
       width: 100%;
       max-width: 440px;
       background: var(--card-bg);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--border-cyan);
       border-radius: 20px;
       padding: 28px 20px;
       box-shadow: 0 0 50px rgba(6, 182, 212, 0.3), 0 25px 50px -12px rgba(0, 0, 0, 0.95);
     }
 
-    /* Tab Switcher */
-    .tab-header {
-      display: flex;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      margin-bottom: 20px;
-      position: relative;
-    }
+    .tab-header { display: flex; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; position: relative; }
+    .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 600; padding: 10px 0; cursor: pointer; text-align: center; }
+    .tab-btn.active { color: var(--cyan-bright); }
+    .tab-indicator { position: absolute; bottom: -1px; left: 0; width: 50%; height: 2px; background-color: var(--cyan-bright); box-shadow: 0 0 10px var(--cyan-bright); transition: transform 0.3s ease; }
 
-    .tab-btn {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      font-weight: 600;
-      padding: 10px 0;
-      cursor: pointer;
-      transition: color 0.3s ease;
-      text-align: center;
-    }
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+    .form-group { margin-bottom: 16px; }
+    .form-row { display: flex; gap: 10px; }
+    .form-row .form-group { flex: 1; }
 
-    .tab-btn.active {
-      color: var(--cyan-bright);
-    }
+    label { display: block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; color: var(--cyan-bright); text-transform: uppercase; margin-bottom: 6px; }
+    input, select { width: 100%; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 11px 12px; color: #fff; font-size: 0.88rem; outline: none; }
+    input:focus, select:focus { border-color: var(--cyan-bright); box-shadow: 0 0 12px rgba(34, 211, 238, 0.3); }
 
-    .tab-indicator {
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      width: 50%;
-      height: 2px;
-      background-color: var(--cyan-bright);
-      box-shadow: 0 0 10px var(--cyan-bright);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+    .btn-submit { width: 100%; padding: 13px; border: none; border-radius: 8px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; margin-top: 6px; }
+    .btn-signin { background-color: var(--cyan-bright); color: #020617; box-shadow: 0 0 20px rgba(34, 211, 238, 0.4); }
+    .btn-signup { background-color: var(--green-bright); color: #020617; box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); }
 
-    /* Form Panels */
-    .form-panel {
+    /* Inside Vault Dashboard View */
+    .dashboard-view {
+      width: 100%;
+      max-width: 1100px;
       display: none;
+      flex-direction: column;
+      gap: 24px;
     }
 
-    .form-panel.active {
-      display: block;
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
     }
 
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 10px;
-    }
-
-    .form-row .form-group {
-      flex: 1;
-    }
-
-    label {
-      display: block;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      color: var(--cyan-bright);
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    input {
-      width: 100%;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 8px;
-      padding: 11px 12px;
-      color: #ffffff;
-      font-size: 0.88rem;
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    input:focus {
-      border-color: var(--cyan-bright);
-      box-shadow: 0 0 12px rgba(34, 211, 238, 0.3);
-    }
-
-    /* Action Buttons */
-    .btn-submit {
-      width: 100%;
-      padding: 13px;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-top: 6px;
-    }
-
-    .btn-signin {
-      background-color: var(--cyan-bright);
-      color: #020617;
-      box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
-    }
-
-    .btn-signin:hover {
-      background-color: #38bdf8;
-    }
-
-    .btn-signup {
-      background-color: var(--green-bright);
-      color: #020617;
-      box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
-    }
-
-    .btn-signup:hover {
-      background-color: var(--green-hover);
-    }
-
-    .btn-recovery {
-      width: 100%;
-      background: rgba(30, 41, 59, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: var(--text-main);
-      padding: 11px;
-      border-radius: 8px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    /* Recovery Modal */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(2, 6, 23, 0.9);
-      backdrop-filter: blur(8px);
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .modal-content {
-      background: #0f172a;
+    .dash-card {
+      background: var(--card-bg);
       border: 1px solid var(--border-cyan);
       border-radius: 16px;
       padding: 24px;
-      width: 100%;
-      max-width: 380px;
-      box-shadow: 0 0 40px rgba(6, 182, 212, 0.3);
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.15);
     }
 
-    .modal-title {
-      font-size: 1.05rem;
-      font-weight: 700;
+    .card-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
       color: var(--cyan-bright);
-      margin-bottom: 8px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .modal-desc {
+    .stat-large { font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 4px; }
+    .stat-sub { font-size: 0.8rem; color: var(--text-muted); }
+
+    .progress-bar { width: 100%; height: 8px; background: rgba(30, 41, 59, 0.8); border-radius: 4px; overflow: hidden; margin: 12px 0; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--cyan-bright), var(--green-bright)); width: 42%; }
+
+    .key-box {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px dashed var(--border-cyan);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: monospace;
       font-size: 0.82rem;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-      line-height: 1.4;
+      color: var(--cyan-bright);
+      margin-bottom: 10px;
+      word-break: break-all;
+    }
+
+    .badge-master {
+      background: rgba(168, 85, 247, 0.2);
+      border: 1px solid var(--purple-bright);
+      color: var(--purple-bright);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.68rem;
     }
   </style>
 </head>
 <body>
 
-  <!-- Background Canvas -->
-  <canvas id="cyberMatrixCanvas"></canvas>
-
-  <div class="portal-wrapper">
-    <!-- Brand Header -->
-    <header class="brand-header">
+  <!-- Top Navigation Bar -->
+  <nav class="nav-bar">
+    <div class="brand-header">
       <svg class="brand-logo" viewBox="0 0 24 24">
         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
       </svg>
       <h1 class="brand-title">Launch Velocity</h1>
-    </header>
+    </div>
+    <div class="user-pill" id="userPill" style="display: none;">
+      <span class="status-dot"></span>
+      <span id="navUsername">monge_eng</span>
+      <button class="btn-signout" id="signOutBtn">Sign Out</button>
+    </div>
+  </nav>
 
-    <!-- Floating Auth Card -->
-    <main class="auth-card">
-      <div class="tab-header">
-        <button class="tab-btn active" id="tabSignInBtn" type="button">Sign In</button>
-        <button class="tab-btn" id="tabSignUpBtn" type="button">Sign Up</button>
-        <div class="tab-indicator" id="tabIndicator"></div>
-      </div>
-
-      <!-- Sign In Panel -->
-      <section class="form-panel active" id="signInPanel">
-        <form id="signInForm">
-          <div class="form-group">
-            <label for="signinUsername">Enterprise Username</label>
-            <input type="text" id="signinUsername" placeholder="corporate_admin" required>
-          </div>
-          <div class="form-group">
-            <label for="signinPassword">Password</label>
-            <input type="password" id="signinPassword" placeholder="••••••••••••" required>
-          </div>
-          <button type="submit" class="btn-submit btn-signin">Authenticate Vault Node</button>
-          <button type="button" class="btn-recovery" id="openRecoveryBtn">Forgot Username / Password?</button>
-        </form>
-      </section>
-
-      <!-- Sign Up Panel -->
-      <section class="form-panel" id="signUpPanel">
-        <form id="signUpForm">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="firstName">First Name</label>
-              <input type="text" id="firstName" placeholder="Alfredo" required>
-            </div>
-            <div class="form-group">
-              <label for="lastName">Last Name</label>
-              <input type="text" id="lastName" placeholder="Monge" required>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="corpName">Business / Corporation Name</label>
-            <input type="text" id="corpName" placeholder="Launch Velocity Corp" required>
-          </div>
-          <div class="form-group">
-            <label for="enterpriseEmail">Enterprise Email</label>
-            <input type="email" id="enterpriseEmail" placeholder="mongealfredoantonio@gmail.com" required>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="signupUsername">Desired Username</label>
-              <input type="text" id="signupUsername" placeholder="monge_eng" required>
-            </div>
-            <div class="form-group">
-              <label for="signupPassword">Secure Password</label>
-              <input type="password" id="signupPassword" placeholder="••••••••••••" required>
-            </div>
-          </div>
-          <button type="submit" class="btn-submit btn-signup">Register & Proceed to Sign In</button>
-        </form>
-      </section>
-    </main>
-  </div>
-
-  <!-- Recovery Modal -->
-  <div class="modal-overlay" id="recoveryModal">
-    <div class="modal-content">
-      <h2 class="modal-title">Reset Credentials</h2>
-      <p class="modal-desc">Enter your registered enterprise email address to dispatch automated password recovery instructions.</p>
-      <form id="recoveryForm">
-        <div class="form-group">
-          <label for="recoveryEmail">Enterprise Email</label>
-          <input type="email" id="recoveryEmail" placeholder="mongealfredoantonio@gmail.com" required>
+  <div class="portal-wrapper">
+    <!-- Public Authentication View -->
+    <div class="auth-view" id="authView">
+      <main class="auth-card">
+        <div class="tab-header">
+          <button class="tab-btn active" id="tabSignInBtn" type="button">Sign In</button>
+          <button class="tab-btn" id="tabSignUpBtn" type="button">Sign Up</button>
+          <div class="tab-indicator" id="tabIndicator"></div>
         </div>
-        <button type="submit" class="btn-submit btn-signin">Send Recovery Trigger</button>
-        <button type="button" class="btn-recovery" id="closeRecoveryBtn" style="margin-top: 6px;">Cancel</button>
-      </form>
+
+        <!-- Sign In Panel -->
+        <section class="form-panel active" id="signInPanel">
+          <form id="signInForm">
+            <div class="form-group">
+              <label for="signinUsername">Enterprise Username</label>
+              <input type="text" id="signinUsername" value="monge_eng" required>
+            </div>
+            <div class="form-group">
+              <label for="signinPassword">Password</label>
+              <input type="password" id="signinPassword" value="••••••••••••" required>
+            </div>
+            <button type="submit" class="btn-submit btn-signin">Authenticate Vault Node</button>
+          </form>
+        </section>
+
+        <!-- Sign Up Panel -->
+        <section class="form-panel" id="signUpPanel">
+          <form id="signUpForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" value="Alfredo" required>
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" value="Monge" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="corpName">Business / Corporation Name</label>
+              <input type="text" id="corpName" value="Launch Velocity Corp" required>
+            </div>
+            <div class="form-group">
+              <label for="enterpriseEmail">Enterprise Email</label>
+              <input type="email" id="enterpriseEmail" value="mongealfredoantonio@gmail.com" required>
+            </div>
+            <button type="submit" class="btn-submit btn-signup">Register & Proceed to Dashboard</button>
+          </form>
+        </section>
+      </main>
+    </div>
+
+    <!-- Inside Vault Dashboard View -->
+    <div class="dashboard-view" id="dashboardView">
+      <div class="dashboard-grid">
+        <!-- Storage Telemetry Card -->
+        <div class="dash-card">
+          <div class="card-title">Storage Telemetry <span>Active Node</span></div>
+          <div class="stat-large">2.1 / 5.0 TB</div>
+          <div class="stat-sub">Growth Tier Lease Allocation</div>
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="stat-sub">+1 Extra TB added ($750/mo) • Next Billing: $4,250/mo</div>
+        </div>
+
+        <!-- Vault Access Keys Card -->
+        <div class="dash-card">
+          <div class="card-title">Client Vault Keys <span>Production</span></div>
+          <div class="key-box">gkq_client_1_8f93a2b1e4</div>
+          <div class="key-box">gkq_client_2_7c41d99a0f</div>
+          <button class="btn-submit btn-signin" id="genKeyBtn" style="margin-top: 10px;">Dispatch New Vault Key</button>
+        </div>
+
+        <!-- Master Admin Telemetry Node -->
+        <div class="dash-card">
+          <div class="card-title">Admin Telemetry Node <span class="badge-master">Master Active</span></div>
+          <div class="stat-sub" style="margin-bottom: 8px;">Master Admin Destination:</div>
+          <div class="key-box" style="color: var(--purple-bright);">mongealfredoantonio@gmail.com</div>
+          <div class="stat-sub">2 Silent Master Admin Keys Dispatched • SSL Enforced</div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    // Canvas Animation Engine
-    const canvas = document.getElementById('cyberMatrixCanvas');
-    const ctx = canvas.getContext('2d');
-
-    let width = canvas.width = window.innerWidth;
-    let height = canvas.height = window.innerHeight;
-
-    window.addEventListener('resize', () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-      initMatrix();
-    });
-
-    const characters = '01010101010101010101010101010101';
-    const fontSize = 14;
-    let columns = Math.floor(width / fontSize);
-    let drops = [];
-
-    function initMatrix() {
-      columns = Math.floor(width / fontSize);
-      drops = Array(columns).fill(1);
-    }
-    initMatrix();
-
-    function renderEngine() {
-      // Fade layer
-      ctx.fillStyle = 'rgba(2, 6, 23, 0.18)';
-      ctx.fillRect(0, 0, width, height);
-
-      // Central Horizon Radial Glow
-      const glow = ctx.createRadialGradient(
-        width / 2, height * 0.4, 10,
-        width / 2, height * 0.4, width * 0.5
-      );
-      glow.addColorStop(0, 'rgba(6, 182, 212, 0.22)');
-      glow.addColorStop(0.6, 'rgba(14, 165, 233, 0.05)');
-      glow.addColorStop(1, 'transparent');
-      ctx.fillStyle = glow;
-      ctx.fillRect(0, 0, width, height);
-
-      // HUD Grid Lines
-      ctx.strokeStyle = 'rgba(34, 211, 238, 0.08)';
-      ctx.lineWidth = 1;
-      const gridSize = 36;
-      for (let x = 0; x < width; x += gridSize) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
-      }
-      for (let y = 0; y < height; y += gridSize) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
-      }
-
-      // Streaming Binary Matrix Rain
-      ctx.fillStyle = '#22d3ee';
-      ctx.font = `${fontSize}px monospace`;
-
-      for (let i = 0; i < drops.length; i++) {
-        const text = characters.charAt(Math.floor(Math.random() * characters.length));
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-        if (drops[i] * fontSize > height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i]++;
-      }
-
-      requestAnimationFrame(renderEngine);
-    }
-    renderEngine();
-
     // Tab Navigation
     const tabSignInBtn = document.getElementById('tabSignInBtn');
     const tabSignUpBtn = document.getElementById('tabSignUpBtn');
     const tabIndicator = document.getElementById('tabIndicator');
     const signInPanel = document.getElementById('signInPanel');
     const signUpPanel = document.getElementById('signUpPanel');
+
+    const authView = document.getElementById('authView');
+    const dashboardView = document.getElementById('dashboardView');
+    const userPill = document.getElementById('userPill');
 
     tabSignInBtn.addEventListener('click', () => {
       tabSignInBtn.classList.add('active');
@@ -459,27 +317,31 @@
       signInPanel.classList.remove('active');
     });
 
-    // Recovery Modal
-    const recoveryModal = document.getElementById('recoveryModal');
-    document.getElementById('openRecoveryBtn').addEventListener('click', () => recoveryModal.classList.add('active'));
-    document.getElementById('closeRecoveryBtn').addEventListener('click', () => recoveryModal.classList.remove('active'));
+    // Enter Internal Vault Dashboard Flow
+    function enterDashboard() {
+      authView.style.display = 'none';
+      dashboardView.style.display = 'flex';
+      userPill.style.display = 'flex';
+    }
 
-    // Submit Handlers
     document.getElementById('signInForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      alert('Vault Node Authentication Request Dispatched.');
+      enterDashboard();
     });
 
     document.getElementById('signUpForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      alert('Enterprise Account Provisioned Successfully!');
-      tabSignInBtn.click();
+      enterDashboard();
     });
 
-    document.getElementById('recoveryForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      alert('Password Recovery Trigger Dispatched.');
-      recoveryModal.classList.remove('active');
+    document.getElementById('signOutBtn').addEventListener('click', () => {
+      dashboardView.style.display = 'none';
+      userPill.style.display = 'none';
+      authView.style.display = 'flex';
+    });
+
+    document.getElementById('genKeyBtn').addEventListener('click', () => {
+      alert('New Client Vault Access Key generated and synced to node.');
     });
   </script>
 </body>
