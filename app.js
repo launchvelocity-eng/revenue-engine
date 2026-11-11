@@ -2,14 +2,16 @@ import express from 'express';
 import pkg from 'pg';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const { Pool } = pkg;
 const app = express();
 const PORT = process.env.PORT || 10000;
+const JWT_SECRET = process.env.JWT_SECRET || 'launch_velocity_super_secure_secret_key_2026';
 
 app.use(cors({
   origin: ['https://launchvelocity-eng.github.io', 'http://localhost:3000'],
-  allowedHeaders: ['Content-Type', 'X-Vault-Gatekeeper-Key'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Vault-Gatekeeper-Key'],
   methods: ['GET', 'POST', 'OPTIONS']
 }));
 
@@ -33,7 +35,7 @@ app.get('/api/telemetry', async (req, res) => {
   }
 });
 
-// Onboarding Registration Endpoint with PostgreSQL Persistence
+// Registration Endpoint
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { firstName, lastName, enterpriseName, email, username, password } = req.body || {};
@@ -43,11 +45,9 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Missing required credentials.' });
     }
 
-    // Hash password securely
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Insert into PostgreSQL database
     const query = `
       INSERT INTO users (first_name, last_name, enterprise_name, email, username, password_hash)
       VALUES ($1, $2, $3, $4, $5, $6)
@@ -58,7 +58,7 @@ app.post('/api/auth/register', async (req, res) => {
 
     console.log(`[SIGNUP SUCCESS] Enterprise user registered: @${username}`);
     res.setHeader('Content-Type', 'application/json');
-    res.status(201).json({ success: true, message: 'Account provisioned and persisted successfully.', user: result.rows[0] });
+    res.status(201).json({ success: true, message: 'Account provisioned successfully.', user: result.rows[0] });
   } catch (err) {
     console.error('[SIGNUP ERROR]:', err.message);
     res.setHeader('Content-Type', 'application/json');
@@ -69,7 +69,44 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// Password & Username Recovery Endpoint
+// Sign In Endpoint with JWT Generation
+app.post('/api/auth/signin', async (req, res) => {
+  try {
+    const { username, password } = req.body || {};
+
+    if (!username || !password) {
+      res.setHeader('Content-Type', 'application/json');
+      return res.status(400).json({ success: false, error: 'Username and password required.' });
+    }
+
+    const userQuery = await pool.query('SELECT * FROM users WHERE username = $1 OR email = $1', [username]);
+    if (userQuery.rows.length === 0) {
+      res.setHeader('Content-Type', 'application/json');
+      return res.status(401).json({ success: false, error: 'Invalid credentials.' });
+    }
+
+    const user = userQuery.rows[0];
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+
+    if (!isMatch) {
+      res.setHeader('Content-Type', 'application/json');
+      return res.status(401).json({ success: false, error: 'Invalid credentials.' });
+    }
+
+    // Generate JWT Token
+    const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: '12h' });
+
+    console.log(`[SIGNIN SUCCESS] User authenticated: @${user.username}`);
+    res.setHeader('Content-Type', 'application/json');
+    res.json({ success: true, token, username: user.username, enterprise: user.enterprise_name });
+  } catch (err) {
+    console.error('[SIGNIN ERROR]:', err.message);
+    res.setHeader('Content-Type', 'application/json');
+    res.status(500).json({ success: false, error: 'Authentication server error.' });
+  }
+});
+
+// Password Recovery Endpoint
 app.post('/api/auth/recover', async (req, res) => {
   try {
     const { email } = req.body || {};
