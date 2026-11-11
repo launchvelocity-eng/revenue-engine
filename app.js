@@ -1,6 +1,7 @@
 import express from 'express';
 import pkg from 'pg';
 import cors from 'cors';
+import bcrypt from 'bcryptjs';
 
 const { Pool } = pkg;
 const app = express();
@@ -16,7 +17,7 @@ app.use(express.json());
 
 // PostgreSQL Connection Pool
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://localhost:5432/launchvelocity',
+  connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
@@ -32,16 +33,39 @@ app.get('/api/telemetry', async (req, res) => {
   }
 });
 
-// Onboarding Registration Endpoint
+// Onboarding Registration Endpoint with PostgreSQL Persistence
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { firstName, lastName, enterpriseName, email, username } = req.body || {};
-    console.log(`[SIGNUP] ${enterpriseName || 'Enterprise'} registered by ${firstName || ''} ${lastName || ''} (@${username || 'user'})`);
+    const { firstName, lastName, enterpriseName, email, username, password } = req.body || {};
+
+    if (!username || !email || !password) {
+      res.setHeader('Content-Type', 'application/json');
+      return res.status(400).json({ success: false, error: 'Missing required credentials.' });
+    }
+
+    // Hash password securely
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // Insert into PostgreSQL database
+    const query = `
+      INSERT INTO users (first_name, last_name, enterprise_name, email, username, password_hash)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id, username, email, created_at;
+    `;
+    const values = [firstName, lastName, enterpriseName, email, username, passwordHash];
+    const result = await pool.query(query, values);
+
+    console.log(`[SIGNUP SUCCESS] Enterprise user registered: @${username}`);
     res.setHeader('Content-Type', 'application/json');
-    res.json({ success: true, message: 'Account provisioned successfully.' });
+    res.status(201).json({ success: true, message: 'Account provisioned and persisted successfully.', user: result.rows[0] });
   } catch (err) {
+    console.error('[SIGNUP ERROR]:', err.message);
     res.setHeader('Content-Type', 'application/json');
-    res.status(500).json({ success: false, error: err.message });
+    if (err.code === '23505') {
+      return res.status(409).json({ success: false, error: 'Username or email already registered.' });
+    }
+    res.status(500).json({ success: false, error: 'Database persistence error.' });
   }
 });
 
