@@ -3,31 +3,36 @@
       color: var(--text-main);
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       min-height: 100vh;
+      margin: 0;
       display: flex;
       flex-direction: column;
+      align-items: center;
+      justify-content: center;
       overflow-x: hidden;
       position: relative;
-      /* Glowing Cyber Matrix & Holographic Engineering Grid */
+      
+      /* Glowing Cyber Matrix & Holographic Engineering Grid Wallpaper */
       background-image: 
-        radial-gradient(circle at 50% 25%, rgba(6, 182, 212, 0.35) 0%, transparent 65%),
-        radial-gradient(circle at 15% 85%, rgba(56, 189, 248, 0.25) 0%, transparent 55%),
-        radial-gradient(circle at 85% 90%, rgba(14, 165, 233, 0.28) 0%, transparent 60%),
-        linear-gradient(rgba(34, 211, 238, 0.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(34, 211, 238, 0.08) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+        radial-gradient(circle at 50% 20%, rgba(6, 182, 212, 0.4) 0%, transparent 60%),
+        radial-gradient(circle at 10% 80%, rgba(56, 189, 248, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 90% 85%, rgba(14, 165, 233, 0.35) 0%, transparent 55%),
+        linear-gradient(rgba(34, 211, 238, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 211, 238, 0.12) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 30px 30px, 30px 30px;
       background-position: 0 0, 0 0, 0 0, -1px -1px, -1px -1px;
+      background-attachment: fixed;
     }
 
     .auth-card {
-      background: rgba(15, 23, 42, 0.82);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(56, 189, 248, 0.4);
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(56, 189, 248, 0.45);
       border-radius: 20px;
       width: 100%;
       max-width: 500px;
       padding: 40px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.95), 0 0 45px rgba(6, 182, 212, 0.2);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.95), 0 0 50px rgba(6, 182, 212, 0.25);
       position: relative;
       z-index: 1;
     }
