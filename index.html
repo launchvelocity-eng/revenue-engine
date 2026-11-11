@@ -1,86 +1,34 @@
-<!-- Cyberpunk Engine Telemetry Dashboard Component -->
-<div id="launch-velocity-telemetry" style="background: #0d1117; color: #00f0ff; border: 1px solid #00f0ff; padding: 25px; font-family: 'Courier New', Courier, monospace; max-width: 550px; border-radius: 4px; box-shadow: 0 0 15px rgba(0, 240, 255, 0.15); margin: 20px auto;">
-  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 240, 255, 0.3); padding-bottom: 10px; margin-bottom: 20px;">
-    <h3 style="margin: 0; color: #00f0ff; text-shadow: 0 0 5px #00f0ff; letter-spacing: 1px;">⚡ SYSTEM METRICS STREAM</h3>
-    <span style="font-size: 10px; color: rgba(0, 240, 255, 0.6);">SECURE NODE // PORT:10000</span>
-  </div>
-  
-  <div style="margin-bottom: 20px; font-size: 13px;">
-    <strong>PLATFORM STATUS:</strong> 
-    <span id="engine-status" style="color: #3fb950; font-weight: bold; text-shadow: 0 0 3px #3fb950;">INITIALIZING POOL SYNC...</span>
-  </div>
-
-  <!-- Storage Meter Component -->
-  <div style="margin-bottom: 20px; background: rgba(0, 240, 255, 0.03); padding: 12px; border: 1px solid rgba(0, 240, 255, 0.1); border-left: 4px solid #00f0ff;">
-    <strong style="font-size: 12px; letter-spacing: 0.5px;">📦 CLOUD VAULT ALLOCATION (10 TB BASE TIER)</strong>
-    <div style="background: #161b22; height: 14px; border-radius: 2px; margin-top: 8px; overflow: hidden; border: 1px solid rgba(0, 240, 255, 0.2);">
-      <div id="storage-progress" style="background: #00f0ff; width: 0%; height: 100%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px #00f0ff;"></div>
-    </div>
-    <div style="font-size: 11px; margin-top: 6px; color: #8b949e;" id="storage-text">0.00 TB / 10.00 TB allocated</div>
-  </div>
-
-  <!-- Live Worker Event Terminal -->
-  <div style="background: rgba(63, 185, 80, 0.03); padding: 12px; border: 1px solid rgba(63, 185, 80, 0.1); border-left: 4px solid #3fb950;">
-    <strong style="font-size: 12px; letter-spacing: 0.5px; color: #3fb950;">⚙️ ISOLATED WORKER AUDIT TRAIL</strong>
-    <div id="worker-logs" style="font-size: 11px; color: #8b949e; margin-top: 8px; line-height: 1.5; background: #070a0e; padding: 8px; border-radius: 2px; border: 1px solid rgba(63, 185, 80, 0.05); min-height: 44px;">
-      <div>[SYSTEM] Awaiting cluster connection handshake...</div>
-    </div>
-  </div>
+<div class="card telemetry-card">
+  <h3>⚡ Launch Velocity Telemetry</h3>
+  <div id="engine-status" class="status-badge connecting">Connecting to engine...</div>
+  <ul class="telemetry-stats">
+    <li>Database: <span id="db-state">Checking...</span></li>
+    <li>Server Time: <span id="server-time">--</span></li>
+  </ul>
 </div>
 
 <script>
-// Encapsulated UI Telemetry Controller - 100% Decoupled Browser Execution
-const LaunchVelocityTelemetry = {
-  dbPingEndpoint: 'https://onrender.com',
-  
-  init() {
-    this.pollPipeline();
-    // Poll the active pooling metrics every 15 seconds
-    setInterval(() => this.pollPipeline(), 15000);
-  },
-
-  async pollPipeline() {
-    const statusEl = document.getElementById('engine-status');
-    const logEl = document.getElementById('worker-logs');
-    const progressEl = document.getElementById('storage-progress');
-    const textEl = document.getElementById('storage-text');
-
+  async function fetchTelemetry() {
     try {
-      const response = await fetch(this.dbPingEndpoint);
-      if (response.ok) {
-        const data = await response.json();
+      const res = await fetch('/api/telemetry');
+      const data = await res.json();
+      
+      if (data.status === 'online') {
+        const badge = document.getElementById('engine-status');
+        badge.textContent = 'System Online & Stable';
+        badge.className = 'status-badge online';
         
-        // Reflect successful PostgreSQL handshake connection state
-        statusEl.textContent = 'ONLINE // SYNCED TO PRODUCTION POOL';
-        statusEl.style.color = '#3fb950';
-        
-        // Dynamically compute allocation weight based on actual raw table counts
-        const baseVaultWeight = 0.45; // 450 GB allocated per enterprise vault asset
-        const computedUsage = Math.min((data.active_vaults * baseVaultWeight), 10.0).toFixed(2);
-        const allocationPercentage = ((computedUsage / 10.0) * 100).toFixed(1);
-        
-        progressEl.style.width = `${allocationPercentage}%`;
-        textEl.textContent = `${computedUsage} TB / 10.00 TB utilized (${allocationPercentage}% Active Allocation)`;
-        
-        const timestamp = new Date(data.database_time).toLocaleTimeString();
-        logEl.innerHTML = `
-          <div style="color: #3fb950;">[${timestamp}] [DB_POOL] Active: ${data.pool.total} | Idle: ${data.pool.idle} connections synchronized.</div>
-          <div style="color: #3fb950;">[${timestamp}] [MIGRATION ENGINE] Relational telemetry verification verified green.</div>
-        `;
-      } else {
-        throw new Error('Database pipeline verification response dropped');
+        document.getElementById('db-state').textContent = 'Connected (PostgreSQL)';
+        document.getElementById('server-time').textContent = new Date(data.serverTime).toLocaleTimeString();
       }
     } catch (err) {
-      statusEl.textContent = 'DISCONNECTED // METRICS POOL RESYNCING';
-      statusEl.style.color = '#f85149';
-      logEl.innerHTML = `<div style="color: #f85149;">[CLUSTER_ERROR] Secondary thread validation failed. Retrying gateway connection parameters...</div>`;
-      progressEl.style.width = '0%';
+      const badge = document.getElementById('engine-status');
+      badge.textContent = 'Connection Error';
+      badge.className = 'status-badge error';
     }
   }
-};
 
-// Fire UI rendering stream purely on DOM resolution
-document.addEventListener('DOMContentLoaded', () => {
-  LaunchVelocityTelemetry.init();
-});
+  // Initial fetch and poll every 5 seconds
+  fetchTelemetry();
+  setInterval(fetchTelemetry, 5000);
 </script>
