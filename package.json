@@ -1,14 +1,4 @@
-{
-  "name": "revenue-engine",
-  "version": "1.0.0",
-  "type": "module",
-  "main": "app.js",
-  "scripts": {
-    "start": "node app.js"
-  },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "pg": "^8.11.3"
-  }
-}
+fetch('https://revenue-engine-ds6d.onrender.com/api/telemetry')
+  .then(res => res.json())
+  .then(data => console.log('TELEMETRY STATUS:', data))
+  .catch(err => console.error('Connection check failed:', err));
