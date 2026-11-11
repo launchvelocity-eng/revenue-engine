@@ -48,4 +48,23 @@ app.post('/api/auth/register', async (req, res) => {
 // Password & Username Recovery Endpoint
 app.post('/api/auth/recover', async (req, res) => {
   try {
-    const { email } = req
+    const { email } = req.body || {};
+    console.log(`[RECOVERY] Credentials requested for: ${email || 'unknown'}`);
+    res.setHeader('Content-Type', 'application/json');
+    res.json({ success: true, message: 'Recovery instructions dispatched.' });
+  } catch (err) {
+    res.setHeader('Content-Type', 'application/json');
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Fallback 404 handler
+app.use((req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.status(404).json({ success: false, error: 'Endpoint Not Found' });
+});
+
+// Start Server
+app.listen(PORT, () => {
+  console.log(`[SERVER ENGINE] Launch Velocity running and listening on port ${PORT}`);
+});
