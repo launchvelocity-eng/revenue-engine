@@ -1,2 +1,82 @@
-<!-- Live Interactive Cyber Matrix & HUD Canvas -->
-<canvas id="cyberMatrixCanvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none;"></canvas>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Launch Velocity | Enterprise Vault Portal</title>
+  <style>
+    :root {
+      --bg-dark: #020617;
+      --card-bg: rgba(10, 15, 28, 0.82);
+      --border-cyan: rgba(34, 211, 238, 0.45);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --cyan-bright: #22d3ee;
+      --cyan-glow: #06b6d4;
+      --green-bright: #22c55e;
+      --green-hover: #16a34a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Fullscreen Canvas Overlay */
+    #cyberMatrixCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Main Container */
+    .portal-wrapper {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px 16px 40px;
+    }
+
+    /* Top Brand Header */
+    .brand-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 10px;
+      margin-bottom: 30px;
+      width: 100%;
+    }
+
+    .brand-logo {
+      width: 28px;
+      height: 28px;
+      fill: #eab308;
+      filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.6));
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: #ffffff;
+      text-transform: uppercase;
+    
