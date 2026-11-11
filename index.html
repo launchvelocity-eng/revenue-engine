@@ -4,34 +4,50 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Launch Velocity | Enterprise Cyber Vault Portal</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --bg-dark: #020617;
       --accent-cyan: #22d3ee;
-      --accent-blue: #38bdf8;
-      --accent-green: #22c55e;
-      --card-bg: rgba(15, 23, 42, 0.82);
+      --card-bg: rgba(15, 23, 42, 0.85);
     }
-
     html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background-color: var(--bg-dark);
-      color: #f8fafc;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      overflow-x: hidden;
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      background-color: var(--bg-dark); color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
-
     #cyberMatrixCanvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none;
+    }
+    .auth-card, .dash-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(34, 211, 238, 0.35);
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(6, 182, 212, 0.2);
+      position: relative; z-index: 10;
+    }
+    .cyber-input {
+      background: rgba(2, 6, 23, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: #f8fafc;
+    }
+    .cyber-input:focus {
+      outline: none; border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+    }
+    .tab-btn { position: relative; padding-bottom: 12px; }
+    .tab-btn::after {
+      content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px;
+      background: var(--accent-cyan); border-radius: 3px; transform: scaleX(0); transition: transform 0.3s ease;
+    }
+    .tab-btn.active { color: var(--accent-cyan); font-weight: 700; }
+    .tab-btn.active::after { transform: scaleX(1); }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen items-center justify-between relative">
+
+  <canvas id="cyberMatrixCanvas"></canvas>
+
+  <header class="w-full max-w-7xl px-6 py-6 flex justify-between items-center z-10">
