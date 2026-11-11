@@ -1,95 +1,44 @@
-<!-- Cyberpunk Gatekeeper Authentication Trigger & Modal -->
-<div id="auth-panel" style="max-width: 550px; margin: 20px auto; font-family: 'Courier New', Courier, monospace;">
-  <button id="open-auth-btn" style="background: #0d1117; color: #00f0ff; border: 1px solid #00f0ff; padding: 10px 20px; cursor: pointer; font-family: monospace; font-weight: bold; width: 100%; border-radius: 4px; box-shadow: 0 0 10px rgba(0, 240, 255, 0.1); transition: all 0.3s ease;">
-    🔒 MANAGE GATEKEEPER KEY
-  </button>
+<!-- Gatekeeper Authentication Trigger & Status Bar -->
+<div id="gatekeeper-bar" class="gatekeeper-bar">
+  <div class="status-indicator">
+    <span id="gatekeeper-badge" class="badge locked">🔒 Gatekeeper Unauthenticated</span>
+    <span id="active-tenant-display" class="tenant-label">Session Key: None</span>
+  </div>
+  <button id="open-auth-modal-btn" class="btn btn-secondary">Manage Vault Key</button>
+</div>
 
-  <!-- Hidden Modal Overlay -->
-  <div id="auth-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center;">
-    <div style="background: #0d1117; border: 2px solid #00f0ff; padding: 30px; max-width: 450px; width: 90%; border-radius: 4px; box-shadow: 0 0 25px rgba(0, 240, 255, 0.3); color: #00f0ff; position: relative;">
-      
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 240, 255, 0.3); padding-bottom: 10px; margin-bottom: 20px;">
-        <h3 style="margin: 0; text-shadow: 0 0 5px #00f0ff;">🔑 GATEKEEPER AUTHENTICATION</h3>
-        <span id="close-modal-btn" style="cursor: pointer; color: #f85149; font-weight: bold; font-size: 18px;">&times;</span>
-      </div>
-
-      <p style="font-size: 12px; color: #8b949e; line-height: 1.4; margin-bottom: 20px;">
-        Input your authorized <code style="color: #00f0ff;">X-Vault-Gatekeeper-Key</code>. This token remains sandboxed strictly inside your local browser session context to sign zero-trust file stream payloads.
+<!-- Secure Gatekeeper Authentication UI Modal -->
+<div id="auth-modal-overlay" class="modal-overlay hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>🔐 Corporate Gatekeeper Authentication</h3>
+      <button id="close-auth-modal-btn" class="close-btn">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <p class="modal-description">
+        Enter your enterprise validation key below. The key is securely cached in your browser's session storage and dynamically injected as <code>X-Vault-Gatekeeper-Key</code> for raw payload uploads and telemetry sync.
       </p>
 
-      <div style="margin-bottom: 20px;">
-        <label style="display: block; font-size: 11px; margin-bottom: 8px; font-weight: bold;">VAULT SECURITY KEY:</label>
-        <input type="password" id="gatekeeper-key-input" placeholder="vk-enterprise-xxxxxxxxxxxx" style="width: 100%; background: #161b22; border: 1px solid rgba(0, 240, 255, 0.4); padding: 10px; color: #fff; font-family: monospace; box-sizing: border-box; border-radius: 2px; outline: none;">
-      </div>
+      <form id="gatekeeper-form" onsubmit="return false;">
+        <div class="form-group">
+          <label for="gatekeeper-key-input">X-Vault-Gatekeeper-Key</label>
+          <input 
+            type="password" 
+            id="gatekeeper-key-input" 
+            placeholder="e.g. gkq_live_99f28a38b10..." 
+            autocomplete="off"
+            required
+          />
+        </div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 10px;">
-        <span id="key-status-msg" style="font-size: 11px; align-self: center; margin-right: auto;"></span>
-        <button id="save-key-btn" style="background: #3fb950; color: #fff; border: 1px solid #3fb950; padding: 8px 16px; cursor: pointer; font-family: monospace; font-weight: bold; border-radius: 2px; box-shadow: 0 0 5px rgba(63, 185, 80, 0.2);">
-          SAVE KEY
-        </button>
-      </div>
+        <div id="auth-feedback" class="feedback-msg hidden"></div>
+
+        <div class="modal-actions">
+          <button type="button" id="clear-key-btn" class="btn btn-danger">Clear Key</button>
+          <button type="submit" id="save-key-btn" class="btn btn-primary">Authenticate & Save</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
-
-<script>
-// Encapsulated Browser Controller - Strict Isolation from Node.js Runtimes
-const GatekeeperAuth = {
-  init() {
-    const openBtn = document.getElementById('open-auth-btn');
-    const closeBtn = document.getElementById('close-modal-btn');
-    const saveBtn = document.getElementById('save-key-btn');
-    const modal = document.getElementById('auth-modal');
-    const keyInput = document.getElementById('gatekeeper-key-input');
-    const statusMsg = document.getElementById('key-status-msg');
-
-    // Load active structural session key if it exists
-    const cachedKey = sessionStorage.getItem('X-Vault-Gatekeeper-Key');
-    if (cachedKey) {
-      keyInput.value = cachedKey;
-      this.updateStatusTrigger(statusMsg, 'KEY ACTIVE', '#3fb950');
-      openBtn.textContent = '🔒 GATEKEEPER KEY: CONFIGURED';
-      openBtn.style.borderColor = '#3fb950';
-      openBtn.style.color = '#3fb950';
-    }
-
-    // Modal view triggers
-    openBtn.addEventListener('click', () => { modal.style.display = 'flex'; });
-    closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
-    
-    // Close modal when clicking outside contents box
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) modal.style.display = 'none';
-    });
-
-    // Handle token lifecycle preservation
-    saveBtn.addEventListener('click', () => {
-      const targetValue = keyInput.value.trim();
-      if (targetValue) {
-        sessionStorage.setItem('X-Vault-Gatekeeper-Key', targetValue);
-        this.updateStatusTrigger(statusMsg, 'SAVED SUCCESS', '#3fb950');
-        openBtn.textContent = '🔒 GATEKEEPER KEY: CONFIGURED';
-        openBtn.style.borderColor = '#3fb950';
-        openBtn.style.color = '#3fb950';
-        setTimeout(() => { modal.style.display = 'none'; }, 800);
-      } else {
-        sessionStorage.removeItem('X-Vault-Gatekeeper-Key');
-        this.updateStatusTrigger(statusMsg, 'KEY CLEARED', '#f85149');
-        openBtn.textContent = '🔒 MANAGE GATEKEEPER KEY';
-        openBtn.style.borderColor = '#00f0ff';
-        openBtn.style.color = '#00f0ff';
-      }
-    });
-  },
-
-  updateStatusTrigger(element, msg, color) {
-    element.textContent = msg;
-    element.style.color = color;
-  }
-};
-
-// Bind to DOM frame setup safely without Node namespace interactions
-document.addEventListener('DOMContentLoaded', () => {
-  GatekeeperAuth.init();
-});
-</script>
