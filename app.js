@@ -1,44 +1,42 @@
-    function handleFileUpload(event) {
-      const input = event.target;
-      const file = input.files && input.files[0];
+import Stripe from 'stripe';
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-      // 1. Strict abort if user denied permission, canceled, or no valid file exists
-      if (!file || file.size === 0) {
-        input.value = '';
-        return;
-      }
+// Server-side price lookup table (Prevents client-side price tampering)
+const PRICING_TIERS = {
+  base_10tb: { name: 'Launch Velocity 10 TB Enterprise Vault', unit_amount: 250000 }, // $2,500.00 in cents
+  plus_5tb:  { name: 'Launch Velocity 15 TB Enterprise Vault', unit_amount: 375000 }, // $3,750.00 in cents
+  plus_10tb: { name: 'Launch Velocity 20 TB Enterprise Vault', unit_amount: 500000 }  // $5,000.00 in cents
+};
 
-      // 2. ZeroTrustMagicByteShield extension check
-      if (file.name.toLowerCase().endsWith('.exe') || file.name.toLowerCase().endsWith('.dll')) {
-        input.value = '';
-        showVaultAlert('SECURITY INTERCEPT: Executable binary blocked by ZeroTrustMagicByteShield.');
-        return;
-      }
+// Secure Payment Session Generator
+app.post('/api/billing/create-checkout', async (req, res) => {
+  const { tierId, months, customerEmail } = req.body;
+  const selectedTier = PRICING_TIERS[tierId];
 
-      // 3. Explicit user confirmation before committing to the vault
-      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-      const confirmed = window.confirm(`Confirm encrypted upload to your isolated vault?\n\nFile: ${file.name}\nSize: ${sizeMB} MB`);
-      if (!confirmed) {
-        input.value = '';
-        showVaultAlert('Upload canceled. No files were added to your vault.');
-        return;
-      }
+  if (!selectedTier || ![1, 3, 6, 12].includes(Number(months))) {
+    return res.status(400).json({ error: 'INVALID_BILLING_PARAMETERS' });
+  }
 
-      const list = document.getElementById('vaultFileList');
-      if (vaultState.usedTB === 0.0) {
-        list.innerHTML = '';
-      }
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card', 'us_bank_account'], // Supports Corporate Cards & ACH Bank Transfers
+      customer_email: customerEmail,
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          product_data: { name: `${selectedTier.name} (${months} Month Pre-Pay)` },
+          unit_amount: selectedTier.unit_amount * Number(months),
+        },
+        quantity: 1,
+      }],
+      mode: 'payment',
+      success_url: 'https://github.io',
+      cancel_url: 'https://github.io',
+    });
 
-      list.innerHTML = `
-        <div class="flex justify-between items-center text-emerald-300">
-          <span class="truncate"><i class="fa-solid fa-shield-check text-emerald-400 mr-1.5"></i>${file.name}</span>
-          <span class="text-[10px] text-slate-400">${sizeMB} MB</span>
-        </div>` + list.innerHTML;
-
-      vaultState.usedTB = Math.min(vaultState.totalTB, vaultState.usedTB + (file.size / (1024 ** 4)));
-      updateVaultUI();
-      showVaultAlert(`Encrypted & stored "${file.name}" (${sizeMB} MB) into your isolated partition.`);
-
-      // 4. Always clear input so stale selections never re-trigger
-      input.value = '';
-    }
+    res.status(200).json({ checkoutUrl: session.url });
+  } catch (error) {
+    console.error('[BILLING ERROR]:', error.message);
+    res.status(500).json({ error: 'PAYMENT_GATEWAY_FAILURE' });
+  }
+});
