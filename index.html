@@ -157,14 +157,14 @@
 
             <div>
               <div class="flex items-baseline justify-between mb-1">
-                <span id="storageMeterText" class="text-3xl font-black text-white">0.4 / 2.0 TB</span>
+                <span id="storageMeterText" class="text-3xl font-black text-white">0.0 / 2.0 TB</span>
                 <span id="leaseMonthsText" class="text-xs font-mono text-cyan-400">1 Month Active</span>
               </div>
               <p class="text-[11px] text-slate-400">Dedicated Tenant Partition (Zero Cross-Tenant Overlap)</p>
             </div>
 
             <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden p-0.5">
-              <div id="storageProgressBar" class="bg-gradient-to-r from-cyan-400 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 20%;"></div>
+              <div id="storageProgressBar" class="bg-gradient-to-r from-cyan-400 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 0%;"></div>
             </div>
 
             <!-- File Upload & Download Controls -->
@@ -179,11 +179,8 @@
                   <i class="fa-solid fa-cloud-arrow-down"></i> Download
                 </button>
               </div>
-              <div id="vaultFileList" class="bg-slate-950/90 border border-slate-800 rounded-xl p-3 space-y-2 max-h-36 overflow-y-auto text-xs font-mono">
-                <div class="flex justify-between items-center text-slate-300">
-                  <span class="truncate"><i class="fa-solid fa-lock text-cyan-400 mr-1.5"></i>Q4_M&A_Audit_Vault.enc</span>
-                  <span class="text-[10px] text-slate-500">400 GB</span>
-                </div>
+              <div id="vaultFileList" class="bg-slate-950/90 border border-slate-800 rounded-xl p-3 space-y-2 max-h-36 overflow-y-auto text-xs font-mono text-slate-500">
+                <div class="text-center py-2">No files stored in partition yet.</div>
               </div>
             </div>
           </div>
@@ -252,8 +249,8 @@
               <span class="text-xs font-bold uppercase text-slate-400">Total Allotment Cost:</span>
               <span id="calculatedTotalCost" class="text-xl font-black text-cyan-400 font-mono">$2,500.00</span>
             </div>
-            <button onclick="executeVaultPurchase()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 hover:opacity-95 text-black font-black text-xs uppercase tracking-widest shadow-lg shadow-cyan-500/20">
-              PURCHASE / ADD TO VAULT
+            <button onclick="openCheckoutModal()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 hover:opacity-95 text-black font-black text-xs uppercase tracking-widest shadow-lg shadow-cyan-500/20">
+              PROCEED TO SECURE CHECKOUT
             </button>
           </div>
         </div>
@@ -300,6 +297,59 @@
     </div>
   </main>
 
+  <!-- SECURE DEBIT / CREDIT CARD CHECKOUT MODAL -->
+  <div id="checkoutModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden p-4">
+    <div class="dash-card w-full max-w-lg p-6 sm:p-8 space-y-6 relative border border-cyan-400/50">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+        <div>
+          <h3 class="text-sm font-bold uppercase tracking-wider text-cyan-400">Enterprise Secure Checkout</h3>
+          <p class="text-xs text-slate-400 font-mono mt-0.5">Air-Gapped Payment Gateway</p>
+        </div>
+        <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-950 border border-cyan-500/30 flex justify-between items-center text-xs font-mono">
+        <div>
+          <span class="text-slate-400">Selected Allotment:</span>
+          <div id="modalAllotmentSummary" class="text-white font-bold mt-0.5">2.0 TB • 1 Month Lease</div>
+        </div>
+        <div class="text-right">
+          <span class="text-slate-400">Total Due:</span>
+          <div id="modalTotalSummary" class="text-cyan-400 font-bold text-base mt-0.5">$2,500.00</div>
+        </div>
+      </div>
+
+      <form onsubmit="handlePaymentSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase text-cyan-400 mb-1.5">Cardholder Name</label>
+          <input type="text" required placeholder="Corporate Officer Name" class="cyber-input w-full px-4 py-3 rounded-xl text-xs font-mono">
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase text-cyan-400 mb-1.5">Debit / Credit Card Number</label>
+          <div class="relative">
+            <input type="text" required placeholder="4532 •••• •••• 8892" class="cyber-input w-full px-4 py-3 pl-11 rounded-xl text-xs font-mono">
+            <i class="fa-solid fa-credit-card absolute left-3.5 top-3.5 text-cyan-400"></i>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-cyan-400 mb-1.5">Expiration Date</label>
+            <input type="text" required placeholder="MM / YY" class="cyber-input w-full px-4 py-3 rounded-xl text-xs font-mono">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-cyan-400 mb-1.5">CVV Security Code</label>
+            <input type="password" required maxlength="4" placeholder="123" class="cyber-input w-full px-4 py-3 rounded-xl text-xs font-mono">
+          </div>
+        </div>
+        <div class="pt-2">
+          <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-black font-black text-xs uppercase tracking-widest shadow-lg shadow-cyan-500/25">
+            AUTHORIZE PAYMENT & PROVISION KEYS
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <footer class="w-full py-6 text-center text-slate-500 text-xs font-mono z-10">
     <p>&copy; 2026 LAUNCH VELOCITY ENTERPRISE PLATFORM &bull; ALL RIGHTS RESERVED</p>
   </footer>
@@ -308,7 +358,7 @@
     const RENDER_BACKEND_URL = 'https://revenue-engine-ds6d.onrender.com';
 
     let vaultState = {
-      usedTB: 0.4,
+      usedTB: 0.0,
       totalTB: 2.0,
       months: 1,
       balanceDue: 0,
@@ -383,13 +433,25 @@
     function recalculateQuote() {
       const months = parseInt(document.getElementById('selectMonths').value, 10);
       const extraTB = parseInt(document.getElementById('selectExtraTB').value, 10);
-      // $2,500/month base (includes 2 TB) + $1,000 per extra TB
       const total = (months * 2500) + (extraTB * 1000);
       document.getElementById('calculatedTotalCost').innerText = `$${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
       return { months, extraTB, total };
     }
 
-    function executeVaultPurchase() {
+    function openCheckoutModal() {
+      const { months, extraTB, total } = recalculateQuote();
+      const totalTB = 2.0 + extraTB;
+      document.getElementById('modalAllotmentSummary').innerText = `${totalTB.toFixed(1)} TB • ${months} Month${months > 1 ? 's' : ''} Lease`;
+      document.getElementById('modalTotalSummary').innerText = `$${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      document.getElementById('checkoutModal').classList.remove('hidden');
+    }
+
+    function closeCheckoutModal() {
+      document.getElementById('checkoutModal').classList.add('hidden');
+    }
+
+    function handlePaymentSubmit(e) {
+      e.preventDefault();
       const { months, extraTB, total } = recalculateQuote();
       const keyCount = parseInt(document.getElementById('selectKeyCount').value, 10);
 
@@ -397,7 +459,7 @@
       vaultState.months = months;
       vaultState.balanceDue = 0;
 
-      // Generate scoped keys (1-3)
+      // Generate Scoped Keys (1-3)
       const container = document.getElementById('encryptedKeysContainer');
       container.innerHTML = '';
       for (let i = 1; i <= keyCount; i++) {
@@ -410,8 +472,9 @@
       }
       document.getElementById('keyBadgeCount').innerText = `${keyCount} ACTIVE KEY${keyCount > 1 ? 'S' : ''}`;
 
+      closeCheckoutModal();
       updateVaultUI();
-      showVaultAlert(`Vault Allotment Updated: ${vaultState.totalTB.toFixed(1)} TB for ${months} Month(s) ($${total.toLocaleString()}). ${keyCount} Scoped Key(s) Provisioned.`);
+      showVaultAlert(`Payment Authorized ($${total.toLocaleString()}). Vault Partition Updated: ${vaultState.totalTB.toFixed(1)} TB for ${months} Month(s). ${keyCount} Scoped Key(s) Provisioned.`);
     }
 
     function settleVaultBalance() {
@@ -432,13 +495,15 @@
       const file = event.target.files[0];
       if (!file) return;
 
-      // Client-side Magic Byte / Extension Guard preview
       if (file.name.endsWith('.exe') || file.name.endsWith('.dll')) {
         showVaultAlert('SECURITY INTERCEPT: Executable binary blocked by ZeroTrustMagicByteShield.');
         return;
       }
 
       const list = document.getElementById('vaultFileList');
+      if (vaultState.usedTB === 0.0) {
+        list.innerHTML = '';
+      }
       const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
       list.innerHTML = `
         <div class="flex justify-between items-center text-emerald-300">
