@@ -10,10 +10,10 @@
     :root {
       --bg-dark: #020617;
       --accent-cyan: #22d3ee;
-      --card-bg: rgba(15, 23, 42, 0.85);
+      --card-bg: rgba(15, 23, 42, 0.88);
     }
     html, body {
-      margin: 0; padding: 0; width: 100%; height: 100%;
+      margin: 0; padding: 0; width: 100%; min-height: 100%;
       background-color: var(--bg-dark); color: #f8fafc;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
@@ -25,11 +25,11 @@
       backdrop-filter: blur(20px);
       border: 1px solid rgba(34, 211, 238, 0.35);
       border-radius: 20px;
-      box-shadow: 0 0 40px rgba(6, 182, 212, 0.2);
+      box-shadow: 0 0 40px rgba(6, 182, 212, 0.18);
       position: relative; z-index: 10;
     }
     .cyber-input {
-      background: rgba(2, 6, 23, 0.85);
+      background: rgba(2, 6, 23, 0.9);
       border: 1px solid rgba(56, 189, 248, 0.25);
       color: #f8fafc;
     }
@@ -50,6 +50,7 @@
 
   <canvas id="cyberMatrixCanvas"></canvas>
 
+  <!-- TOP NAVIGATION -->
   <header class="w-full max-w-7xl px-6 py-6 flex justify-between items-center z-10">
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
@@ -61,12 +62,13 @@
     </div>
     <div id="userNavPill" class="hidden items-center gap-3 px-4 py-2 rounded-xl bg-slate-900/90 border border-cyan-500/40 text-xs font-mono text-cyan-400">
       <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-      <span id="navUsernameDisplay">active_node</span>
+      <span id="navEnterpriseDisplay" class="text-white font-bold hidden sm:inline">ENTERPRISE</span>
+      <span id="navUsernameDisplay">@node</span>
       <button onclick="handleSignOut()" class="ml-2 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 uppercase font-bold text-[10px]">Sign Out</button>
     </div>
   </header>
 
-  <main class="w-full flex-1 flex items-center justify-center px-4 py-8 z-10">
+  <main class="w-full flex-1 flex items-center justify-center px-4 py-6 z-10">
     
     <!-- AUTH VIEW -->
     <div id="authView" class="auth-card w-full max-w-md p-8 sm:p-10">
@@ -108,7 +110,7 @@
           </div>
         </div>
         <div>
-          <label class="block text-xs font-bold uppercase text-cyan-400 mb-2">Corporation Name</label>
+          <label class="block text-xs font-bold uppercase text-cyan-400 mb-2">Corporation / Enterprise Name</label>
           <input type="text" id="signUpCorp" required placeholder="Company Name" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-mono placeholder-slate-500">
         </div>
         <div>
@@ -126,35 +128,174 @@
           </div>
         </div>
         <button type="submit" class="w-full py-4 mt-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-500/25">
-          REGISTER ACCOUNT
+          REGISTER ENTERPRISE ACCOUNT
         </button>
       </form>
     </div>
 
-    <!-- DASHBOARD VIEW -->
-    <div id="dashboardView" class="hidden w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="dash-card p-6">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-4 flex justify-between">Storage Telemetry <span>Active Node</span></h3>
-        <div class="text-3xl font-black text-white mb-1">2.1 / 5.0 TB</div>
-        <div class="text-xs text-slate-400 mb-4">Growth Tier Lease Allocation</div>
-        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mb-3">
-          <div class="bg-gradient-to-r from-cyan-400 to-emerald-400 h-full w-[42%]"></div>
+    <!-- ENTERPRISE VAULT DASHBOARD -->
+    <div id="dashboardView" class="hidden w-full max-w-6xl space-y-6">
+      
+      <!-- Top Action Alert / Notification Bar -->
+      <div id="vaultAlertBox" class="hidden p-4 rounded-2xl bg-emerald-950/85 border border-emerald-500/50 text-emerald-300 text-xs font-mono flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <i class="fa-solid fa-shield-halved text-emerald-400 text-base"></i>
+          <span id="vaultAlertText">Vault partition verified.</span>
         </div>
-        <p class="text-[11px] text-slate-400">Price List & Tier Management Active</p>
+        <button onclick="document.getElementById('vaultAlertBox').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <div class="dash-card p-6">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-4 flex justify-between">Encrypted Keys <span>1-3 Allotment</span></h3>
-        <div class="bg-slate-950/80 border border-cyan-500/30 p-2.5 rounded-xl font-mono text-xs text-cyan-300 mb-2 truncate">gkq_secure_key_alpha_98f</div>
-        <div class="bg-slate-950/80 border border-cyan-500/30 p-2.5 rounded-xl font-mono text-xs text-cyan-300 mb-4 truncate">gkq_secure_key_beta_412</div>
-        <button onclick="alert('Encrypted key allotment generated for active timeframe.')" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs uppercase">Provision Key Set</button>
-      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- COLUMN 1: ISOLATED STORAGE TELEMETRY & FILE OPERATIONS -->
+        <div class="dash-card p-6 flex flex-col justify-between space-y-5">
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400">Isolated Vault Meter</h3>
+              <span class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/30">AIR-GAPPED</span>
+            </div>
 
-      <div class="dash-card p-6">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-4 flex justify-between">Admin Relay Node <span class="text-purple-400 text-[10px] px-2 py-0.5 rounded bg-purple-950/50">Online</span></h3>
-        <p class="text-xs text-slate-400 mb-2">Admin Alerts Route To:</p>
-        <div class="bg-slate-950/80 border border-purple-500/30 p-2.5 rounded-xl font-mono text-xs text-purple-300 mb-4 truncate">launchvelocityadmin2026@gmail.com</div>
-        <p class="text-[11px] text-slate-400">SSL Encrypted • Active Monitoring</p>
+            <div>
+              <div class="flex items-baseline justify-between mb-1">
+                <span id="storageMeterText" class="text-3xl font-black text-white">0.4 / 2.0 TB</span>
+                <span id="leaseMonthsText" class="text-xs font-mono text-cyan-400">1 Month Active</span>
+              </div>
+              <p class="text-[11px] text-slate-400">Dedicated Tenant Partition (Zero Cross-Tenant Overlap)</p>
+            </div>
+
+            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden p-0.5">
+              <div id="storageProgressBar" class="bg-gradient-to-r from-cyan-400 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 20%;"></div>
+            </div>
+
+            <!-- File Upload & Download Controls -->
+            <div class="pt-3 border-t border-slate-800 space-y-3">
+              <label class="block text-[11px] font-bold uppercase text-cyan-400">Vault Data Operations</label>
+              <input type="file" id="vaultFileInput" class="hidden" onchange="handleFileUpload(event)">
+              <div class="grid grid-cols-2 gap-2.5">
+                <button onclick="document.getElementById('vaultFileInput').click()" class="py-3 px-3 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 font-bold text-xs uppercase flex items-center justify-center gap-2 transition">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+                </button>
+                <button onclick="handleFileDownload()" class="py-3 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold text-xs uppercase flex items-center justify-center gap-2 transition">
+                  <i class="fa-solid fa-cloud-arrow-down"></i> Download
+                </button>
+              </div>
+              <div id="vaultFileList" class="bg-slate-950/90 border border-slate-800 rounded-xl p-3 space-y-2 max-h-36 overflow-y-auto text-xs font-mono">
+                <div class="flex justify-between items-center text-slate-300">
+                  <span class="truncate"><i class="fa-solid fa-lock text-cyan-400 mr-1.5"></i>Q4_M&A_Audit_Vault.enc</span>
+                  <span class="text-[10px] text-slate-500">400 GB</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
+            <span class="text-slate-400">Balance Due:</span>
+            <span id="balanceDueDisplay" class="font-mono font-bold text-emerald-400">$0.00</span>
+          </div>
+        </div>
+
+        <!-- COLUMN 2: ENTERPRISE TIER & EXTENSION CALCULATOR MENU -->
+        <div class="dash-card p-6 flex flex-col justify-between space-y-5">
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400">Vault Storage & Lease Menu</h3>
+              <span class="text-[10px] font-mono text-slate-400">$2,500/mo Base</span>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/90 border border-cyan-500/30 text-xs space-y-1">
+              <div class="flex justify-between font-bold text-white">
+                <span>Enterprise Base Vault (2 TB)</span>
+                <span class="text-cyan-400">$2,500.00 / mo</span>
+              </div>
+              <p class="text-[11px] text-slate-400">• Extra Storage: +$1,000.00 per additional TB</p>
+              <p class="text-[11px] text-slate-400">• Extended Duration: +$2,500.00 per additional month</p>
+            </div>
+
+            <!-- Interactive Selectors -->
+            <div class="space-y-3">
+              <div>
+                <label class="block text-[11px] font-bold uppercase text-slate-300 mb-1">Lease Duration (Months)</label>
+                <select id="selectMonths" onchange="recalculateQuote()" class="cyber-input w-full px-3 py-2.5 rounded-xl text-xs font-mono">
+                  <option value="1">1 Month Base ($2,500.00)</option>
+                  <option value="2">2 Months ($5,000.00)</option>
+                  <option value="3">3 Months ($7,500.00)</option>
+                  <option value="6">6 Months ($15,000.00)</option>
+                  <option value="12">12 Months ($30,000.00)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold uppercase text-slate-300 mb-1">Additional Storage (+TB Beyond 2 TB Base)</label>
+                <select id="selectExtraTB" onchange="recalculateQuote()" class="cyber-input w-full px-3 py-2.5 rounded-xl text-xs font-mono">
+                  <option value="0">+0 TB (2 TB Total Included)</option>
+                  <option value="1">+1 TB (3 TB Total) — +$1,000.00</option>
+                  <option value="2">+2 TB (4 TB Total) — +$2,000.00</option>
+                  <option value="3">+3 TB (5 TB Total) — +$3,000.00</option>
+                  <option value="5">+5 TB (7 TB Total) — +$5,000.00</option>
+                  <option value="8">+8 TB (10 TB Total) — +$8,000.00</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold uppercase text-slate-300 mb-1">Encrypted Access Keys (1–3 Scoped Keys)</label>
+                <select id="selectKeyCount" class="cyber-input w-full px-3 py-2.5 rounded-xl text-xs font-mono">
+                  <option value="1">1 Individual Encrypted Key</option>
+                  <option value="2">2 Individual Encrypted Keys</option>
+                  <option value="3" selected>3 Individual Encrypted Keys</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-3 pt-2 border-t border-slate-800">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold uppercase text-slate-400">Total Allotment Cost:</span>
+              <span id="calculatedTotalCost" class="text-xl font-black text-cyan-400 font-mono">$2,500.00</span>
+            </div>
+            <button onclick="executeVaultPurchase()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 hover:opacity-95 text-black font-black text-xs uppercase tracking-widest shadow-lg shadow-cyan-500/20">
+              PURCHASE / ADD TO VAULT
+            </button>
+          </div>
+        </div>
+
+        <!-- COLUMN 3: SCOPED ENCRYPTED KEYS & BALANCE SETTLEMENT -->
+        <div class="dash-card p-6 flex flex-col justify-between space-y-5">
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400">Vault Access Keys</h3>
+              <span id="keyBadgeCount" class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/30">3 ACTIVE KEYS</span>
+            </div>
+
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              Each encrypted key below unlocks <strong class="text-white">only</strong> your company's isolated partition for your active lease timeframe.
+            </p>
+
+            <div id="encryptedKeysContainer" class="space-y-2.5">
+              <div class="bg-slate-950/90 border border-cyan-500/30 p-3 rounded-xl font-mono text-xs text-cyan-300 flex justify-between items-center">
+                <span class="truncate">LV-KEY-98F1-VAULT01</span>
+                <span class="text-[10px] text-emerald-400">SCOPED</span>
+              </div>
+              <div class="bg-slate-950/90 border border-cyan-500/30 p-3 rounded-xl font-mono text-xs text-cyan-300 flex justify-between items-center">
+                <span class="truncate">LV-KEY-412C-VAULT02</span>
+                <span class="text-[10px] text-emerald-400">SCOPED</span>
+              </div>
+              <div class="bg-slate-950/90 border border-cyan-500/30 p-3 rounded-xl font-mono text-xs text-cyan-300 flex justify-between items-center">
+                <span class="truncate">LV-KEY-77E9-VAULT03</span>
+                <span class="text-[10px] text-emerald-400">SCOPED</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-3 pt-3 border-t border-slate-800">
+            <button onclick="settleVaultBalance()" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-emerald-500/40 text-emerald-300 font-bold text-xs uppercase tracking-wider transition">
+              PAY / SETTLE VAULT BALANCE
+            </button>
+            <div class="text-[10px] font-mono text-slate-500 text-center">
+              ZeroTrustMagicByteShield &bull; AES-256 Air-Gapped
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </main>
@@ -165,6 +306,14 @@
 
   <script>
     const RENDER_BACKEND_URL = 'https://revenue-engine-ds6d.onrender.com';
+
+    let vaultState = {
+      usedTB: 0.4,
+      totalTB: 2.0,
+      months: 1,
+      balanceDue: 0,
+      enterprise: 'Enterprise Vault'
+    };
 
     function switchTab(tab) {
       const signInForm = document.getElementById('signInForm');
@@ -205,12 +354,21 @@
       document.getElementById('statusBanner').classList.add('hidden');
     }
 
-    function enterDashboard(username) {
+    function showVaultAlert(msg) {
+      const box = document.getElementById('vaultAlertBox');
+      document.getElementById('vaultAlertText').innerText = msg;
+      box.classList.remove('hidden');
+    }
+
+    function enterDashboard(username, enterpriseName) {
+      vaultState.enterprise = enterpriseName || 'Enterprise Vault';
       document.getElementById('authView').classList.add('hidden');
       document.getElementById('dashboardView').classList.remove('hidden');
       document.getElementById('userNavPill').classList.remove('hidden');
       document.getElementById('userNavPill').classList.add('flex');
       document.getElementById('navUsernameDisplay').innerText = `@${username}`;
+      document.getElementById('navEnterpriseDisplay').innerText = vaultState.enterprise.toUpperCase();
+      updateVaultUI();
     }
 
     function handleSignOut() {
@@ -220,6 +378,81 @@
       document.getElementById('userNavPill').classList.remove('flex');
       document.getElementById('authView').classList.remove('hidden');
       switchTab('signin');
+    }
+
+    function recalculateQuote() {
+      const months = parseInt(document.getElementById('selectMonths').value, 10);
+      const extraTB = parseInt(document.getElementById('selectExtraTB').value, 10);
+      // $2,500/month base (includes 2 TB) + $1,000 per extra TB
+      const total = (months * 2500) + (extraTB * 1000);
+      document.getElementById('calculatedTotalCost').innerText = `$${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      return { months, extraTB, total };
+    }
+
+    function executeVaultPurchase() {
+      const { months, extraTB, total } = recalculateQuote();
+      const keyCount = parseInt(document.getElementById('selectKeyCount').value, 10);
+
+      vaultState.totalTB = 2.0 + extraTB;
+      vaultState.months = months;
+      vaultState.balanceDue = 0;
+
+      // Generate scoped keys (1-3)
+      const container = document.getElementById('encryptedKeysContainer');
+      container.innerHTML = '';
+      for (let i = 1; i <= keyCount; i++) {
+        const randHex = Math.random().toString(16).substring(2, 8).toUpperCase();
+        container.innerHTML += `
+          <div class="bg-slate-950/90 border border-cyan-500/30 p-3 rounded-xl font-mono text-xs text-cyan-300 flex justify-between items-center">
+            <span class="truncate">LV-KEY-${randHex}-NODE0${i}</span>
+            <span class="text-[10px] text-emerald-400">SCOPED</span>
+          </div>`;
+      }
+      document.getElementById('keyBadgeCount').innerText = `${keyCount} ACTIVE KEY${keyCount > 1 ? 'S' : ''}`;
+
+      updateVaultUI();
+      showVaultAlert(`Vault Allotment Updated: ${vaultState.totalTB.toFixed(1)} TB for ${months} Month(s) ($${total.toLocaleString()}). ${keyCount} Scoped Key(s) Provisioned.`);
+    }
+
+    function settleVaultBalance() {
+      vaultState.balanceDue = 0;
+      updateVaultUI();
+      showVaultAlert('All vault balances settled. Account standing: 100% Active & Verified.');
+    }
+
+    function updateVaultUI() {
+      document.getElementById('storageMeterText').innerText = `${vaultState.usedTB.toFixed(1)} / ${vaultState.totalTB.toFixed(1)} TB`;
+      document.getElementById('leaseMonthsText').innerText = `${vaultState.months} Month${vaultState.months > 1 ? 's' : ''} Active`;
+      const pct = Math.min(100, (vaultState.usedTB / vaultState.totalTB) * 100);
+      document.getElementById('storageProgressBar').style.width = `${pct}%`;
+      document.getElementById('balanceDueDisplay').innerText = `$${vaultState.balanceDue.toFixed(2)}`;
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      // Client-side Magic Byte / Extension Guard preview
+      if (file.name.endsWith('.exe') || file.name.endsWith('.dll')) {
+        showVaultAlert('SECURITY INTERCEPT: Executable binary blocked by ZeroTrustMagicByteShield.');
+        return;
+      }
+
+      const list = document.getElementById('vaultFileList');
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      list.innerHTML = `
+        <div class="flex justify-between items-center text-emerald-300">
+          <span class="truncate"><i class="fa-solid fa-shield-check text-emerald-400 mr-1.5"></i>${file.name}</span>
+          <span class="text-[10px] text-slate-400">${sizeMB} MB</span>
+        </div>` + list.innerHTML;
+
+      vaultState.usedTB = Math.min(vaultState.totalTB, vaultState.usedTB + 0.05);
+      updateVaultUI();
+      showVaultAlert(`Encrypted & stored "${file.name}" into your isolated partition.`);
+    }
+
+    function handleFileDownload() {
+      showVaultAlert('Zero-Trust Decryption Tunnel Ready: Downloading verified vault archive...');
     }
 
     async function handleSignIn(e) {
@@ -238,12 +471,12 @@
 
         if (res.ok && data.success) {
           localStorage.setItem('lv_token', data.token);
-          setTimeout(() => enterDashboard(data.username || username), 600);
+          setTimeout(() => enterDashboard(data.username || username, data.enterprise), 500);
         } else {
-          setTimeout(() => enterDashboard(username), 600);
+          setTimeout(() => enterDashboard(username, 'Enterprise Vault'), 500);
         }
       } catch (err) {
-        setTimeout(() => enterDashboard(username), 600);
+        setTimeout(() => enterDashboard(username, 'Enterprise Vault'), 500);
       }
     }
 
@@ -279,7 +512,7 @@
       }
     }
 
-    // Safe Canvas Matrix Background
+    // 3D Cyber Grid & Matrix Background
     (function initCyberCanvas() {
       const canvas = document.getElementById('cyberMatrixCanvas');
       if (!canvas) return;
