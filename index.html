@@ -1,638 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Launch Velocity | Enterprise Cyber Vault Portal</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Launch Velocity — Automated Revenue & Deployment Infrastructure</title>
   <style>
     :root {
-      --bg-dark: #020617;
-      --accent-cyan: #22d3ee;
-      --card-bg: rgba(15, 23, 42, 0.88);
+      --bg: #f6f9fc;
+      --surface: #ffffff;
+      --text-main: #0a2540;
+      --text-muted: #425466;
+      --accent: #635bff;
+      --accent-hover: #4b45c6;
+      --border: #e3e8ee;
+      --success: #00d4b6;
+      --error: #df1b41;
     }
-    html, body {
-      margin: 0; padding: 0; width: 100%; min-height: 100%;
-      background-color: var(--bg-dark); color: #f8fafc;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+      overflow-x: hidden;
     }
-    #cyberMatrixCanvas {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none;
+
+    /* Stripe-style angled mesh hero */
+    .hero {
+      position: relative;
+      padding: 64px 24px 96px;
+      text-align: center;
+      background: radial-gradient(circle at 15% 20%, rgba(99, 91, 255, 0.14), transparent 40%),
+                  radial-gradient(circle at 85% 30%, rgba(0, 212, 182, 0.14), transparent 45%),
+                  linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
     }
-    .auth-card, .dash-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(34, 211, 238, 0.35);
-      border-radius: 20px;
-      box-shadow: 0 0 40px rgba(6, 182, 212, 0.18);
-      position: relative; z-index: 10;
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99, 91, 255, 0.1);
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 20px;
     }
-    .cyber-input {
-      background: rgba(2, 6, 23, 0.9);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      color: #f8fafc;
+
+    .hero h1 {
+      font-size: clamp(2rem, 4vw, 3.25rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      max-width: 760px;
+      margin: 0 auto 16px;
     }
-    .cyber-input:focus {
-      outline: none; border-color: var(--accent-cyan);
-      box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+
+    .hero p {
+      font-size: 1.125rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
     }
-    .tab-btn { position: relative; padding-bottom: 12px; }
-    .tab-btn::after {
-      content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px;
-      background: var(--accent-cyan); border-radius: 3px; transform: scaleX(0); transition: transform 0.3s ease;
+
+    /* Wizard Container */
+    .wizard-container {
+      max-width: 980px;
+      margin: -48px auto 80px;
+      padding: 0 20px;
+      position: relative;
+      z-index: 2;
     }
-    .tab-btn.active { color: var(--accent-cyan); font-weight: 700; }
-    .tab-btn.active::after { transform: scaleX(1); }
+
+    /* Progress Bar */
+    .stepper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .step-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--surface);
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 6px rgba(10, 37, 64, 0.04);
+    }
+    .step-pill.active {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--border);
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    .step-pill.active .step-num {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* Card Grid */
+    .plan-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .plan-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(10, 37, 64, 0.04);
+    }
+
+    .plan-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px rgba(10, 37, 64, 0.08);
+    }
+
+    .plan-card.selected {
+      border-color: var(--accent);
+      box-shadow: 0 12px 28px rgba(99, 91, 255, 0.16);
+    }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(99, 91, 255, 0.1);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .plan-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
+    .plan-price { font-size: 2rem; font-weight: 800; margin: 12px 0; }
+    .plan-price span { font-size: 0.95rem; font-weight: 500; color: var(--text-muted); }
+    .plan-desc { font-size: 0.925rem; color: var(--text-muted); margin-bottom: 20px; }
+
+    .feature-list { list-style: none; font-size: 0.9rem; color: var(--text-main); }
+    .feature-list li { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .feature-list li::before {
+      content: "✓";
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    /* Step 2 Checkout Box */
+    .checkout-panel {
+      display: none;
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 32px;
+      box-shadow: 0 12px 32px rgba(10, 37, 64, 0.08);
+    }
+    .checkout-panel.visible { display: block; }
+
+    .input-group { margin: 20px 0; }
+    .input-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .input-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .input-group input:focus { border-color: var(--accent); }
+
+    .btn-row { display: flex; gap: 12px; margin-top: 24px; justify-content: center; }
+    .btn {
+      padding: 13px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; flex: 1; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-secondary { background: #eef2f6; color: var(--text-main); }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0a2540;
+      color: #fff;
+      padding: 16px 20px;
+      border-radius: 10px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      transform: translateY(140%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 999;
+    }
+    .toast.show { transform: translateY(0); }
+    .toast-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--success); }
+    .toast.error .toast-dot { background: var(--error); }
   </style>
 </head>
-<body class="flex flex-col min-h-screen items-center justify-between relative">
+<body>
 
-  <canvas id="cyberMatrixCanvas"></canvas>
-
-  <!-- TOP NAVIGATION -->
-  <header class="w-full max-w-7xl px-6 py-6 flex justify-between items-center z-10">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
-        <i class="fa-solid fa-bolt text-black text-xl"></i>
-      </div>
-      <span class="text-2xl font-black tracking-widest text-white uppercase italic">
-        LAUNCH <span class="text-cyan-400">VELOCITY</span>
-      </span>
+  <header class="hero">
+    <div class="badge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Launch Velocity Infrastructure
     </div>
-    <div id="userNavPill" class="hidden items-center gap-3 px-4 py-2 rounded-xl bg-slate-900/90 border border-cyan-500/40 text-xs font-mono text-cyan-400">
-      <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-      <span id="navEnterpriseDisplay" class="text-white font-bold hidden sm:inline">ENTERPRISE</span>
-      <span id="navUsernameDisplay">@node</span>
-      <button onclick="handleSignOut()" class="ml-2 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 uppercase font-bold text-[10px]">Sign Out</button>
-    </div>
+    <h1>Deploy revenue-ready software at wire speed.</h1>
+    <p>Select your architecture tier below to provision dedicated compute, automated telemetry, and instant webhook billing.</p>
   </header>
 
-  <main class="w-full flex-1 flex items-center justify-center px-4 py-6 z-10">
-    
-    <!-- AUTH VIEW -->
-    <div id="authView" class="auth-card w-full max-w-md p-8 sm:p-10">
-      <div class="flex border-b border-slate-700/60 mb-8">
-        <button id="signInTab" onclick="switchTab('signin')" class="tab-btn active w-1/2 text-center text-sm font-bold uppercase text-slate-400 hover:text-white">Sign In</button>
-        <button id="signUpTab" onclick="switchTab('signup')" class="tab-btn w-1/2 text-center text-sm font-bold uppercase text-slate-400 hover:text-white">Sign Up</button>
-      </div>
-
-      <div id="statusBanner" class="hidden mb-6 p-4 rounded-xl text-xs font-mono border flex items-center gap-3">
-        <i id="statusIcon" class="fa-solid fa-circle-info text-base"></i>
-        <span id="statusMessage"></span>
-      </div>
-
-      <!-- SIGN IN FORM -->
-      <form id="signInForm" onsubmit="handleSignIn(event)" class="space-y-6">
-        <div>
-          <label class="block text-xs font-bold uppercase text-cyan-400 mb-2">Enterprise Username / Email</label>
-          <input type="text" id="signInUsername" required placeholder="Enter username or email" class="cyber-input w-full px-4 py-3.5 rounded-xl text-sm font-mono placeholder-slate-500">
-        </div>
-        <div>
-          <label class="block text-xs font-bold uppercase text-cyan-400 mb-2">Password</label>
-          <input type="password" id="signInPassword" required placeholder="Enter password" class="cyber-input w-full px-4 py-3.5 rounded-xl text-sm font-mono placeholder-slate-500">
-        </div>
-        <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 text-black font-black text-xs uppercase tracking-widest shadow-lg shadow-cyan-500/25">
-          AUTHENTICATE VAULT NODE
-        </button>
-      </form>
-
-      <!-- SIGN UP FORM -->
-      <form id="signUpForm" onsubmit="handleSignUp(event)" class="space-y-5 hidden">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-bold uppercase text-cyan-400 mb-2">First Name</label>
-            <input type="text" id="signUpFirstName" required placeholder="First Name" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-mono placeholder-slate-500">
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase text-cyan-400 mb-2">Last Name</label>
-            <input type="text" id="signUpLastName" required placeholder="Last Name" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-mono placeholder-slate-500">
-          </div>
-        </div>
-        <div>
-          <label class="block text-xs font-bold uppercase text-cyan-400 mb-2">Corporation / Enterprise Name</label>
-          <input type="text" id="signUpCorp" required placeholder="Company Name" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-mono placeholder-slate-500">
-        </div>
-        <div>
-          <label class="block text-xs font-bold uppercase text-cyan-400 mb-2">Enterprise Email</label>
-          <input type="email" id="signUpEmail" required placeholder="name@company.com" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-mono placeholder-slate-500">
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-bold uppercase text-cyan-400 mb-2">Username</label>
-            <input type="text" id="signUpUsername" required placeholder="Username" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-mono placeholder-slate-500">
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase text-cyan-400 mb-2">Password</label>
-            <input type="password" id="signUpPassword" required placeholder="Password" class="cyber-input w-full px-4 py-3 rounded-xl text-sm font-mono placeholder-slate-500">
-          </div>
-        </div>
-        <button type="submit" class="w-full py-4 mt-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-500/25">
-          REGISTER ENTERPRISE ACCOUNT
-        </button>
-      </form>
+  <main class="wizard-container">
+    <div class="stepper">
+      <div class="step-pill active" id="pill-1"><span class="step-num">1</span> Select Architecture</div>
+      <div class="step-pill" id="pill-2"><span class="step-num">2</span> Confirm & Provision</div>
     </div>
 
-    <!-- ENTERPRISE VAULT DASHBOARD -->
-    <div id="dashboardView" class="hidden w-full max-w-6xl space-y-6">
-      
-      <!-- Top Action Alert / Notification Bar -->
-      <div id="vaultAlertBox" class="hidden p-4 rounded-2xl bg-emerald-950/85 border border-emerald-500/50 text-emerald-300 text-xs font-mono flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <i class="fa-solid fa-shield-halved text-emerald-400 text-base"></i>
-          <span id="vaultAlertText">Vault partition verified.</span>
-        </div>
-        <button onclick="document.getElementById('vaultAlertBox').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- COLUMN 1: ISOLATED STORAGE TELEMETRY & FILE OPERATIONS -->
-        <div class="dash-card p-6 flex flex-col justify-between space-y-5">
-          <div class="space-y-4">
-            <div class="flex justify-between items-center">
-              <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400">Isolated Vault Meter</h3>
-              <span class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/30">AIR-GAPPED</span>
-            </div>
-
-            <div>
-              <div class="flex items-baseline justify-between mb-1">
-                <span id="storageMeterText" class="text-3xl font-black text-white">0.0 / 2.0 TB</span>
-                <span id="leaseMonthsText" class="text-xs font-mono text-cyan-400">1 Month Active</span>
-              </div>
-              <p class="text-[11px] text-slate-400">Dedicated Tenant Partition (Zero Cross-Tenant Overlap)</p>
-            </div>
-
-            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden p-0.5">
-              <div id="storageProgressBar" class="bg-gradient-to-r from-cyan-400 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 0%;"></div>
-            </div>
-
-            <!-- File Upload & Download Controls -->
-            <div class="pt-3 border-t border-slate-800 space-y-3">
-              <label class="block text-[11px] font-bold uppercase text-cyan-400">Vault Data Operations</label>
-              <input type="file" id="vaultFileInput" class="hidden" onchange="handleFileUpload(event)">
-              <div class="grid grid-cols-2 gap-2.5">
-                <button onclick="document.getElementById('vaultFileInput').click()" class="py-3 px-3 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 font-bold text-xs uppercase flex items-center justify-center gap-2 transition">
-                  <i class="fa-solid fa-cloud-arrow-up"></i> Upload
-                </button>
-                <button onclick="handleFileDownload()" class="py-3 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold text-xs uppercase flex items-center justify-center gap-2 transition">
-                  <i class="fa-solid fa-cloud-arrow-down"></i> Download
-                </button>
-              </div>
-              <div id="vaultFileList" class="bg-slate-950/90 border border-slate-800 rounded-xl p-3 space-y-2 max-h-36 overflow-y-auto text-xs font-mono text-slate-500">
-                <div class="text-center py-2">No files stored in partition yet.</div>
-              </div>
-            </div>
+    <!-- STEP 1: CARD GRID -->
+    <div id="step-1">
+      <div class="plan-grid">
+        <div class="plan-card" data-plan="starter" data-name="Velocity Starter Engine" data-price="$49/mo">
+          <div class="card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
           </div>
-
-          <div class="pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
-            <span class="text-slate-400">Balance Due:</span>
-            <span id="balanceDueDisplay" class="font-mono font-bold text-emerald-400">$0.00</span>
-          </div>
+          <div class="plan-title">Starter Engine</div>
+          <div class="plan-price">$49<span>/month</span></div>
+          <p class="plan-desc">Core Node.js runtime and automated Stripe subscription routing for early-stage launches.</p>
+          <ul class="feature-list">
+            <li>Managed API Endpoints</li>
+            <li>Instant Customer Receipts</li>
+            <li>Real-time Admin Alerts</li>
+          </ul>
         </div>
-
-        <!-- COLUMN 2: ENTERPRISE TIER & EXTENSION CALCULATOR MENU -->
-        <div class="dash-card p-6 flex flex-col justify-between space-y-5">
-          <div class="space-y-4">
-            <div class="flex justify-between items-center">
-              <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400">Vault Storage & Lease Menu</h3>
-              <span class="text-[10px] font-mono text-slate-400">$2,500/mo Base</span>
-            </div>
-
-            <div class="p-3 rounded-xl bg-slate-950/90 border border-cyan-500/30 text-xs space-y-1">
-              <div class="flex justify-between font-bold text-white">
-                <span>Enterprise Base Vault (2 TB)</span>
-                <span class="text-cyan-400">$2,500.00 / mo</span>
-              </div>
-              <p class="text-[11px] text-slate-400">• Extra Storage: +$1,000.00 per additional TB</p>
-              <p class="text-[11px] text-slate-400">• Extended Duration: +$2,500.00 per additional month</p>
-            </div>
-
-            <!-- Interactive Selectors -->
-            <div class="space-y-3">
-              <div>
-                <label class="block text-[11px] font-bold uppercase text-slate-300 mb-1">Lease Duration (Months)</label>
-                <select id="selectMonths" onchange="recalculateQuote()" class="cyber-input w-full px-3 py-2.5 rounded-xl text-xs font-mono">
-                  <option value="1">1 Month Base ($2,500.00)</option>
-                  <option value="2">2 Months ($5,000.00)</option>
-                  <option value="3">3 Months ($7,500.00)</option>
-                  <option value="6">6 Months ($15,000.00)</option>
-                  <option value="12">12 Months ($30,000.00)</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-[11px] font-bold uppercase text-slate-300 mb-1">Additional Storage (+TB Beyond 2 TB Base)</label>
-                <select id="selectExtraTB" onchange="recalculateQuote()" class="cyber-input w-full px-3 py-2.5 rounded-xl text-xs font-mono">
-                  <option value="0">+0 TB (2 TB Total Included)</option>
-                  <option value="1">+1 TB (3 TB Total) — +$1,000.00</option>
-                  <option value="2">+2 TB (4 TB Total) — +$2,000.00</option>
-                  <option value="3">+3 TB (5 TB Total) — +$3,000.00</option>
-                  <option value="5">+5 TB (7 TB Total) — +$5,000.00</option>
-                  <option value="8">+8 TB (10 TB Total) — +$8,000.00</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-[11px] font-bold uppercase text-slate-300 mb-1">Encrypted Access Keys (1–3 Scoped Keys)</label>
-                <select id="selectKeyCount" class="cyber-input w-full px-3 py-2.5 rounded-xl text-xs font-mono">
-                  <option value="1">1 Individual Encrypted Key</option>
-                  <option value="2">2 Individual Encrypted Keys</option>
-                  <option value="3" selected>3 Individual Encrypted Keys</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="space-y-3 pt-2 border-t border-slate-800">
-            <div class="flex justify-between items-center">
-              <span class="text-xs font-bold uppercase text-slate-400">Total Allotment Cost:</span>
-              <span id="calculatedTotalCost" class="text-xl font-black text-cyan-400 font-mono">$2,500.00</span>
-            </div>
-            <button onclick="openCheckoutModal()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 hover:opacity-95 text-black font-black text-xs uppercase tracking-widest shadow-lg shadow-cyan-500/20">
-              PROCEED TO SECURE CHECKOUT
-            </button>
-          </div>
-        </div>
-
-        <!-- COLUMN 3: SCOPED ENCRYPTED KEYS & BALANCE SETTLEMENT -->
-        <div class="dash-card p-6 flex flex-col justify-between space-y-5">
-          <div class="space-y-4">
-            <div class="flex justify-between items-center">
-              <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400">Vault Access Keys</h3>
-              <span id="keyBadgeCount" class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/30">3 ACTIVE KEYS</span>
-            </div>
-
-            <p class="text-[11px] text-slate-400 leading-relaxed">
-              Each encrypted key below unlocks <strong class="text-white">only</strong> your company's isolated partition for your active lease timeframe.
-            </p>
-
-            <div id="encryptedKeysContainer" class="space-y-2.5">
-              <div class="bg-slate-950/90 border border-cyan-500/30 p-3 rounded-xl font-mono text-xs text-cyan-300 flex justify-between items-center">
-                <span class="truncate">LV-KEY-98F1-VAULT01</span>
-                <span class="text-[10px] text-emerald-400">SCOPED</span>
-              </div>
-              <div class="bg-slate-950/90 border border-cyan-500/30 p-3 rounded-xl font-mono text-xs text-cyan-300 flex justify-between items-center">
-                <span class="truncate">LV-KEY-412C-VAULT02</span>
-                <span class="text-[10px] text-emerald-400">SCOPED</span>
-              </div>
-              <div class="bg-slate-950/90 border border-cyan-500/30 p-3 rounded-xl font-mono text-xs text-cyan-300 flex justify-between items-center">
-                <span class="truncate">LV-KEY-77E9-VAULT03</span>
-                <span class="text-[10px] text-emerald-400">SCOPED</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="space-y-3 pt-3 border-t border-slate-800">
-            <button onclick="settleVaultBalance()" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-emerald-500/40 text-emerald-300 font-bold text-xs uppercase tracking-wider transition">
-              PAY / SETTLE VAULT BALANCE
-            </button>
-            <div class="text-[10px] font-mono text-slate-500 text-center">
-              ZeroTrustMagicByteShield &bull; AES-256 Air-Gapped
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </main>
-
-  <!-- SECURE DEBIT / CREDIT CARD CHECKOUT MODAL -->
-  <div id="checkoutModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden p-4">
-    <div class="dash-card w-full max-w-lg p-6 sm:p-8 space-y-6 relative border border-cyan-400/50">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-        <div>
-          <h3 class="text-sm font-bold uppercase tracking-wider text-cyan-400">Enterprise Secure Checkout</h3>
-          <p class="text-xs text-slate-400 font-mono mt-0.5">Air-Gapped Payment Gateway</p>
-        </div>
-        <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
-
-      <div class="p-4 rounded-xl bg-slate-950 border border-cyan-500/30 flex justify-between items-center text-xs font-mono">
-        <div>
-          <span class="text-slate-400">Selected Allotment:</span>
-          <div id="modalAllotmentSummary" class="text-white font-bold mt-0.5">2.0 TB • 1 Month Lease</div>
-        </div>
-        <div class="text-right">
-          <span class="text-slate-400">Total Due:</span>
-          <div id="modalTotalSummary" class="text-cyan-400 font-bold text-base mt-0.5">$2,500.00</div>
-        </div>
-      </div>
-
-      <form onsubmit="handlePaymentSubmit(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold uppercase text-cyan-400 mb-1.5">Cardholder Name</label>
-          <input type="text" required placeholder="Corporate Officer Name" class="cyber-input w-full px-4 py-3 rounded-xl text-xs font-mono">
-        </div>
-        <div>
-          <label class="block text-xs font-bold uppercase text-cyan-400 mb-1.5">Debit / Credit Card Number</label>
-          <div class="relative">
-            <input type="text" required placeholder="4532 •••• •••• 8892" class="cyber-input w-full px-4 py-3 pl-11 rounded-xl text-xs font-mono">
-            <i class="fa-solid fa-credit-card absolute left-3.5 top-3.5 text-cyan-400"></i>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-bold uppercase text-cyan-400 mb-1.5">Expiration Date</label>
-            <input type="text" required placeholder="MM / YY" class="cyber-input w-full px-4 py-3 rounded-xl text-xs font-mono">
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase text-cyan-400 mb-1.5">CVV Security Code</label>
-            <input type="password" required maxlength="4" placeholder="123" class="cyber-input w-full px-4 py-3 rounded-xl text-xs font-mono">
-          </div>
-        </div>
-        <div class="pt-2">
-          <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-black font-black text-xs uppercase tracking-widest shadow-lg shadow-cyan-500/25">
-            AUTHORIZE PAYMENT & PROVISION KEYS
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <footer class="w-full py-6 text-center text-slate-500 text-xs font-mono z-10">
-    <p>&copy; 2026 LAUNCH VELOCITY ENTERPRISE PLATFORM &bull; ALL RIGHTS RESERVED</p>
-  </footer>
-
-  <script>
-    const RENDER_BACKEND_URL = 'https://revenue-engine-ds6d.onrender.com';
-
-    let vaultState = {
-      usedTB: 0.0,
-      totalTB: 2.0,
-      months: 1,
-      balanceDue: 0,
-      enterprise: 'Enterprise Vault'
-    };
-
-    function switchTab(tab) {
-      const signInForm = document.getElementById('signInForm');
-      const signUpForm = document.getElementById('signUpForm');
-      const signInTab = document.getElementById('signInTab');
-      const signUpTab = document.getElementById('signUpTab');
-
-      if (tab === 'signin') {
-        signInForm.classList.remove('hidden');
-        signUpForm.classList.add('hidden');
-        signInTab.classList.add('active');
-        signUpTab.classList.remove('active');
-      } else {
-        signInForm.classList.add('hidden');
-        signUpForm.classList.remove('hidden');
-        signInTab.classList.remove('active');
-        signUpTab.classList.add('active');
-      }
-      hideStatus();
-    }
-
-    function showStatus(msg, success = true) {
-      const banner = document.getElementById('statusBanner');
-      const text = document.getElementById('statusMessage');
-      const icon = document.getElementById('statusIcon');
-      banner.classList.remove('hidden', 'bg-emerald-950/80', 'border-emerald-500/50', 'text-emerald-300', 'bg-rose-950/80', 'border-rose-500/50', 'text-rose-300');
-      if (success) {
-        banner.classList.add('bg-emerald-950/80', 'border-emerald-500/50', 'text-emerald-300');
-        icon.className = 'fa-solid fa-circle-check text-emerald-400';
-      } else {
-        banner.classList.add('bg-rose-950/80', 'border-rose-500/50', 'text-rose-300');
-        icon.className = 'fa-solid fa-triangle-exclamation text-rose-400';
-      }
-      text.innerText = msg;
-    }
-
-    function hideStatus() {
-      document.getElementById('statusBanner').classList.add('hidden');
-    }
-
-    function showVaultAlert(msg) {
-      const box = document.getElementById('vaultAlertBox');
-      document.getElementById('vaultAlertText').innerText = msg;
-      box.classList.remove('hidden');
-    }
-
-    function enterDashboard(username, enterpriseName) {
-      vaultState.enterprise = enterpriseName || 'Enterprise Vault';
-      document.getElementById('authView').classList.add('hidden');
-      document.getElementById('dashboardView').classList.remove('hidden');
-      document.getElementById('userNavPill').classList.remove('hidden');
-      document.getElementById('userNavPill').classList.add('flex');
-      document.getElementById('navUsernameDisplay').innerText = `@${username}`;
-      document.getElementById('navEnterpriseDisplay').innerText = vaultState.enterprise.toUpperCase();
-      updateVaultUI();
-    }
-
-    function handleSignOut() {
-      localStorage.removeItem('lv_token');
-      document.getElementById('dashboardView').classList.add('hidden');
-      document.getElementById('userNavPill').classList.add('hidden');
-      document.getElementById('userNavPill').classList.remove('flex');
-      document.getElementById('authView').classList.remove('hidden');
-      switchTab('signin');
-    }
-
-    function recalculateQuote() {
-      const months = parseInt(document.getElementById('selectMonths').value, 10);
-      const extraTB = parseInt(document.getElementById('selectExtraTB').value, 10);
-      const total = (months * 2500) + (extraTB * 1000);
-      document.getElementById('calculatedTotalCost').innerText = `$${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-      return { months, extraTB, total };
-    }
-
-    function openCheckoutModal() {
-      const { months, extraTB, total } = recalculateQuote();
-      const totalTB = 2.0 + extraTB;
-      document.getElementById('modalAllotmentSummary').innerText = `${totalTB.toFixed(1)} TB • ${months} Month${months > 1 ? 's' : ''} Lease`;
-      document.getElementById('modalTotalSummary').innerText = `$${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-      document.getElementById('checkoutModal').classList.remove('hidden');
-    }
-
-    function closeCheckoutModal() {
-      document.getElementById('checkoutModal').classList.add('hidden');
-    }
-
-    function handlePaymentSubmit(e) {
-      e.preventDefault();
-      const { months, extraTB, total } = recalculateQuote();
-      const keyCount = parseInt(document.getElementById('selectKeyCount').value, 10);
-
-      vaultState.totalTB = 2.0 + extraTB;
-      vaultState.months = months;
-      vaultState.balanceDue = 0;
-
-      // Generate Scoped Keys (1-3)
-      const container = document.getElementById('encryptedKeysContainer');
-      container.innerHTML = '';
-      for (let i = 1; i <= keyCount; i++) {
-        const randHex = Math.random().toString(16).substring(2, 8).toUpperCase();
-        container.innerHTML += `
-          <div class="bg-slate-950/90 border border-cyan-500/30 p-3 rounded-xl font-mono text-xs text-cyan-300 flex justify-between items-center">
-            <span class="truncate">LV-KEY-${randHex}-NODE0${i}</span>
-            <span class="text-[10px] text-emerald-400">SCOPED</span>
-          </div>`;
-      }
-      document.getElementById('keyBadgeCount').innerText = `${keyCount} ACTIVE KEY${keyCount > 1 ? 'S' : ''}`;
-
-      closeCheckoutModal();
-      updateVaultUI();
-      showVaultAlert(`Payment Authorized ($${total.toLocaleString()}). Vault Partition Updated: ${vaultState.totalTB.toFixed(1)} TB for ${months} Month(s). ${keyCount} Scoped Key(s) Provisioned.`);
-    }
-
-    function settleVaultBalance() {
-      vaultState.balanceDue = 0;
-      updateVaultUI();
-      showVaultAlert('All vault balances settled. Account standing: 100% Active & Verified.');
-    }
-
-    function updateVaultUI() {
-      document.getElementById('storageMeterText').innerText = `${vaultState.usedTB.toFixed(1)} / ${vaultState.totalTB.toFixed(1)} TB`;
-      document.getElementById('leaseMonthsText').innerText = `${vaultState.months} Month${vaultState.months > 1 ? 's' : ''} Active`;
-      const pct = Math.min(100, (vaultState.usedTB / vaultState.totalTB) * 100);
-      document.getElementById('storageProgressBar').style.width = `${pct}%`;
-      document.getElementById('balanceDueDisplay').innerText = `$${vaultState.balanceDue.toFixed(2)}`;
-    }
-
-    function handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      if (file.name.endsWith('.exe') || file.name.endsWith('.dll')) {
-        showVaultAlert('SECURITY INTERCEPT: Executable binary blocked by ZeroTrustMagicByteShield.');
-        return;
-      }
-
-      const list = document.getElementById('vaultFileList');
-      if (vaultState.usedTB === 0.0) {
-        list.innerHTML = '';
-      }
-      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-      list.innerHTML = `
-        <div class="flex justify-between items-center text-emerald-300">
-          <span class="truncate"><i class="fa-solid fa-shield-check text-emerald-400 mr-1.5"></i>${file.name}</span>
-          <span class="text-[10px] text-slate-400">${sizeMB} MB</span>
-        </div>` + list.innerHTML;
-
-      vaultState.usedTB = Math.min(vaultState.totalTB, vaultState.usedTB + 0.05);
-      updateVaultUI();
-      showVaultAlert(`Encrypted & stored "${file.name}" into your isolated partition.`);
-    }
-
-    function handleFileDownload() {
-      showVaultAlert('Zero-Trust Decryption Tunnel Ready: Downloading verified vault archive...');
-    }
-
-    async function handleSignIn(e) {
-      e.preventDefault();
-      const username = document.getElementById('signInUsername').value;
-      const password = document.getElementById('signInPassword').value;
-      showStatus(`Authenticating node for @${username}...`);
-
-      try {
-        const res = await fetch(`${RENDER_BACKEND_URL}/api/auth/signin`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-          localStorage.setItem('lv_token', data.token);
-          setTimeout(() => enterDashboard(data.username || username, data.enterprise), 500);
-        } else {
-          setTimeout(() => enterDashboard(username, 'Enterprise Vault'), 500);
-        }
-      } catch (err) {
-        setTimeout(() => enterDashboard(username, 'Enterprise Vault'), 500);
-      }
-    }
-
-    async function handleSignUp(e) {
-      e.preventDefault();
-      const firstName = document.getElementById('signUpFirstName').value;
-      const lastName = document.getElementById('signUpLastName').value;
-      const enterpriseName = document.getElementById('signUpCorp').value;
-      const email = document.getElementById('signUpEmail').value;
-      const username = document.getElementById('signUpUsername').value;
-      const password = document.getElementById('signUpPassword').value;
-
-      showStatus('Provisioning enterprise node & sending confirmations...');
-
-      try {
-        const res = await fetch(`${RENDER_BACKEND_URL}/api/auth/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ firstName, lastName, enterpriseName, email, username, password })
-        });
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-          showStatus('Account provisioned! Welcome & Admin Alert emails sent.');
-          setTimeout(() => switchTab('signin'), 1500);
-        } else {
-          showStatus('Registration completed. Switch to Sign In.', true);
-          setTimeout(() => switchTab('signin'), 1500);
-        }
-      } catch (err) {
-        showStatus('Registration completed. Switch to Sign In.', true);
-        setTimeout(() => switchTab('signin'), 1500);
-      }
-    }
-
-    // 3D Cyber Grid & Matrix Background
-    (function initCyberCanvas() {
-      const canvas = document.getElementById('cyberMatrixCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      let width = canvas.width = window.innerWidth;
-      let height = canvas.height = window.innerHeight;
-
-      window.addEventListener('resize', () => {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-      });
-
-      const chars = '0110100101010101010101';
-      const fontSize = 14;
-      const columns = Math.floor(width / fontSize);
-      const drops = Array(columns).fill(1).map(() => Math.floor(Math.random() * -50));
-      let gridOffset = 0;
-
-      function renderFrame() {
-        ctx.fillStyle = 'rgba(2, 6, 23, 0.25)';
-        ctx.fillRect(0, 0, width, height);
-
-        const horizonY = height * 0.42;
-        const cx = width / 2;
-        ctx.strokeStyle = 'rgba(34, 211, 238, 0.15)';
-        ctx.lineWidth = 1;
-
-        for (let i = -26; i <= 26; i++) {
-          ctx.beginPath();
-          ctx.moveTo(cx, horizonY);
-          ctx.lineTo(cx + (i * width * 0.08), height);
-          ctx.stroke();
-        }
-
-        gridOffset = (gridOffset + 0.9) % 28;
-        for (let y = horizonY; y < height; y += 10) {
-          const perspectiveY = horizonY + Math.pow((y - horizonY) / (height - horizonY), 1.8) * (height - horizonY) + gridOffset;
-          if (perspectiveY <= height) {
-            ctx.strokeStyle = `rgba(34, 211, 238, ${Math.min(0.3, (perspectiveY - horizonY) / (height - horizonY) * 0.35)})`;
-            ctx.beginPath(); ctx.moveTo(0, perspectiveY); ctx.lineTo(width, perspectiveY); ctx.stroke();
-          }
-        }
-
-        ctx.font = `${fontSize}px monospace`;
-        for (let i = 0; i < drops.length; i++) {
-          const text = chars.charAt(Math.floor(Math.random() * chars.length));
-          ctx.fillStyle = Math.random() > 0.88 ? '#7dd3fc' : 'rgba(6, 182, 212, 0.45)';
-          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-          if (drops[i] * fontSize > height && Math.random() > 0.975) drops[i] = 0;
-          drops[i]++;
-        }
-        requestAnimationFrame(renderFrame);
-      }
-      renderFrame();
-    })();
-  </script>
-</body>
-</html>
