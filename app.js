@@ -1,22 +1,20 @@
-async function handleEnterpriseCheckout(tierId, months, customerEmail) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/billing/create-checkout`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ tierId, months, customerEmail })
-    });
+async function uploadToVault(fileBuffer, gatekeeperKey) {
+  const response = await fetch(`${API_BASE_URL}/api/vault/upload`, {
+    method: 'POST',
+    headers: {
+      'X-Vault-Gatekeeper-Key': gatekeeperKey,
+      'Content-Type': 'application/octet-stream'
+    },
+    body: fileBuffer
+  });
 
-    const data = await response.json();
-    if (data.checkoutUrl) {
-      // Redirect corporate client straight to Stripe's secure checkout page
-      window.location.href = data.checkoutUrl;
-    } else {
-      alert('Failed to initiate checkout session: ' + (data.error || 'Unknown error'));
-    }
-  } catch (err) {
-    console.error('Checkout network error:', err);
-    alert('Payment gateway communication error.');
+  const result = await response.json();
+  if (!response.ok) {
+    console.error('[SECURITY SHIELD]', result.message);
+    alert(`Upload Blocked: ${result.message}`);
+    return false;
   }
+
+  console.log('[VAULT SUCCESS]', result.message);
+  return true;
 }
