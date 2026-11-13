@@ -3,264 +3,144 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Launch Velocity — Automated Revenue & Deployment Infrastructure</title>
+  <title>Launch Velocity | Autonomous Revenue & Infrastructure Engine</title>
   <style>
-    :root {
-      --bg: #f6f9fc;
-      --surface: #ffffff;
-      --text-main: #0a2540;
-      --text-muted: #425466;
-      --accent: #635bff;
-      --accent-hover: #4b45c6;
-      --border: #e3e8ee;
-      --success: #00d4b6;
-      --error: #df1b41;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text-main);
-      line-height: 1.5;
-      overflow-x: hidden;
-    }
-
-    /* Stripe-style angled mesh hero */
-    .hero {
-      position: relative;
-      padding: 64px 24px 96px;
-      text-align: center;
-      background: radial-gradient(circle at 15% 20%, rgba(99, 91, 255, 0.14), transparent 40%),
-                  radial-gradient(circle at 85% 30%, rgba(0, 212, 182, 0.14), transparent 45%),
-                  linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(99, 91, 255, 0.1);
-      color: var(--accent);
-      font-weight: 600;
-      font-size: 13px;
-      padding: 6px 14px;
-      border-radius: 999px;
-      margin-bottom: 20px;
-    }
-
-    .hero h1 {
-      font-size: clamp(2rem, 4vw, 3.25rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      max-width: 760px;
-      margin: 0 auto 16px;
-    }
-
-    .hero p {
-      font-size: 1.125rem;
-      color: var(--text-muted);
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    /* Wizard Container */
-    .wizard-container {
-      max-width: 980px;
-      margin: -48px auto 80px;
-      padding: 0 20px;
-      position: relative;
-      z-index: 2;
-    }
-
-    /* Progress Bar */
-    .stepper {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-    .step-pill {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-muted);
-      background: var(--surface);
-      padding: 8px 16px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      box-shadow: 0 2px 6px rgba(10, 37, 64, 0.04);
-    }
-    .step-pill.active {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    .step-num {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: var(--border);
-      color: var(--text-main);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-    }
-    .step-pill.active .step-num {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    /* Card Grid */
-    .plan-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .plan-card {
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: 14px;
-      padding: 28px;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-      position: relative;
-      box-shadow: 0 4px 12px rgba(10, 37, 64, 0.04);
-    }
-
-    .plan-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 24px rgba(10, 37, 64, 0.08);
-    }
-
-    .plan-card.selected {
-      border-color: var(--accent);
-      box-shadow: 0 12px 28px rgba(99, 91, 255, 0.16);
-    }
-
-    .card-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      background: rgba(99, 91, 255, 0.1);
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 18px;
-    }
-
-    .plan-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
-    .plan-price { font-size: 2rem; font-weight: 800; margin: 12px 0; }
-    .plan-price span { font-size: 0.95rem; font-weight: 500; color: var(--text-muted); }
-    .plan-desc { font-size: 0.925rem; color: var(--text-muted); margin-bottom: 20px; }
-
-    .feature-list { list-style: none; font-size: 0.9rem; color: var(--text-main); }
-    .feature-list li { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-    .feature-list li::before {
-      content: "✓";
-      color: var(--accent);
-      font-weight: 800;
-    }
-
-    /* Step 2 Checkout Box */
-    .checkout-panel {
-      display: none;
-      max-width: 480px;
-      margin: 0 auto;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 32px;
-      box-shadow: 0 12px 32px rgba(10, 37, 64, 0.08);
-    }
-    .checkout-panel.visible { display: block; }
-
-    .input-group { margin: 20px 0; }
-    .input-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-    .input-group input {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 15px;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    .input-group input:focus { border-color: var(--accent); }
-
-    .btn-row { display: flex; gap: 12px; margin-top: 24px; justify-content: center; }
-    .btn {
-      padding: 13px 24px;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: background 0.15s, transform 0.1s;
-    }
-    .btn-primary { background: var(--accent); color: #fff; flex: 1; }
-    .btn-primary:hover { background: var(--accent-hover); }
-    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn-secondary { background: #eef2f6; color: var(--text-main); }
-
-    /* Toast Notification */
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: #0a2540;
-      color: #fff;
-      padding: 16px 20px;
-      border-radius: 10px;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 14px;
-      transform: translateY(140%);
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 999;
-    }
-    .toast.show { transform: translateY(0); }
-    .toast-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--success); }
-    .toast.error .toast-dot { background: var(--error); }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #090d16; color: #f8fafc; padding: 2rem 1rem; line-height: 1.6; }
+    .container { max-width: 1050px; margin: 0 auto; text-align: center; }
+    h1 { font-size: 2.3rem; font-weight: 800; margin-bottom: 0.5rem; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .subtitle { color: #94a3b8; font-size: 1.05rem; max-width: 650px; margin: 0 auto 2rem; }
+    .email-box { margin-bottom: 2rem; }
+    .email-box input { padding: 0.85rem 1rem; width: 100%; max-width: 360px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .card { background: #111827; border: 1px solid #1f2937; border-radius: 14px; padding: 2rem 1.5rem; text-align: left; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, border-color 0.2s; }
+    .card:hover { transform: translateY(-4px); border-color: #38bdf8; }
+    .card.featured { border: 2px solid #38bdf8; }
+    .tier { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; font-weight: 700; }
+    .price { font-size: 2.4rem; font-weight: 800; margin: 0.5rem 0 1rem; }
+    .price span { font-size: 1rem; color: #94a3b8; font-weight: 400; }
+    ul { list-style: none; margin-bottom: 1.75rem; color: #cbd5e1; font-size: 0.95rem; }
+    ul li { margin-bottom: 0.65rem; padding-left: 1.4rem; position: relative; }
+    ul li::before { content: "✓"; position: absolute; left: 0; color: #38bdf8; font-weight: bold; }
+    button { width: 100%; padding: 0.95rem; border: none; border-radius: 8px; background: #2563eb; color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    button:hover { background: #1d4ed8; }
+    button:disabled { background: #475569; cursor: not-allowed; }
+    #status-banner { margin-top: 1.5rem; padding: 1rem; border-radius: 8px; display: none; font-weight: 600; }
+    .status-info { background: #1e293b; color: #38bdf8; border: 1px solid #38bdf8; }
+    .status-success { background: #064e3b; color: #6ee7b7; border: 1px solid #10b981; }
+    .status-error { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>Launch Velocity</h1>
+    <p class="subtitle">Turnkey subscription billing, automated Resend telemetry, Zero-Trust payload security, and automated Digital Declutter sanitation in one engine.</p>
 
-  <header class="hero">
-    <div class="badge">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-      Launch Velocity Infrastructure
-    </div>
-    <h1>Deploy revenue-ready software at wire speed.</h1>
-    <p>Select your architecture tier below to provision dedicated compute, automated telemetry, and instant webhook billing.</p>
-  </header>
-
-  <main class="wizard-container">
-    <div class="stepper">
-      <div class="step-pill active" id="pill-1"><span class="step-num">1</span> Select Architecture</div>
-      <div class="step-pill" id="pill-2"><span class="step-num">2</span> Confirm & Provision</div>
+    <div class="email-box">
+      <input type="email" id="customer-email" placeholder="Enter your email for provisioning & receipts..." />
     </div>
 
-    <!-- STEP 1: CARD GRID -->
-    <div id="step-1">
-      <div class="plan-grid">
-        <div class="plan-card" data-plan="starter" data-name="Velocity Starter Engine" data-price="$49/mo">
-          <div class="card-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-          </div>
-          <div class="plan-title">Starter Engine</div>
-          <div class="plan-price">$49<span>/month</span></div>
-          <p class="plan-desc">Core Node.js runtime and automated Stripe subscription routing for early-stage launches.</p>
-          <ul class="feature-list">
-            <li>Managed API Endpoints</li>
-            <li>Instant Customer Receipts</li>
-            <li>Real-time Admin Alerts</li>
+    <div id="status-banner"></div>
+
+    <div class="grid" style="margin-top: 1.5rem;">
+      <!-- Starter Tier -->
+      <div class="card">
+        <div>
+          <div class="tier">Starter Engine</div>
+          <div class="price">$49<span>/mo</span></div>
+          <ul>
+            <li>Automated Stripe Subscription Billing</li>
+            <li>Instant Resend Receipt & Admin Telemetry</li>
+            <li>Live REST API & Webhook Endpoints</li>
+            <li>Basic Storage Audit Telemetry</li>
           </ul>
         </div>
+        <button onclick="startCheckout('starter', this)">Deploy Starter →</button>
+      </div>
+
+      <!-- Growth Tier -->
+      <div class="card featured">
+        <div>
+          <div class="tier">Growth Suite</div>
+          <div class="price">$149<span>/mo</span></div>
+          <ul>
+            <li>Everything in Starter Engine</li>
+            <li>Dedicated PostgreSQL Persistence</li>
+            <li>Digital Declutter Assistant (SHA-256 Duplicate & Stale Log Scans)</li>
+            <li>Real-Time Storage Telemetry Dashboard</li>
+          </ul>
+        </div>
+        <button onclick="startCheckout('growth', this)">Deploy Growth →</button>
+      </div>
+
+      <!-- Enterprise Tier -->
+      <div class="card">
+        <div>
+          <div class="tier">Zero-Trust Enterprise</div>
+          <div class="price">$399<span>/mo</span></div>
+          <ul>
+            <li>Everything in Growth Suite</li>
+            <li>ZeroTrustMagicByteShield Binary Inspection</li>
+            <li>Automated Quarantine & Retention Purge Engine</li>
+            <li>Priority SLA & Dedicated Provisioning</li>
+          </ul>
+        </div>
+        <button onclick="startCheckout('enterprise', this)">Deploy Enterprise →</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BACKEND_URL = 'https://revenue-engine-dx5d.onrender.com';
+    const banner = document.getElementById('status-banner');
+
+    // Check URL parameters after returning from Stripe
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === 'true') {
+      banner.style.display = 'block';
+      banner.className = 'status-success';
+      banner.textContent = '✅ Payment confirmed! Check your email for your Launch Velocity provisioning receipt.';
+    } else if (params.get('canceled') === 'true') {
+      banner.style.display = 'block';
+      banner.className = 'status-error';
+      banner.textContent = '⚠️ Checkout was canceled. Select a plan below whenever you are ready.';
+    }
+
+    async function startCheckout(plan, btnElement) {
+      const email = document.getElementById('customer-email').value.trim();
+      const allButtons = document.querySelectorAll('button');
+      
+      allButtons.forEach(b => b.disabled = true);
+      const originalText = btnElement.textContent;
+      btnElement.textContent = 'Connecting to Engine...';
+
+      banner.style.display = 'block';
+      banner.className = 'status-info';
+      banner.textContent = '⏳ Waking up Render engine & generating secure Stripe Checkout session (up to 45s on cold start)...';
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/create-checkout-session`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan, email })
+        });
+
+        const data = await response.json();
+
+        if (data.url) {
+          banner.textContent = '🚀 Redirecting to Stripe Checkout...';
+          window.location.href = data.url;
+        } else {
+          throw new Error(data.error || 'No checkout URL returned from server.');
+        }
+      } catch (err) {
+        console.error(err);
+        banner.className = 'status-error';
+        banner.textContent = `❌ Error: ${err.message}. Verify STRIPE_SECRET_KEY is set in Render Environment.`;
+        allButtons.forEach(b => b.disabled = false);
+        btnElement.textContent = originalText;
+      }
+    }
+  </script>
+</body>
+</html>
