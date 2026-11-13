@@ -6,34 +6,100 @@
   <title>Launch Velocity | Autonomous Revenue & Infrastructure Engine</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #090d16; color: #f8fafc; padding: 2rem 1rem; line-height: 1.6; }
+    body {
+      min-height: 100vh;
+      background-color: #f8fafc;
+      background-image:
+        radial-gradient(at 15% 10%, rgba(129, 140, 248, 0.28) 0px, transparent 50%),
+        radial-gradient(at 85% 12%, rgba(52, 211, 153, 0.25) 0px, transparent 50%),
+        radial-gradient(at 50% 0%, rgba(56, 189, 248, 0.22) 0px, transparent 55%);
+      color: #0f172a;
+      padding: 2.5rem 1rem;
+      line-height: 1.6;
+    }
     .container { max-width: 1050px; margin: 0 auto; text-align: center; }
-    h1 { font-size: 2.3rem; font-weight: 800; margin-bottom: 0.5rem; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .subtitle { color: #94a3b8; font-size: 1.05rem; max-width: 650px; margin: 0 auto 2rem; }
-    .email-box { margin-bottom: 2rem; }
-    .email-box input { padding: 0.85rem 1rem; width: 100%; max-width: 360px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 1rem; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
-    .card { background: #111827; border: 1px solid #1f2937; border-radius: 14px; padding: 2rem 1.5rem; text-align: left; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, border-color 0.2s; }
-    .card:hover { transform: translateY(-4px); border-color: #38bdf8; }
-    .card.featured { border: 2px solid #38bdf8; }
-    .tier { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; font-weight: 700; }
-    .price { font-size: 2.4rem; font-weight: 800; margin: 0.5rem 0 1rem; }
-    .price span { font-size: 1rem; color: #94a3b8; font-weight: 400; }
-    ul { list-style: none; margin-bottom: 1.75rem; color: #cbd5e1; font-size: 0.95rem; }
+    .badge {
+      display: inline-block;
+      background: #e0e7ff;
+      color: #4338ca;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1.25rem;
+    }
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+    .subtitle {
+      color: #475569;
+      font-size: 1.05rem;
+      max-width: 640px;
+      margin: 0 auto 2rem;
+    }
+    .email-box { margin-bottom: 1.75rem; }
+    .email-box input {
+      padding: 0.9rem 1.1rem;
+      width: 100%;
+      max-width: 380px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #0f172a;
+      font-size: 1rem;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    }
+    .email-box input:focus { outline: none; border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 2rem 1.6rem;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06);
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { transform: translateY(-4px); border-color: #6366f1; box-shadow: 0 14px 30px -5px rgba(79, 70, 229, 0.12); }
+    .card.featured { border: 2px solid #4f46e5; }
+    .tier { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: #4f46e5; font-weight: 700; }
+    .price { font-size: 2.5rem; font-weight: 800; color: #0f172a; margin: 0.4rem 0 0.8rem; }
+    .price span { font-size: 1rem; color: #64748b; font-weight: 500; }
+    ul { list-style: none; margin-bottom: 1.75rem; color: #334155; font-size: 0.95rem; }
     ul li { margin-bottom: 0.65rem; padding-left: 1.4rem; position: relative; }
-    ul li::before { content: "✓"; position: absolute; left: 0; color: #38bdf8; font-weight: bold; }
-    button { width: 100%; padding: 0.95rem; border: none; border-radius: 8px; background: #2563eb; color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
-    button:hover { background: #1d4ed8; }
-    button:disabled { background: #475569; cursor: not-allowed; }
-    #status-banner { margin-top: 1.5rem; padding: 1rem; border-radius: 8px; display: none; font-weight: 600; }
-    .status-info { background: #1e293b; color: #38bdf8; border: 1px solid #38bdf8; }
-    .status-success { background: #064e3b; color: #6ee7b7; border: 1px solid #10b981; }
-    .status-error { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
+    ul li::before { content: "✓"; position: absolute; left: 0; color: #4f46e5; font-weight: bold; }
+    button {
+      width: 100%;
+      padding: 0.95rem;
+      border: none;
+      border-radius: 10px;
+      background: #4f46e5;
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #4338ca; }
+    button:disabled { background: #94a3b8; cursor: not-allowed; }
+    #status-banner { margin: 1rem auto; max-width: 640px; padding: 1rem; border-radius: 10px; display: none; font-weight: 600; font-size: 0.95rem; }
+    .status-info { background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
+    .status-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .status-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Launch Velocity</h1>
+    <div class="badge">⚡ Launch Velocity Infrastructure</div>
+    <h1>Deploy revenue-ready software at wire speed.</h1>
     <p class="subtitle">Turnkey subscription billing, automated Resend telemetry, Zero-Trust payload security, and automated Digital Declutter sanitation in one engine.</p>
 
     <div class="email-box">
@@ -42,16 +108,16 @@
 
     <div id="status-banner"></div>
 
-    <div class="grid" style="margin-top: 1.5rem;">
+    <div class="grid">
       <!-- Starter Tier -->
       <div class="card">
         <div>
           <div class="tier">Starter Engine</div>
-          <div class="price">$49<span>/mo</span></div>
+          <div class="price">$49<span>/month</span></div>
           <ul>
             <li>Automated Stripe Subscription Billing</li>
-            <li>Instant Resend Receipt & Admin Telemetry</li>
-            <li>Live REST API & Webhook Endpoints</li>
+            <li>Instant Customer Receipts & Admin Alerts</li>
+            <li>Managed REST API & Webhook Endpoints</li>
             <li>Basic Storage Audit Telemetry</li>
           </ul>
         </div>
@@ -62,7 +128,7 @@
       <div class="card featured">
         <div>
           <div class="tier">Growth Suite</div>
-          <div class="price">$149<span>/mo</span></div>
+          <div class="price">$149<span>/month</span></div>
           <ul>
             <li>Everything in Starter Engine</li>
             <li>Dedicated PostgreSQL Persistence</li>
@@ -77,7 +143,7 @@
       <div class="card">
         <div>
           <div class="tier">Zero-Trust Enterprise</div>
-          <div class="price">$399<span>/mo</span></div>
+          <div class="price">$399<span>/month</span></div>
           <ul>
             <li>Everything in Growth Suite</li>
             <li>ZeroTrustMagicByteShield Binary Inspection</li>
@@ -94,7 +160,9 @@
     const BACKEND_URL = 'https://revenue-engine-dx5d.onrender.com';
     const banner = document.getElementById('status-banner');
 
-    // Check URL parameters after returning from Stripe
+    // Automatically pre-warm Render server as soon as the page loads
+    fetch(`${BACKEND_URL}/`).catch(() => {});
+
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true') {
       banner.style.display = 'block';
@@ -106,20 +174,33 @@
       banner.textContent = '⚠️ Checkout was canceled. Select a plan below whenever you are ready.';
     }
 
+    async function fetchWithWakeupRetry(url, options, retries = 3) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const res = await fetch(url, options);
+          return res;
+        } catch (err) {
+          if (i === retries - 1) throw err;
+          banner.textContent = `⏳ Engine is waking up from cold sleep... retrying (${i + 2}/${retries})...`;
+          await new Promise(r => setTimeout(r, 15000));
+        }
+      }
+    }
+
     async function startCheckout(plan, btnElement) {
       const email = document.getElementById('customer-email').value.trim();
       const allButtons = document.querySelectorAll('button');
       
       allButtons.forEach(b => b.disabled = true);
       const originalText = btnElement.textContent;
-      btnElement.textContent = 'Connecting to Engine...';
+      btnElement.textContent = 'Connecting...';
 
       banner.style.display = 'block';
       banner.className = 'status-info';
-      banner.textContent = '⏳ Waking up Render engine & generating secure Stripe Checkout session (up to 45s on cold start)...';
+      banner.textContent = '⏳ Connecting to Launch Velocity engine & generating Stripe session...';
 
       try {
-        const response = await fetch(`${BACKEND_URL}/create-checkout-session`, {
+        const response = await fetchWithWakeupRetry(`${BACKEND_URL}/create-checkout-session`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ plan, email })
@@ -136,7 +217,7 @@
       } catch (err) {
         console.error(err);
         banner.className = 'status-error';
-        banner.textContent = `❌ Error: ${err.message}. Verify STRIPE_SECRET_KEY is set in Render Environment.`;
+        banner.textContent = '❌ Server is still waking up or offline on Render. Check Render dashboard status and try again in 30 seconds.';
         allButtons.forEach(b => b.disabled = false);
         btnElement.textContent = originalText;
       }
