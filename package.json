@@ -1,15 +1,5 @@
-{
-  "name": "revenue-engine",
-  "version": "1.0.0",
-  "type": "module",
-  "main": "app.js",
-  "scripts": {
-    "start": "node app.js"
-  },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "stripe": "^14.25.0",
-    "zod": "^3.22.4"
-  }
-}
+const PORT = process.env.PORT || 10000;
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Launch Velocity Engine listening on port ${PORT}`);
+});
