@@ -1,16 +1,9 @@
-{
-  "name": "revenue-engine",
-  "version": "1.0.0",
-  "type": "module",
-  "main": "app.js",
-  "scripts": {
-    "start": "node app.js"
-  },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "pg": "^8.11.3",
-    "stripe": "^14.25.0",
-    "zod": "^3.22.4"
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
+  ssl: {
+    rejectUnauthorized: false
   }
-}
+});
