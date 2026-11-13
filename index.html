@@ -7,21 +7,21 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 body{min-height:100vh;background:#020617;color:#f8fafc;padding:2rem 1rem;overflow-x:hidden;position:relative}
-#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
 .wrap{max-width:1020px;margin:0 auto;text-align:center;position:relative;z-index:10}
-.badge{display:inline-block;background:rgba(56,189,248,.15);color:#38bdf8;border:1px solid rgba(56,189,248,.35);font-weight:700;font-size:.82rem;padding:.35rem .9rem;border-radius:99px;margin-bottom:1rem;backdrop-filter:blur(6px)}
-h1{font-size:2.2rem;font-weight:800;margin-bottom:.6rem;text-shadow:0 2px 16px rgba(56,189,248,.35)}
-.sub{color:#cbd5e1;font-size:1rem;max-width:600px;margin:0 auto 1.5rem}
+.badge{display:inline-block;background:rgba(56,189,248,.18);color:#38bdf8;border:1px solid rgba(56,189,248,.4);font-weight:700;font-size:.82rem;padding:.35rem .9rem;border-radius:99px;margin-bottom:1rem;backdrop-filter:blur(8px)}
+h1{font-size:2.2rem;font-weight:800;margin-bottom:.6rem;text-shadow:0 2px 20px rgba(56,189,248,.5)}
+.sub{color:#cbd5e1;font-size:1rem;max-width:600px;margin:0 auto 1.5rem;text-shadow:0 1px 10px rgba(0,0,0,0.8)}
 .email-box{margin-bottom:1.25rem}
-input{padding:.85rem 1rem;width:100%;max-width:380px;border-radius:10px;border:1px solid rgba(56,189,248,.45);background:rgba(15,23,42,.88);color:#fff;font-size:1rem;box-shadow:0 4px 20px rgba(0,0,0,0.6);backdrop-filter:blur(10px)}
-input:focus{outline:none;border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,0.3)}
-#msg{margin:0 auto 1.25rem;max-width:600px;padding:.9rem;border-radius:10px;display:none;font-weight:600;font-size:.92rem;background:rgba(15,23,42,.95);border:1px solid #38bdf8;color:#38bdf8;backdrop-filter:blur(8px)}
+input{padding:.85rem 1rem;width:100%;max-width:380px;border-radius:10px;border:1px solid rgba(56,189,248,0.5);background:rgba(15,23,42,0.65);color:#fff;font-size:1rem;box-shadow:0 4px 20px rgba(0,0,0,0.6);backdrop-filter:blur(12px)}
+input:focus{outline:none;border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,0.35)}
+#msg{margin:0 auto 1.25rem;max-width:600px;padding:.9rem;border-radius:10px;display:none;font-weight:600;font-size:.92rem;background:rgba(15,23,42,0.85);border:1px solid #38bdf8;color:#38bdf8;backdrop-filter:blur(10px)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:1.25rem}
-.card{background:rgba(9,15,32,.86);backdrop-filter:blur(12px);border:1px solid rgba(56,189,248,.28);border-radius:16px;padding:1.75rem 1.4rem;text-align:left;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 12px 30px rgba(0,0,0,0.55);transition:transform .2s,border-color .2s}
+.card{background:rgba(9,15,32,0.48);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(56,189,248,0.35);border-radius:16px;padding:1.75rem 1.4rem;text-align:left;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 12px 35px rgba(0,0,0,0.6);transition:transform .2s,border-color .2s}
 .card:hover{transform:translateY(-4px);border-color:#38bdf8}
-.card.feat{border:2px solid #38bdf8;background:rgba(13,22,46,.92)}
+.card.feat{border:2px solid #38bdf8;background:rgba(13,22,46,0.62)}
 .tier{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:#38bdf8;font-weight:700}
-.price{font-size:2.3rem;font-weight:800;margin:.35rem 0 .75rem}
+.price{font-size:2.3rem;font-weight:800;margin:.35rem 0 .75rem;text-shadow:0 2px 10px rgba(0,0,0,0.5)}
 .price span{font-size:.95rem;color:#94a3b8;font-weight:400}
 ul{list-style:none;margin-bottom:1.5rem;color:#e2e8f0;font-size:.92rem}
 li{margin-bottom:.55rem;padding-left:1.3rem;position:relative}
@@ -93,25 +93,25 @@ button:disabled{background:#475569;cursor:not-allowed;box-shadow:none}
 </div>
 
 <script>
-// --- LIVE 3D TUNNEL & WAVE BACKGROUND ANIMATION ---
+// --- HIGH-VISIBILITY 3D TUNNEL & WAVE BACKGROUND ---
 const c = document.getElementById('bg'), x = c.getContext('2d');
 function rs() { c.width = innerWidth; c.height = innerHeight; }
 addEventListener('resize', rs); rs();
 
-const pts = Array.from({length:360}, (_,i) => {
+const pts = Array.from({length:400}, (_,i) => {
   const w = i % 4;
   return {
     x: (w === 0 ? -1 : w === 1 ? 1 : Math.random() * 2 - 1) * (0.95 + Math.random() * 0.25),
     y: (w === 2 ? -1 : w === 3 ? 1 : Math.random() * 2 - 1) * (0.95 + Math.random() * 0.25),
     z: Math.random() * 2.5 + 0.1,
-    s: Math.random() * 2 + 0.8
+    s: Math.random() * 2.5 + 1.0
   };
 });
 
 const wv = [];
-for (let i = 0; i < 28; i++) {
-  for (let j = 0; j < 18; j++) {
-    wv.push({ gx: (i / 28) * 2 - 0.8, gy: (j / 18) * 2 - 1, p: i * 0.35 + j * 0.25 });
+for (let i = 0; i < 30; i++) {
+  for (let j = 0; j < 20; j++) {
+    wv.push({ gx: (i / 30) * 2 - 0.8, gy: (j / 20) * 2 - 1, p: i * 0.35 + j * 0.25 });
   }
 }
 
@@ -120,4 +120,109 @@ function loop() {
   t += 0.014;
   const b = (Math.sin(t * 0.32) + 1) / 2, ta = 1 - b, wa = b;
   
-  const g = x.createRadialGradient(c.width/2, c.height/2, 20, c.width/2, c.height/2, Math.max(c.width, c.height) * 0.
+  // Deep space gradient
+  const g = x.createRadialGradient(c.width/2, c.height/2, 20, c.width/2, c.height/2, Math.max(c.width, c.height) * 0.85);
+  g.addColorStop(0, '#0a2550'); g.addColorStop(0.5, '#030e24'); g.addColorStop(1, '#010409');
+  x.fillStyle = g; x.fillRect(0, 0, c.width, c.height);
+
+  const cx = c.width / 2, cy = c.height / 2, fov = Math.min(c.width, c.height) * 0.65;
+
+  if (ta > 0.02) {
+    const cg = x.createRadialGradient(cx, cy, 5, cx, cy, 220);
+    cg.addColorStop(0, `rgba(125,211,252,${0.75 * ta})`);
+    cg.addColorStop(0.4, `rgba(37,99,235,${0.35 * ta})`);
+    cg.addColorStop(1, 'rgba(2,6,23,0)');
+    x.fillStyle = cg; x.fillRect(0, 0, c.width, c.height);
+
+    pts.forEach(p => {
+      p.z -= 0.013;
+      if (p.z <= 0.08) p.z = 2.5;
+      const s = fov / p.z;
+      x.fillStyle = `rgba(186,230,253,${Math.min(1, (2.5 - p.z) / 1.2) * ta * 0.95})`;
+      x.beginPath();
+      x.arc(cx + p.x * s * 0.55, cy + p.y * s * 0.45, Math.max(0.8, p.s / p.z * 1.2), 0, Math.PI * 2);
+      x.fill();
+    });
+  }
+
+  if (wa > 0.02) {
+    const fx = c.width * 0.55;
+    const fg = x.createRadialGradient(fx, cy, 5, fx, cy, 240);
+    fg.addColorStop(0, `rgba(255,255,255,${0.9 * wa})`);
+    fg.addColorStop(0.25, `rgba(56,189,248,${0.6 * wa})`);
+    fg.addColorStop(1, 'rgba(2,6,23,0)');
+    x.fillStyle = fg; x.fillRect(0, 0, c.width, c.height);
+
+    wv.forEach(w => {
+      const wz = 1.4 + Math.sin(w.p + t * 1.8) * 0.35;
+      const s = fov / wz;
+      x.fillStyle = `rgba(125,211,252,${0.95 * wa})`;
+      x.beginPath();
+      x.arc(fx + w.gx * s * 0.65, cy + w.gy * s * 0.55, Math.max(1.2, 2.5 / wz), 0, Math.PI * 2);
+      x.fill();
+    });
+  }
+
+  requestAnimationFrame(loop);
+}
+loop();
+
+// --- CHECKOUT & WAKE-UP LOGIC ---
+const API = 'https://revenue-engine-dx5d.onrender.com', msg = document.getElementById('msg');
+fetch(API + '/').catch(() => {});
+
+const q = new URLSearchParams(location.search);
+if (q.get('success')) {
+  msg.style.display = 'block';
+  msg.textContent = '✅ Payment confirmed! Check your email for your provisioning receipt.';
+} else if (q.get('canceled')) {
+  msg.style.display = 'block';
+  msg.textContent = '⚠️ Checkout canceled. Select a plan below when ready.';
+}
+
+async function go(plan, btn) {
+  const emailInput = document.getElementById('email').value.trim();
+  const email = emailInput.length > 0 ? emailInput : undefined;
+  const btns = document.querySelectorAll('button');
+  
+  btns.forEach(b => b.disabled = true);
+  const old = btn.textContent;
+  btn.textContent = 'Connecting...';
+
+  msg.style.display = 'block';
+  msg.style.color = '#38bdf8';
+  msg.style.borderColor = '#38bdf8';
+  msg.textContent = '⏳ Connecting to Launch Velocity engine & generating Stripe Checkout...';
+
+  for (let i = 0; i < 5; i++) {
+    try {
+      const r = await fetch(API + '/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan, email })
+      });
+      const d = await r.json();
+
+      if (d.url) {
+        msg.textContent = '🚀 Redirecting to Stripe...';
+        location.href = d.url;
+        return;
+      }
+      throw new Error(d.error || 'Server returned no checkout URL');
+    } catch (e) {
+      if (i === 4) {
+        msg.style.color = '#fca5a5';
+        msg.style.borderColor = '#ef4444';
+        msg.textContent = '❌ Error: ' + e.message + ' (Check Render dashboard)';
+        btns.forEach(b => b.disabled = false);
+        btn.textContent = old;
+        return;
+      }
+      msg.textContent = `⏳ Waking Render server from cold sleep... attempt ${i + 2}/5...`;
+      await new Promise(r => setTimeout(r, 15000));
+    }
+  }
+}
+</script>
+</body>
+</html>
