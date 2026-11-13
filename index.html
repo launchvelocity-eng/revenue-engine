@@ -1,178 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Launch Velocity | Autonomous Revenue & Infrastructure Engine</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body {
-      min-height: 100vh;
-      background-color: #020617;
-      color: #f8fafc;
-      padding: 2.5rem 1rem;
-      line-height: 1.6;
-      position: relative;
-      overflow-x: hidden;
-    }
-    #bg-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: -1;
-      pointer-events: none;
-    }
-    .container { max-width: 1050px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
-    .badge {
-      display: inline-block;
-      background: rgba(56, 189, 248, 0.14);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      font-weight: 700;
-      font-size: 0.85rem;
-      padding: 0.4rem 1rem;
-      border-radius: 999px;
-      margin-bottom: 1.25rem;
-      backdrop-filter: blur(6px);
-    }
-    h1 {
-      font-size: 2.4rem;
-      font-weight: 800;
-      color: #ffffff;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.75rem;
-      text-shadow: 0 2px 18px rgba(56, 189, 248, 0.35);
-    }
-    .subtitle {
-      color: #cbd5e1;
-      font-size: 1.05rem;
-      max-width: 640px;
-      margin: 0 auto 2rem;
-    }
-    .email-box { margin-bottom: 1.75rem; }
-    .email-box input {
-      padding: 0.9rem 1.1rem;
-      width: 100%;
-      max-width: 380px;
-      border-radius: 10px;
-      border: 1px solid rgba(56, 189, 248, 0.45);
-      background: rgba(15, 23, 42, 0.82);
-      color: #fff;
-      font-size: 1rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(10px);
-    }
-    .email-box input:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3); }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
-    .card {
-      background: rgba(9, 15, 32, 0.8);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      border-radius: 16px;
-      padding: 2rem 1.6rem;
-      text-align: left;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
-      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-    }
-    .card:hover { transform: translateY(-4px); border-color: #38bdf8; box-shadow: 0 16px 35px rgba(56, 189, 248, 0.22); }
-    .card.featured { border: 2px solid #38bdf8; background: rgba(13, 22, 46, 0.88); }
-    .tier { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; font-weight: 700; }
-    .price { font-size: 2.5rem; font-weight: 800; color: #ffffff; margin: 0.4rem 0 0.8rem; }
-    .price span { font-size: 1rem; color: #94a3b8; font-weight: 500; }
-    ul { list-style: none; margin-bottom: 1.75rem; color: #e2e8f0; font-size: 0.95rem; }
-    ul li { margin-bottom: 0.65rem; padding-left: 1.4rem; position: relative; }
-    ul li::before { content: "✓"; position: absolute; left: 0; color: #38bdf8; font-weight: bold; }
-    button {
-      width: 100%;
-      padding: 0.95rem;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #2563eb, #38bdf8);
-      color: #ffffff;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s;
-      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.45);
-    }
-    button:hover { opacity: 0.92; transform: scale(1.01); }
-    button:disabled { background: #475569; cursor: not-allowed; box-shadow: none; }
-    #status-banner { margin: 1rem auto; max-width: 640px; padding: 1rem; border-radius: 10px; display: none; font-weight: 600; font-size: 0.95rem; }
-    .status-info { background: rgba(30, 41, 59, 0.92); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.45); backdrop-filter: blur(8px); }
-    .status-success { background: rgba(6, 78, 59, 0.92); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.45); backdrop-filter: blur(8px); }
-    .status-error { background: rgba(127, 29, 29, 0.92); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.45); backdrop-filter: blur(8px); }
-  </style>
-</head>
-<body>
-  <!-- Live 3D Particle Tunnel & Energy Wave Canvas -->
-  <canvas id="bg-canvas"></canvas>
-
-  <div class="container">
-    <div class="badge">⚡ Launch Velocity Infrastructure</div>
-    <h1>Deploy revenue-ready software at wire speed.</h1>
-    <p class="subtitle">Turnkey subscription billing, automated Resend telemetry, Zero-Trust payload security, and automated Digital Declutter sanitation in one live engine.</p>
-
-    <div class="email-box">
-      <input type="email" id="customer-email" placeholder="Enter your email for provisioning & receipts..." />
-    </div>
-
-    <div id="status-banner"></div>
-
-    <div class="grid">
-      <!-- Starter Tier -->
-      <div class="card">
-        <div>
-          <div class="tier">Starter Engine</div>
-          <div class="price">$49<span>/month</span></div>
-          <ul>
-            <li>Automated Stripe Subscription Billing</li>
-            <li>Instant Customer Receipts & Admin Alerts</li>
-            <li>Managed REST API & Webhook Endpoints</li>
-            <li>Basic Storage Audit Telemetry</li>
-          </ul>
-        </div>
-        <button onclick="startCheckout('starter', this)">Deploy Starter →</button>
-      </div>
-
-      <!-- Growth Tier -->
-      <div class="card featured">
-        <div>
-          <div class="tier">Growth Suite</div>
-          <div class="price">$149<span>/month</span></div>
-          <ul>
-            <li>Everything in Starter Engine</li>
-            <li>Dedicated PostgreSQL Persistence</li>
-            <li>Digital Declutter Assistant (SHA-256 Duplicate & Stale Log Scans)</li>
-            <li>Real-Time Storage Telemetry Dashboard</li>
-          </ul>
-        </div>
-        <button onclick="startCheckout('growth', this)">Deploy Growth →</button>
-      </div>
-
-      <!-- Enterprise Tier -->
-      <div class="card">
-        <div>
-          <div class="tier">Zero-Trust Enterprise</div>
-          <div class="price">$399<span>/month</span></div>
-          <ul>
-            <li>Everything in Growth Suite</li>
-            <li>ZeroTrustMagicByteShield Binary Inspection</li>
-            <li>Automated Quarantine & Retention Purge Engine</li>
-            <li>Priority SLA & Dedicated Provisioning</li>
-          </ul>
-        </div>
-        <button onclick="startCheckout('enterprise', this)">Deploy Enterprise →</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    // --- LIVE 3D PERSPECTIVE TUNNEL & WAVE MORPHING BACKGROUND ---
+    // --- HIGH-DETAIL 3D TUNNEL + PCB CIRCUIT TRACE ENGINE ---
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
 
@@ -183,35 +10,48 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Generate 3D Tunnel Particles (rectangular/corridor particle field)
+    // 1. 3D Corridor Particles with Depth-of-Field Bokeh
     const tunnelParticles = [];
-    const numTunnel = 420;
-    for (let i = 0; i < numTunnel; i++) {
-      // Place particles mostly along the 4 walls of a 3D corridor
+    for (let i = 0; i < 480; i++) {
       const wall = i % 4;
       let x, y;
-      if (wall === 0) { x = -1; y = (Math.random() * 2 - 1); }      // Left wall
-      else if (wall === 1) { x = 1; y = (Math.random() * 2 - 1); }  // Right wall
-      else if (wall === 2) { x = (Math.random() * 2 - 1); y = -1; } // Ceiling
-      else { x = (Math.random() * 2 - 1); y = 1; }                  // Floor
+      if (wall === 0) { x = -1; y = Math.random() * 2 - 1; }
+      else if (wall === 1) { x = 1; y = Math.random() * 2 - 1; }
+      else if (wall === 2) { x = Math.random() * 2 - 1; y = -1; }
+      else { x = Math.random() * 2 - 1; y = 1; }
 
       tunnelParticles.push({
-        x: x * (0.95 + Math.random() * 0.25),
-        y: y * (0.95 + Math.random() * 0.25),
-        z: Math.random() * 2.5 + 0.1,
-        size: Math.random() * 2.2 + 0.8,
-        bright: Math.random() > 0.75
+        x: x * (0.92 + Math.random() * 0.3),
+        y: y * (0.92 + Math.random() * 0.3),
+        z: Math.random() * 2.6 + 0.1,
+        size: Math.random() * 2.4 + 0.7,
+        hue: Math.random() > 0.3 ? '56, 189, 248' : '129, 140, 248' // Cyan & Indigo mix
       });
     }
 
-    // Generate 3D Undulating Particle Wave Mesh
+    // 2. 90-Degree PCB Microchip Traces & Traveling Packets
+    const traces = [];
+    for (let i = 0; i < 28; i++) {
+      const startX = Math.random() * canvas.width;
+      const startY = Math.random() * canvas.height;
+      const len1 = (Math.random() > 0.5 ? 1 : -1) * (60 + Math.random() * 140);
+      const len2 = (Math.random() > 0.5 ? 1 : -1) * (60 + Math.random() * 140);
+      traces.push({
+        x1: startX, y1: startY,
+        x2: startX + len1, y2: startY,
+        x3: startX + len1, y3: startY + len2,
+        progress: Math.random(),
+        speed: 0.004 + Math.random() * 0.006
+      });
+    }
+
+    // 3. Undulating 3D Particle Wave Mesh
     const waveParticles = [];
-    const cols = 32;
-    const rows = 22;
+    const cols = 34, rows = 24;
     for (let c = 0; c < cols; c++) {
       for (let r = 0; r < rows; r++) {
         waveParticles.push({
-          gx: (c / cols) * 2 - 0.8,
+          gx: (c / cols) * 2 - 0.85,
           gy: (r / rows) * 2 - 1,
           phase: c * 0.35 + r * 0.25
         });
@@ -222,89 +62,119 @@
 
     function renderFrame() {
       time += 0.014;
-
-      // Smoothly oscillate blend factor between 0 (3D Tunnel) and 1 (3D Energy Wave)
-      const morphBlend = (Math.sin(time * 0.35) + 1) / 2;
+      const morphBlend = (Math.sin(time * 0.32) + 1) / 2;
       const tunnelAlpha = 1 - morphBlend;
       const waveAlpha = morphBlend;
 
-      // Deep space radial backdrop
+      // Deep cyber radial gradient
       const bgGrad = ctx.createRadialGradient(
-        canvas.width * 0.5, canvas.height * 0.5, 20,
-        canvas.width * 0.5, canvas.height * 0.5, Math.max(canvas.width, canvas.height) * 0.8
+        canvas.width * 0.5, canvas.height * 0.45, 20,
+        canvas.width * 0.5, canvas.height * 0.45, Math.max(canvas.width, canvas.height) * 0.85
       );
-      bgGrad.addColorStop(0, '#071938');
-      bgGrad.addColorStop(0.5, '#030b1c');
+      bgGrad.addColorStop(0, '#091e42');
+      bgGrad.addColorStop(0.55, '#030b1c');
       bgGrad.addColorStop(1, '#010409');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      // Draw subtle PCB Traces + Glowing Data Packets (always active in background)
+      traces.forEach(t => {
+        t.progress += t.speed;
+        if (t.progress > 1) t.progress = 0;
+
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.09)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(t.x1, t.y1);
+        ctx.lineTo(t.x2, t.y2);
+        ctx.lineTo(t.x3, t.y3);
+        ctx.stroke();
+
+        // Solder pads at ends
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.22)';
+        ctx.beginPath();
+        ctx.arc(t.x1, t.y1, 2.2, 0, Math.PI * 2);
+        ctx.arc(t.x3, t.y3, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Traveling energy pulse along the L-shaped trace
+        let px, py;
+        if (t.progress < 0.5) {
+          const seg = t.progress * 2;
+          px = t.x1 + (t.x2 - t.x1) * seg;
+          py = t.y1;
+        } else {
+          const seg = (t.progress - 0.5) * 2;
+          px = t.x2;
+          py = t.y2 + (t.y3 - t.y2) * seg;
+        }
+
+        ctx.fillStyle = 'rgba(186, 230, 253, 0.85)';
+        ctx.beginPath();
+        ctx.arc(px, py, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
       const cx = canvas.width * 0.5;
       const cy = canvas.height * 0.5;
-      const fov = Math.min(canvas.width, canvas.height) * 0.65;
+      const fov = Math.min(canvas.width, canvas.height) * 0.68;
 
-      // --- SCENE 1: 3D PERSPECTIVE PARTICLE TUNNEL ---
+      // Scene 1: 3D Perspective Tunnel
       if (tunnelAlpha > 0.02) {
-        // Vanishing point core glow
-        const coreGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, 180);
-        coreGrad.addColorStop(0, `rgba(125, 211, 252, ${0.55 * tunnelAlpha})`);
-        coreGrad.addColorStop(0.4, `rgba(37, 99, 235, ${0.22 * tunnelAlpha})`);
+        const coreGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, 200);
+        coreGrad.addColorStop(0, `rgba(125, 211, 252, ${0.6 * tunnelAlpha})`);
+        coreGrad.addColorStop(0.4, `rgba(37, 99, 235, ${0.24 * tunnelAlpha})`);
         coreGrad.addColorStop(1, 'rgba(2, 6, 23, 0)');
         ctx.fillStyle = coreGrad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Glowing corridor rail lines
-        ctx.strokeStyle = `rgba(56, 189, 248, ${0.35 * tunnelAlpha})`;
-        ctx.lineWidth = 2;
-        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([rx, ry]) => {
-          ctx.beginPath();
-          ctx.moveTo(cx + rx * 28, cy + ry * 20);
-          ctx.lineTo(cx + rx * canvas.width * 0.65, cy + ry * canvas.height * 0.65);
-          ctx.stroke();
-        });
+        // Perspective grid rings inside tunnel
+        for (let r = 0.4; r <= 2.4; r += 0.5) {
+          const zRing = ((r - (time * 0.45) % 0.5) + 2.5) % 2.5 + 0.15;
+          const s = fov / zRing;
+          const ringAlpha = Math.min(0.28, (2.6 - zRing) / 6) * tunnelAlpha;
+          ctx.strokeStyle = `rgba(56, 189, 248, ${ringAlpha})`;
+          ctx.lineWidth = 1;
+          ctx.strokeRect(cx - s * 0.55, cy - s * 0.45, s * 1.1, s * 0.9);
+        }
 
-        // Move and project particles racing toward the viewer
         tunnelParticles.forEach(p => {
-          p.z -= 0.012;
-          if (p.z <= 0.08) p.z = 2.5;
+          p.z -= 0.013;
+          if (p.z <= 0.08) p.z = 2.6;
 
           const scale = fov / p.z;
           const sx = cx + p.x * scale * 0.55;
           const sy = cy + p.y * scale * 0.45;
-          const radius = Math.max(0.6, (p.size / p.z) * 1.15);
-          const depthFade = Math.min(1, (2.5 - p.z) / 1.5);
+          const radius = Math.max(0.6, (p.size / p.z) * 1.2);
+          const depthFade = Math.min(1, (2.6 - p.z) / 1.5);
 
-          ctx.fillStyle = p.bright
-            ? `rgba(224, 242, 254, ${depthFade * tunnelAlpha * 0.95})`
-            : `rgba(56, 189, 248, ${depthFade * tunnelAlpha * 0.75})`;
+          ctx.fillStyle = `rgba(${p.hue}, ${depthFade * tunnelAlpha * 0.88})`;
           ctx.beginPath();
           ctx.arc(sx, sy, radius, 0, Math.PI * 2);
           ctx.fill();
         });
       }
 
-      // --- SCENE 2: 3D UNDULATING PARTICLE WAVE & FLARE ---
+      // Scene 2: 3D Undulating Particle Wave & Flare
       if (waveAlpha > 0.02) {
-        // Central bright flare burst
         const flareX = canvas.width * 0.55;
         const flareY = canvas.height * 0.5;
-        const flareGrad = ctx.createRadialGradient(flareX, flareY, 2, flareX, flareY, 220);
+        const flareGrad = ctx.createRadialGradient(flareX, flareY, 2, flareX, flareY, 240);
         flareGrad.addColorStop(0, `rgba(255, 255, 255, ${0.85 * waveAlpha})`);
-        flareGrad.addColorStop(0.18, `rgba(56, 189, 248, ${0.55 * waveAlpha})`);
-        flareGrad.addColorStop(0.5, `rgba(29, 78, 216, ${0.2 * waveAlpha})`);
+        flareGrad.addColorStop(0.2, `rgba(56, 189, 248, ${0.55 * waveAlpha})`);
+        flareGrad.addColorStop(0.55, `rgba(79, 70, 229, ${0.22 * waveAlpha})`);
         flareGrad.addColorStop(1, 'rgba(2, 6, 23, 0)');
         ctx.fillStyle = flareGrad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Project rippling 3D wave dots
         waveParticles.forEach(wp => {
-          const waveZ = 1.4 + Math.sin(wp.phase + time * 1.8) * 0.35 + Math.cos(wp.gy * 3 + time) * 0.25;
+          const waveZ = 1.35 + Math.sin(wp.phase + time * 1.8) * 0.35 + Math.cos(wp.gy * 3 + time) * 0.25;
           const scale = fov / waveZ;
           const sx = flareX + wp.gx * scale * 0.65;
           const sy = cy + wp.gy * scale * 0.55;
-          const dotSize = Math.max(1, (2.2 / waveZ));
+          const dotSize = Math.max(1, (2.3 / waveZ));
 
-          ctx.fillStyle = `rgba(96, 165, 250, ${0.85 * waveAlpha})`;
+          ctx.fillStyle = `rgba(96, 165, 250, ${0.88 * waveAlpha})`;
           ctx.beginPath();
           ctx.arc(sx, sy, dotSize, 0, Math.PI * 2);
           ctx.fill();
@@ -315,7 +185,7 @@
     }
     renderFrame();
 
-    // --- CHECKOUT & RENDER BACKEND LOGIC ---
+    // --- CHECKOUT & RENDER BACKEND LOGIC (Extended 75s Wake-up Retry) ---
     const BACKEND_URL = 'https://revenue-engine-dx5d.onrender.com';
     const banner = document.getElementById('status-banner');
 
@@ -332,7 +202,7 @@
       banner.textContent = '⚠️ Checkout was canceled. Select a plan below whenever you are ready.';
     }
 
-    async function fetchWithWakeupRetry(url, options, retries = 3) {
+    async function fetchWithWakeupRetry(url, options, retries = 5) {
       for (let i = 0; i < retries; i++) {
         try {
           const res = await fetch(url, options);
@@ -381,5 +251,3 @@
       }
     }
   </script>
-</body>
-</html>
