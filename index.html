@@ -1,46 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Launch Velocity | Autonomous Revenue & Infrastructure Engine</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body {
-      min-height: 100vh;
-      background-color: #020617;
-      color: #f8fafc;
-      padding: 2.5rem 1rem;
-      line-height: 1.6;
-      position: relative;
-      overflow-x: hidden;
-    }
-    #bg-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: -1;
-      pointer-events: none;
-    }
-    .container { max-width: 1050px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
-    .badge {
-      display: inline-block;
-      background: rgba(56, 189, 248, 0.14);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      font-weight: 700;
-      font-size: 0.85rem;
-      padding: 0.4rem 1rem;
-      border-radius: 999px;
-      margin-bottom: 1.25rem;
-      backdrop-filter: blur(6px);
-    }
-    h1 {
-      font-size: 2.4rem;
-      font-weight: 800;
-      color: #ffffff;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.75rem;
-      text-shadow: 0 2px 18px rgba(56,
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Launch Velocity</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{min-height:100vh;background:#020617;color:#f8fafc;padding:2rem 1rem;overflow-x:hidden}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.wrap{max-width:1020px;margin:0 auto;text-align:center;position:relative;z-index:10}
+.badge{display:inline-block;background:rgba(56,189,248,.15);color:#38bdf8;border:1px solid rgba(56,189,248,.35);font-weight:700;font-size:.82rem;padding:.35rem .9rem;border-radius:99px;margin-bottom:1rem}
+h1{font-size:2.2rem;font-weight:800;margin-bottom:.6rem;text-shadow:0 2px 16px rgba(56,189,248,.35)}
+.sub{color:#cbd5e1;font-size:1rem;max-width:600px;margin:0 auto 1.5rem}
+input{padding:.85rem 1rem;width:100%;max-width:380px;border-radius:10px;border:1px solid rgba(56,189,248,.45);background:rgba(15,23,42,.88);color:#fff;font-size:1rem;margin-bottom:1.25rem}
+#msg{margin:0 auto 1.25rem;max-width:600px;padding:.9rem;border-radius:10px;display:none;font-weight:600;font-size:.92rem;background:rgba(15,23,42,.95);border:1px solid #38bdf8;color:#38bdf8}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:1.25rem}
+.card{background:rgba(9,15,32,.86);backdrop-filter:blur(12px);border:1px solid rgba(56,189,248,.28);border-radius:16px;padding:1.75rem 1.4rem;text-align:left;display:flex;flex-direction:column;justify-content:space-between}
+.card.feat{border:2px solid #38bdf8}
+.tier{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:#38bdf8;font-weight:700}
+.price{font-size:2.3rem;font-weight:800;margin:.35rem 0 .75rem}
+.price span{font-size:.95rem;color:#94a3b8;font-weight:400}
+ul{list-style:none;margin-bottom:1.5rem;color:#e2e8f0;font-size:.92rem}
+li{margin-bottom:.55rem;padding-left:1.3rem;position:relative}
+li::before{content:"✓";position:absolute;left:0;color:#38bdf8;font-weight:700}
+button{width:100%;padding:.9rem;border:none;border-radius:10px;background:linear-gradient(135deg,#2563eb,#38bdf8);color:#fff;font-size:1rem;font-weight:700;cursor:pointer}
+button:disabled{background:#47
