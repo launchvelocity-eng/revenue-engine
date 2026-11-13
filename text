@@ -1,2 +1,3 @@
-ReferenceError: document is not defined
-    at file:///opt/render/project/src/app.js:57:1
+User-agent: *
+Allow: /
+Sitemap: https://launchvelocity-eng.github.io/revenue-engine/sitemap.xml
