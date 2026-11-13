@@ -7,7 +7,7 @@ const app = express();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');
 const PORT = process.env.PORT || 10000;
 
-// 1. Strict Security Headers Middleware (Render & CSP Protection)
+// 1. Strict Security Headers Middleware
 app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 
 app.use(cors());
 
-// 2. Stripe Webhook Endpoint (Must use express.raw() to verify cryptographic signatures)
+// 2. Stripe Webhook Endpoint
 app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -36,35 +36,28 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
   } catch (err) {
     console.error(`❌ Webhook signature verification failed: ${err.message}`);
-    return.status(400).send(`Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle successful subscription or payment events
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     console.log(`✅ Payment successful for session ID: ${session.id}`);
-    // TODO: Trigger Resend email telemetry or database provisioning here
   }
 
-  // Return fast 200 OK to prevent Stripe timeout retries
   res.status(200).json({ received: true });
 });
 
-// JSON parser for standard API routes
 app.use(express.json());
 
-// Zod validation schema for checkout payloads
 const checkoutSchema = z.object({
   plan: z.enum(['starter', 'growth', 'enterprise']),
   email: z.string().email().optional()
 });
 
-// Health check endpoint for Render keep-alive pings
 app.get('/', (req, res) => {
   res.status(200).send('Launch Velocity Revenue Engine is live 🚀');
 });
 
-// 3. Checkout Session Route
 app.post('/create-checkout-session', async (req, res) => {
   try {
     const validation = checkoutSchema.safeParse(req.body);
@@ -74,7 +67,6 @@ app.post('/create-checkout-session', async (req, res) => {
 
     const { plan, email } = validation.data;
 
-    // Map plans to your actual Stripe Price IDs
     const priceMap = {
       starter: process.env.STRIPE_STARTER_PRICE_ID || 'price_starter_placeholder',
       growth: process.env.STRIPE_GROWTH_PRICE_ID || 'price_growth_placeholder',
