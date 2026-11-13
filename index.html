@@ -13,7 +13,6 @@
       padding: 2.5rem 1rem;
       line-height: 1.6;
       position: relative;
-      overflow-x: hidden;
     }
     #bg-canvas {
       position: fixed;
@@ -21,7 +20,7 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: -1;
+      z-index: 1;
       pointer-events: none;
     }
     .container { max-width: 1050px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
@@ -58,51 +57,14 @@
       max-width: 380px;
       border-radius: 10px;
       border: 1px solid rgba(56, 189, 248, 0.45);
-      background: rgba(15, 23, 42, 0.82);
+      background: rgba(15, 23, 42, 0.9);
       color: #fff;
       font-size: 1rem;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(10px);
     }
     .email-box input:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3); }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
     .card {
-      background: rgba(9, 15, 32, 0.8);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      border-radius: 16px;
-      padding: 2rem 1.6rem;
-      text-align: left;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
-      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-    }
-    .card:hover { transform: translateY(-4px); border-color: #38bdf8; box-shadow: 0 16px 35px rgba(56, 189, 248, 0.22); }
-    .card.featured { border: 2px solid #38bdf8; background: rgba(13, 22, 46, 0.88); }
-    .tier { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; font-weight: 700; }
-    .price { font-size: 2.5rem; font-weight: 800; color: #ffffff; margin: 0.4rem 0 0.8rem; }
-    .price span { font-size: 1rem; color: #94a3b8; font-weight: 500; }
-    ul { list-style: none; margin-bottom: 1.75rem; color: #e2e8f0; font-size: 0.95rem; }
-    ul li { margin-bottom: 0.65rem; padding-left: 1.4rem; position: relative; }
-    ul li::before { content: "✓"; position: absolute; left: 0; color: #38bdf8; font-weight: bold; }
-    button {
-      width: 100%;
-      padding: 0.95rem;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #2563eb, #38bdf8);
-      color: #ffffff;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s;
-      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.45);
-    }
-    button:hover { opacity: 0.92; transform: scale(1.01); }
-    button:disabled { background: #475569; cursor: not-allowed; box-shadow: none; }
-    #status-banner { margin: 1rem auto; max-width: 640px; padding: 1rem; border-radius: 10px; display: none; font-weight: 600; font-size: 0.95rem; }
-    .status-info { background: rgba(30, 41, 59, 0.92); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.45); backdrop-filter: blur(8px); }
-    .status-success { background: rgba(6, 78, 59, 0.92); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.45); backdrop-filter: blur(8px); }
-    .status-error { background: rgba(127, 29, 29, 0.92);
+      background: rgba(11, 19, 38, 0.92);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 16
