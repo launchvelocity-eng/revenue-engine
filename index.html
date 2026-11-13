@@ -27,15 +27,15 @@
     .container { max-width: 1050px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
     .badge {
       display: inline-block;
-      background: rgba(56, 189, 248, 0.12);
+      background: rgba(56, 189, 248, 0.14);
       color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      border: 1px solid rgba(56, 189, 248, 0.35);
       font-weight: 700;
       font-size: 0.85rem;
       padding: 0.4rem 1rem;
       border-radius: 999px;
       margin-bottom: 1.25rem;
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(6px);
     }
     h1 {
       font-size: 2.4rem;
@@ -43,10 +43,10 @@
       color: #ffffff;
       letter-spacing: -0.02em;
       margin-bottom: 0.75rem;
-      text-shadow: 0 2px 15px rgba(56, 189, 248, 0.3);
+      text-shadow: 0 2px 18px rgba(56, 189, 248, 0.35);
     }
     .subtitle {
-      color: #94a3b8;
+      color: #cbd5e1;
       font-size: 1.05rem;
       max-width: 640px;
       margin: 0 auto 2rem;
@@ -57,18 +57,18 @@
       width: 100%;
       max-width: 380px;
       border-radius: 10px;
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      background: rgba(15, 23, 42, 0.82);
       color: #fff;
       font-size: 1rem;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(10px);
     }
     .email-box input:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3); }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
     .card {
-      background: rgba(11, 19, 38, 0.85);
-      backdrop-filter: blur(12px);
+      background: rgba(9, 15, 32, 0.8);
+      backdrop-filter: blur(14px);
       border: 1px solid rgba(56, 189, 248, 0.25);
       border-radius: 16px;
       padding: 2rem 1.6rem;
@@ -76,15 +76,15 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
       transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
     }
-    .card:hover { transform: translateY(-4px); border-color: #38bdf8; box-shadow: 0 16px 35px rgba(56, 189, 248, 0.2); }
-    .card.featured { border: 2px solid #38bdf8; background: rgba(15, 23, 42, 0.92); }
+    .card:hover { transform: translateY(-4px); border-color: #38bdf8; box-shadow: 0 16px 35px rgba(56, 189, 248, 0.22); }
+    .card.featured { border: 2px solid #38bdf8; background: rgba(13, 22, 46, 0.88); }
     .tier { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; font-weight: 700; }
     .price { font-size: 2.5rem; font-weight: 800; color: #ffffff; margin: 0.4rem 0 0.8rem; }
     .price span { font-size: 1rem; color: #94a3b8; font-weight: 500; }
-    ul { list-style: none; margin-bottom: 1.75rem; color: #cbd5e1; font-size: 0.95rem; }
+    ul { list-style: none; margin-bottom: 1.75rem; color: #e2e8f0; font-size: 0.95rem; }
     ul li { margin-bottom: 0.65rem; padding-left: 1.4rem; position: relative; }
     ul li::before { content: "✓"; position: absolute; left: 0; color: #38bdf8; font-weight: bold; }
     button {
@@ -98,18 +98,18 @@
       font-weight: 700;
       cursor: pointer;
       transition: opacity 0.2s, transform 0.1s;
-      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.45);
     }
-    button:hover { opacity: 0.9; transform: scale(1.01); }
+    button:hover { opacity: 0.92; transform: scale(1.01); }
     button:disabled { background: #475569; cursor: not-allowed; box-shadow: none; }
     #status-banner { margin: 1rem auto; max-width: 640px; padding: 1rem; border-radius: 10px; display: none; font-weight: 600; font-size: 0.95rem; }
-    .status-info { background: rgba(30, 41, 59, 0.9); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); backdrop-filter: blur(8px); }
-    .status-success { background: rgba(6, 78, 59, 0.9); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); backdrop-filter: blur(8px); }
-    .status-error { background: rgba(127, 29, 29, 0.9); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); backdrop-filter: blur(8px); }
+    .status-info { background: rgba(30, 41, 59, 0.92); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.45); backdrop-filter: blur(8px); }
+    .status-success { background: rgba(6, 78, 59, 0.92); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.45); backdrop-filter: blur(8px); }
+    .status-error { background: rgba(127, 29, 29, 0.92); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.45); backdrop-filter: blur(8px); }
   </style>
 </head>
 <body>
-  <!-- Live Circuit Traveling Data Tunnel Canvas -->
+  <!-- Live 3D Particle Tunnel & Energy Wave Canvas -->
   <canvas id="bg-canvas"></canvas>
 
   <div class="container">
@@ -172,10 +172,10 @@
   </div>
 
   <script>
-    // --- LIVE CIRCUIT TRAVEL & COLOR-FADING BACKGROUND ENGINE ---
+    // --- LIVE 3D PERSPECTIVE TUNNEL & WAVE MORPHING BACKGROUND ---
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
-    
+
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -183,75 +183,137 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Create circuit nodes and traveling data pulses
-    let pulses = [];
-    for (let i = 0; i < 40; i++) {
-      pulses.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        speedX: (Math.random() - 0.5) * 1.5,
-        speedY: (Math.random() - 0.5) * 1.5,
-        length: Math.random() * 60 + 30,
-        colorIndex: Math.random()
+    // Generate 3D Tunnel Particles (rectangular/corridor particle field)
+    const tunnelParticles = [];
+    const numTunnel = 420;
+    for (let i = 0; i < numTunnel; i++) {
+      // Place particles mostly along the 4 walls of a 3D corridor
+      const wall = i % 4;
+      let x, y;
+      if (wall === 0) { x = -1; y = (Math.random() * 2 - 1); }      // Left wall
+      else if (wall === 1) { x = 1; y = (Math.random() * 2 - 1); }  // Right wall
+      else if (wall === 2) { x = (Math.random() * 2 - 1); y = -1; } // Ceiling
+      else { x = (Math.random() * 2 - 1); y = 1; }                  // Floor
+
+      tunnelParticles.push({
+        x: x * (0.95 + Math.random() * 0.25),
+        y: y * (0.95 + Math.random() * 0.25),
+        z: Math.random() * 2.5 + 0.1,
+        size: Math.random() * 2.2 + 0.8,
+        bright: Math.random() > 0.75
       });
     }
 
-    let colorCycle = 0;
+    // Generate 3D Undulating Particle Wave Mesh
+    const waveParticles = [];
+    const cols = 32;
+    const rows = 22;
+    for (let c = 0; c < cols; c++) {
+      for (let r = 0; r < rows; r++) {
+        waveParticles.push({
+          gx: (c / cols) * 2 - 0.8,
+          gy: (r / rows) * 2 - 1,
+          phase: c * 0.35 + r * 0.25
+        });
+      }
+    }
 
-    function animateCircuit() {
-      // Smooth color-shifting background fade (indigo to deep electric blue)
-      colorCycle += 0.002;
-      const alphaVal = 0.22 + Math.sin(colorCycle) * 0.05;
-      ctx.fillStyle = `rgba(2, 6, 23, ${alphaVal})`;
+    let time = 0;
+
+    function renderFrame() {
+      time += 0.014;
+
+      // Smoothly oscillate blend factor between 0 (3D Tunnel) and 1 (3D Energy Wave)
+      const morphBlend = (Math.sin(time * 0.35) + 1) / 2;
+      const tunnelAlpha = 1 - morphBlend;
+      const waveAlpha = morphBlend;
+
+      // Deep space radial backdrop
+      const bgGrad = ctx.createRadialGradient(
+        canvas.width * 0.5, canvas.height * 0.5, 20,
+        canvas.width * 0.5, canvas.height * 0.5, Math.max(canvas.width, canvas.height) * 0.8
+      );
+      bgGrad.addColorStop(0, '#071938');
+      bgGrad.addColorStop(0.5, '#030b1c');
+      bgGrad.addColorStop(1, '#010409');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw grid lines resembling circuit pathways
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.07)';
-      ctx.lineWidth = 1;
-      const gridSize = 60;
-      
-      for (let x = 0; x < canvas.width; x += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
+      const cx = canvas.width * 0.5;
+      const cy = canvas.height * 0.5;
+      const fov = Math.min(canvas.width, canvas.height) * 0.65;
+
+      // --- SCENE 1: 3D PERSPECTIVE PARTICLE TUNNEL ---
+      if (tunnelAlpha > 0.02) {
+        // Vanishing point core glow
+        const coreGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, 180);
+        coreGrad.addColorStop(0, `rgba(125, 211, 252, ${0.55 * tunnelAlpha})`);
+        coreGrad.addColorStop(0.4, `rgba(37, 99, 235, ${0.22 * tunnelAlpha})`);
+        coreGrad.addColorStop(1, 'rgba(2, 6, 23, 0)');
+        ctx.fillStyle = coreGrad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Glowing corridor rail lines
+        ctx.strokeStyle = `rgba(56, 189, 248, ${0.35 * tunnelAlpha})`;
+        ctx.lineWidth = 2;
+        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([rx, ry]) => {
+          ctx.beginPath();
+          ctx.moveTo(cx + rx * 28, cy + ry * 20);
+          ctx.lineTo(cx + rx * canvas.width * 0.65, cy + ry * canvas.height * 0.65);
+          ctx.stroke();
+        });
+
+        // Move and project particles racing toward the viewer
+        tunnelParticles.forEach(p => {
+          p.z -= 0.012;
+          if (p.z <= 0.08) p.z = 2.5;
+
+          const scale = fov / p.z;
+          const sx = cx + p.x * scale * 0.55;
+          const sy = cy + p.y * scale * 0.45;
+          const radius = Math.max(0.6, (p.size / p.z) * 1.15);
+          const depthFade = Math.min(1, (2.5 - p.z) / 1.5);
+
+          ctx.fillStyle = p.bright
+            ? `rgba(224, 242, 254, ${depthFade * tunnelAlpha * 0.95})`
+            : `rgba(56, 189, 248, ${depthFade * tunnelAlpha * 0.75})`;
+          ctx.beginPath();
+          ctx.arc(sx, sy, radius, 0, Math.PI * 2);
+          ctx.fill();
+        });
       }
-      for (let y = 0; y < canvas.height; y += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
+
+      // --- SCENE 2: 3D UNDULATING PARTICLE WAVE & FLARE ---
+      if (waveAlpha > 0.02) {
+        // Central bright flare burst
+        const flareX = canvas.width * 0.55;
+        const flareY = canvas.height * 0.5;
+        const flareGrad = ctx.createRadialGradient(flareX, flareY, 2, flareX, flareY, 220);
+        flareGrad.addColorStop(0, `rgba(255, 255, 255, ${0.85 * waveAlpha})`);
+        flareGrad.addColorStop(0.18, `rgba(56, 189, 248, ${0.55 * waveAlpha})`);
+        flareGrad.addColorStop(0.5, `rgba(29, 78, 216, ${0.2 * waveAlpha})`);
+        flareGrad.addColorStop(1, 'rgba(2, 6, 23, 0)');
+        ctx.fillStyle = flareGrad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Project rippling 3D wave dots
+        waveParticles.forEach(wp => {
+          const waveZ = 1.4 + Math.sin(wp.phase + time * 1.8) * 0.35 + Math.cos(wp.gy * 3 + time) * 0.25;
+          const scale = fov / waveZ;
+          const sx = flareX + wp.gx * scale * 0.65;
+          const sy = cy + wp.gy * scale * 0.55;
+          const dotSize = Math.max(1, (2.2 / waveZ));
+
+          ctx.fillStyle = `rgba(96, 165, 250, ${0.85 * waveAlpha})`;
+          ctx.beginPath();
+          ctx.arc(sx, sy, dotSize, 0, Math.PI * 2);
+          ctx.fill();
+        });
       }
 
-      // Draw traveling data packets along circuits
-      pulses.forEach(p => {
-        p.x += p.speedX;
-        p.y += p.speedY;
-
-        if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
-
-        const grad = ctx.createLinearGradient(p.x, p.y, p.x - p.speedX * p.length, p.y - p.speedY * p.length);
-        grad.addColorStop(0, 'rgba(56, 189, 248, 0.9)');
-        grad.addColorStop(1, 'rgba(37, 99, 235, 0)');
-
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x - p.speedX * p.length, p.y - p.speedY * p.length);
-        ctx.stroke();
-
-        // Glowing node head
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      requestAnimationFrame(animateCircuit);
+      requestAnimationFrame(renderFrame);
     }
-    animateCircuit();
+    renderFrame();
 
     // --- CHECKOUT & RENDER BACKEND LOGIC ---
     const BACKEND_URL = 'https://revenue-engine-dx5d.onrender.com';
