@@ -1,33 +1,99 @@
-let selectedPlan = 'starter';
+import express from 'express';
+import cors from 'cors';
+import Stripe from 'stripe';
+import { Resend } from 'resend';
 
-function selectPlan(plan) {
-  selectedPlan = plan;
-  // Visual feedback: highlight selected card, switch tab to step 2
-  document.querySelectorAll('.card').forEach(c => c.style.borderColor = '#1f2937');
-  event.currentTarget.style.borderColor = '#38bdf8';
-}
+const app = express();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-async function confirmAndProvision() {
-  const banner = document.getElementById('status-banner');
-  banner.style.display = 'block';
-  banner.className = 'status-info';
-  banner.textContent = '⏳ Waking up Render engine & creating secure Stripe session...';
+app.use(cors());
+
+app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
 
   try {
-    const response = await fetch('https://revenue-engine-dx5d.onrender.com/create-checkout-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan: selectedPlan })
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error('Webhook error:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const customerEmail = session.customer_details?.email || session.customer_email;
+    const planName = session.metadata?.planName || 'Launch Velocity Plan';
+    const amountTotal = session.amount_total ? (session.amount_total / 100).toFixed(2) : '0.00';
+
+    try {
+      if (customerEmail) {
+        await resend.emails.send({
+          from: 'Launch Velocity <onboarding@resend.dev>',
+          to: customerEmail,
+          subject: `Provisioning Confirmed: ${planName}`,
+          html: `<h2>Welcome!</h2><p>Your subscription for <strong>${planName}</strong> ($${amountTotal}/mo) is active.</p>`
+        });
+      }
+
+      await resend.emails.send({
+        from: 'Launch Velocity Alerts <onboarding@resend.dev>',
+        to: 'launchvelocityadmin2026@gmail.com',
+        subject: `New Subscriber: ${planName} ($${amountTotal})`,
+        html: `<p>Customer: ${customerEmail}</p><p>Plan: ${planName} ($${amountTotal}/mo)</p>`
+      });
+    } catch (e) {
+      console.error('Email dispatch error:', e);
+    }
+  }
+
+  res.json({ received: true });
+});
+
+app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.send('Launch Velocity Revenue Engine is live.');
+});
+
+const PLAN_PRICES = {
+  starter: { name: 'Starter Engine', amount: 4900 },
+  growth: { name: 'Growth Suite', amount: 14900 },
+  enterprise: { name: 'Zero-Trust Enterprise', amount: 39900 }
+};
+
+app.post('/create-checkout-session', async (req, res) => {
+  try {
+    const { plan, email } = req.body;
+    const selected = PLAN_PRICES[plan] || PLAN_PRICES.starter;
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      customer_email: email || undefined,
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: { name: selected.name },
+            unit_amount: selected.amount,
+            recurring: { interval: 'month' }
+          },
+          quantity: 1
+        }
+      ],
+      metadata: { planName: selected.name },
+      success_url: 'https://launchvelocity-eng.github.io/revenue-engine/?success=true',
+      cancel_url: 'https://launchvelocity-eng.github.io/revenue-engine/?canceled=true'
     });
 
-    const data = await response.json();
-    if (data.url) {
-      window.location.href = data.url; // Straight to Stripe Checkout!
-    } else {
-      throw new Error(data.error || 'Checkout failed');
-    }
-  } catch (err) {
-    banner.className = 'status-error';
-    banner.textContent = `❌ Error: ${err.message}`;
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('Checkout error:', error);
+    res.status(500).json({ error: error.message });
   }
-}
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server listening on port ${PORT}`);
+});
