@@ -92,41 +92,4 @@ async function runDeclutterAssistantWorker() {
     console.log(`[DECLUTTER ASSISTANT] Optimization complete. Purged ${res.rowCount} records.`);
   } catch (error) {
     if (client) await client.query('ROLLBACK');
-    console.error('[DECLUTTER ERROR] Optimization failed:', error.message);
-  } finally {
-    if (client) client.release();
-  }
-}
-
-setInterval(runLeaseAuditWorker, 5 * 60 * 1000);
-setInterval(runDeclutterAssistantWorker, 10 * 60 * 1000);
-
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'HEALTHY', engine: 'Launch Velocity Operational' });
-});
-
-app.get('/api/db-ping', async (req, res) => {
-  if (!pool) {
-    return res.status(503).json({ status: 'NOT_CONFIGURED', message: 'Database URL not provided.' });
-  }
-  let client;
-  try {
-    client = await pool.connect();
-    const dbResponse = await client.query('SELECT NOW() as current_server_time, count(*) from tenant_vaults;');
-    res.status(200).json({
-      status: 'CONNECTED',
-      database_time: dbResponse.rows[0].current_server_time,
-      active_vaults: parseInt(dbResponse.rows[0].count, 10),
-      pool: { total: pool.totalCount, idle: pool.idleCount }
-    });
-  } catch (error) {
-    res.status(500).json({ status: 'CONNECTION_FAILED', error: error.message });
-  } finally {
-    if (client) client.release();
-  }
-});
-
-app.post('/api/vault/upload', (req, res) => {
-  const authKey = req.headers['x-vault-gatekeeper-key'];
-  if (!authKey) {
-    return res.status(401).json({ error: 'UNAUTHORIZED',
+    console.error('[DECLUTTER ERROR] Optimization failed:', error.message
