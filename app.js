@@ -92,4 +92,4 @@ async function runDeclutterAssistantWorker() {
     console.log(`[DECLUTTER ASSISTANT] Optimization complete. Purged ${res.rowCount} records.`);
   } catch (error) {
     if (client) await client.query('ROLLBACK');
-    console.error('[DECLUTTER ERROR] Optimization failed:', error.message
+    
