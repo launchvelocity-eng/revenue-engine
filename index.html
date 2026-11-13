@@ -3,25 +3,121 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Launch Velocity</title>
+<title>Launch Velocity | Autonomous Revenue Engine</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-body{min-height:100vh;background:#020617;color:#f8fafc;padding:2rem 1rem;overflow-x:hidden}
+body{min-height:100vh;background:#020617;color:#f8fafc;padding:2rem 1rem;overflow-x:hidden;position:relative}
 #bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
 .wrap{max-width:1020px;margin:0 auto;text-align:center;position:relative;z-index:10}
-.badge{display:inline-block;background:rgba(56,189,248,.15);color:#38bdf8;border:1px solid rgba(56,189,248,.35);font-weight:700;font-size:.82rem;padding:.35rem .9rem;border-radius:99px;margin-bottom:1rem}
+.badge{display:inline-block;background:rgba(56,189,248,.15);color:#38bdf8;border:1px solid rgba(56,189,248,.35);font-weight:700;font-size:.82rem;padding:.35rem .9rem;border-radius:99px;margin-bottom:1rem;backdrop-filter:blur(6px)}
 h1{font-size:2.2rem;font-weight:800;margin-bottom:.6rem;text-shadow:0 2px 16px rgba(56,189,248,.35)}
 .sub{color:#cbd5e1;font-size:1rem;max-width:600px;margin:0 auto 1.5rem}
-input{padding:.85rem 1rem;width:100%;max-width:380px;border-radius:10px;border:1px solid rgba(56,189,248,.45);background:rgba(15,23,42,.88);color:#fff;font-size:1rem;margin-bottom:1.25rem}
-#msg{margin:0 auto 1.25rem;max-width:600px;padding:.9rem;border-radius:10px;display:none;font-weight:600;font-size:.92rem;background:rgba(15,23,42,.95);border:1px solid #38bdf8;color:#38bdf8}
+.email-box{margin-bottom:1.25rem}
+input{padding:.85rem 1rem;width:100%;max-width:380px;border-radius:10px;border:1px solid rgba(56,189,248,.45);background:rgba(15,23,42,.88);color:#fff;font-size:1rem;box-shadow:0 4px 20px rgba(0,0,0,0.6);backdrop-filter:blur(10px)}
+input:focus{outline:none;border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,0.3)}
+#msg{margin:0 auto 1.25rem;max-width:600px;padding:.9rem;border-radius:10px;display:none;font-weight:600;font-size:.92rem;background:rgba(15,23,42,.95);border:1px solid #38bdf8;color:#38bdf8;backdrop-filter:blur(8px)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:1.25rem}
-.card{background:rgba(9,15,32,.86);backdrop-filter:blur(12px);border:1px solid rgba(56,189,248,.28);border-radius:16px;padding:1.75rem 1.4rem;text-align:left;display:flex;flex-direction:column;justify-content:space-between}
-.card.feat{border:2px solid #38bdf8}
+.card{background:rgba(9,15,32,.86);backdrop-filter:blur(12px);border:1px solid rgba(56,189,248,.28);border-radius:16px;padding:1.75rem 1.4rem;text-align:left;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 12px 30px rgba(0,0,0,0.55);transition:transform .2s,border-color .2s}
+.card:hover{transform:translateY(-4px);border-color:#38bdf8}
+.card.feat{border:2px solid #38bdf8;background:rgba(13,22,46,.92)}
 .tier{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:#38bdf8;font-weight:700}
 .price{font-size:2.3rem;font-weight:800;margin:.35rem 0 .75rem}
 .price span{font-size:.95rem;color:#94a3b8;font-weight:400}
 ul{list-style:none;margin-bottom:1.5rem;color:#e2e8f0;font-size:.92rem}
 li{margin-bottom:.55rem;padding-left:1.3rem;position:relative}
 li::before{content:"✓";position:absolute;left:0;color:#38bdf8;font-weight:700}
-button{width:100%;padding:.9rem;border:none;border-radius:10px;background:linear-gradient(135deg,#2563eb,#38bdf8);color:#fff;font-size:1rem;font-weight:700;cursor:pointer}
-button:disabled{background:#47
+button{width:100%;padding:.9rem;border:none;border-radius:10px;background:linear-gradient(135deg,#2563eb,#38bdf8);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(37,99,235,0.45);transition:opacity .2s}
+button:hover{opacity:.92}
+button:disabled{background:#475569;cursor:not-allowed;box-shadow:none}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="wrap">
+  <div class="badge">⚡ Launch Velocity Infrastructure</div>
+  <h1>Deploy revenue-ready software at wire speed.</h1>
+  <p class="sub">Turnkey subscription billing, automated Resend telemetry, Zero-Trust payload security, and Digital Declutter sanitation.</p>
+  
+  <div class="email-box">
+    <input type="email" id="email" placeholder="Enter your email for provisioning & receipts...">
+  </div>
+  
+  <div id="msg"></div>
+
+  <div class="grid">
+    <!-- Starter Engine -->
+    <div class="card">
+      <div>
+        <div class="tier">Starter Engine</div>
+        <div class="price">$49<span>/month</span></div>
+        <ul>
+          <li>Automated Stripe Subscription Billing</li>
+          <li>Instant Customer Receipts & Admin Alerts</li>
+          <li>Managed REST API & Webhook Endpoints</li>
+          <li>Basic Storage Audit Telemetry</li>
+        </ul>
+      </div>
+      <button type="button" onclick="go('starter',this)">Deploy Starter →</button>
+    </div>
+
+    <!-- Growth Suite -->
+    <div class="card feat">
+      <div>
+        <div class="tier">Growth Suite</div>
+        <div class="price">$149<span>/month</span></div>
+        <ul>
+          <li>Everything in Starter Engine</li>
+          <li>Dedicated PostgreSQL Persistence</li>
+          <li>Digital Declutter Assistant (SHA-256 & Stale Log Scans)</li>
+          <li>Real-Time Storage Telemetry Dashboard</li>
+        </ul>
+      </div>
+      <button type="button" onclick="go('growth',this)">Deploy Growth →</button>
+    </div>
+
+    <!-- Enterprise Tier -->
+    <div class="card">
+      <div>
+        <div class="tier">Zero-Trust Enterprise</div>
+        <div class="price">$399<span>/month</span></div>
+        <ul>
+          <li>Everything in Growth Suite</li>
+          <li>ZeroTrustMagicByteShield Binary Inspection</li>
+          <li>Automated Quarantine & Retention Purge Engine</li>
+          <li>Priority SLA & Dedicated Provisioning</li>
+        </ul>
+      </div>
+      <button type="button" onclick="go('enterprise',this)">Deploy Enterprise →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- LIVE 3D TUNNEL & WAVE BACKGROUND ANIMATION ---
+const c = document.getElementById('bg'), x = c.getContext('2d');
+function rs() { c.width = innerWidth; c.height = innerHeight; }
+addEventListener('resize', rs); rs();
+
+const pts = Array.from({length:360}, (_,i) => {
+  const w = i % 4;
+  return {
+    x: (w === 0 ? -1 : w === 1 ? 1 : Math.random() * 2 - 1) * (0.95 + Math.random() * 0.25),
+    y: (w === 2 ? -1 : w === 3 ? 1 : Math.random() * 2 - 1) * (0.95 + Math.random() * 0.25),
+    z: Math.random() * 2.5 + 0.1,
+    s: Math.random() * 2 + 0.8
+  };
+});
+
+const wv = [];
+for (let i = 0; i < 28; i++) {
+  for (let j = 0; j < 18; j++) {
+    wv.push({ gx: (i / 28) * 2 - 0.8, gy: (j / 18) * 2 - 1, p: i * 0.35 + j * 0.25 });
+  }
+}
+
+let t = 0;
+function loop() {
+  t += 0.014;
+  const b = (Math.sin(t * 0.32) + 1) / 2, ta = 1 - b, wa = b;
+  
+  const g = x.createRadialGradient(c.width/2, c.height/2, 20, c.width/2, c.height/2, Math.max(c.width, c.height) * 0.
