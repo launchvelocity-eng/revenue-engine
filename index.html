@@ -1,253 +1,108 @@
-  <script>
-    // --- HIGH-DETAIL 3D TUNNEL + PCB CIRCUIT TRACE ENGINE ---
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d');
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Launch Velocity | Autonomous Revenue & Infrastructure Engine</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body {
+      min-height: 100vh;
+      background-color: #020617;
+      color: #f8fafc;
+      padding: 2.5rem 1rem;
+      line-height: 1.6;
+      position: relative;
+      overflow-x: hidden;
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    // 1. 3D Corridor Particles with Depth-of-Field Bokeh
-    const tunnelParticles = [];
-    for (let i = 0; i < 480; i++) {
-      const wall = i % 4;
-      let x, y;
-      if (wall === 0) { x = -1; y = Math.random() * 2 - 1; }
-      else if (wall === 1) { x = 1; y = Math.random() * 2 - 1; }
-      else if (wall === 2) { x = Math.random() * 2 - 1; y = -1; }
-      else { x = Math.random() * 2 - 1; y = 1; }
-
-      tunnelParticles.push({
-        x: x * (0.92 + Math.random() * 0.3),
-        y: y * (0.92 + Math.random() * 0.3),
-        z: Math.random() * 2.6 + 0.1,
-        size: Math.random() * 2.4 + 0.7,
-        hue: Math.random() > 0.3 ? '56, 189, 248' : '129, 140, 248' // Cyan & Indigo mix
-      });
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
     }
-
-    // 2. 90-Degree PCB Microchip Traces & Traveling Packets
-    const traces = [];
-    for (let i = 0; i < 28; i++) {
-      const startX = Math.random() * canvas.width;
-      const startY = Math.random() * canvas.height;
-      const len1 = (Math.random() > 0.5 ? 1 : -1) * (60 + Math.random() * 140);
-      const len2 = (Math.random() > 0.5 ? 1 : -1) * (60 + Math.random() * 140);
-      traces.push({
-        x1: startX, y1: startY,
-        x2: startX + len1, y2: startY,
-        x3: startX + len1, y3: startY + len2,
-        progress: Math.random(),
-        speed: 0.004 + Math.random() * 0.006
-      });
+    .container { max-width: 1050px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
+    .badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.14);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1.25rem;
+      backdrop-filter: blur(6px);
     }
-
-    // 3. Undulating 3D Particle Wave Mesh
-    const waveParticles = [];
-    const cols = 34, rows = 24;
-    for (let c = 0; c < cols; c++) {
-      for (let r = 0; r < rows; r++) {
-        waveParticles.push({
-          gx: (c / cols) * 2 - 0.85,
-          gy: (r / rows) * 2 - 1,
-          phase: c * 0.35 + r * 0.25
-        });
-      }
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+      text-shadow: 0 2px 18px rgba(56, 189, 248, 0.35);
     }
-
-    let time = 0;
-
-    function renderFrame() {
-      time += 0.014;
-      const morphBlend = (Math.sin(time * 0.32) + 1) / 2;
-      const tunnelAlpha = 1 - morphBlend;
-      const waveAlpha = morphBlend;
-
-      // Deep cyber radial gradient
-      const bgGrad = ctx.createRadialGradient(
-        canvas.width * 0.5, canvas.height * 0.45, 20,
-        canvas.width * 0.5, canvas.height * 0.45, Math.max(canvas.width, canvas.height) * 0.85
-      );
-      bgGrad.addColorStop(0, '#091e42');
-      bgGrad.addColorStop(0.55, '#030b1c');
-      bgGrad.addColorStop(1, '#010409');
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Draw subtle PCB Traces + Glowing Data Packets (always active in background)
-      traces.forEach(t => {
-        t.progress += t.speed;
-        if (t.progress > 1) t.progress = 0;
-
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.09)';
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.moveTo(t.x1, t.y1);
-        ctx.lineTo(t.x2, t.y2);
-        ctx.lineTo(t.x3, t.y3);
-        ctx.stroke();
-
-        // Solder pads at ends
-        ctx.fillStyle = 'rgba(56, 189, 248, 0.22)';
-        ctx.beginPath();
-        ctx.arc(t.x1, t.y1, 2.2, 0, Math.PI * 2);
-        ctx.arc(t.x3, t.y3, 2.2, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Traveling energy pulse along the L-shaped trace
-        let px, py;
-        if (t.progress < 0.5) {
-          const seg = t.progress * 2;
-          px = t.x1 + (t.x2 - t.x1) * seg;
-          py = t.y1;
-        } else {
-          const seg = (t.progress - 0.5) * 2;
-          px = t.x2;
-          py = t.y2 + (t.y3 - t.y2) * seg;
-        }
-
-        ctx.fillStyle = 'rgba(186, 230, 253, 0.85)';
-        ctx.beginPath();
-        ctx.arc(px, py, 2, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      const cx = canvas.width * 0.5;
-      const cy = canvas.height * 0.5;
-      const fov = Math.min(canvas.width, canvas.height) * 0.68;
-
-      // Scene 1: 3D Perspective Tunnel
-      if (tunnelAlpha > 0.02) {
-        const coreGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, 200);
-        coreGrad.addColorStop(0, `rgba(125, 211, 252, ${0.6 * tunnelAlpha})`);
-        coreGrad.addColorStop(0.4, `rgba(37, 99, 235, ${0.24 * tunnelAlpha})`);
-        coreGrad.addColorStop(1, 'rgba(2, 6, 23, 0)');
-        ctx.fillStyle = coreGrad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Perspective grid rings inside tunnel
-        for (let r = 0.4; r <= 2.4; r += 0.5) {
-          const zRing = ((r - (time * 0.45) % 0.5) + 2.5) % 2.5 + 0.15;
-          const s = fov / zRing;
-          const ringAlpha = Math.min(0.28, (2.6 - zRing) / 6) * tunnelAlpha;
-          ctx.strokeStyle = `rgba(56, 189, 248, ${ringAlpha})`;
-          ctx.lineWidth = 1;
-          ctx.strokeRect(cx - s * 0.55, cy - s * 0.45, s * 1.1, s * 0.9);
-        }
-
-        tunnelParticles.forEach(p => {
-          p.z -= 0.013;
-          if (p.z <= 0.08) p.z = 2.6;
-
-          const scale = fov / p.z;
-          const sx = cx + p.x * scale * 0.55;
-          const sy = cy + p.y * scale * 0.45;
-          const radius = Math.max(0.6, (p.size / p.z) * 1.2);
-          const depthFade = Math.min(1, (2.6 - p.z) / 1.5);
-
-          ctx.fillStyle = `rgba(${p.hue}, ${depthFade * tunnelAlpha * 0.88})`;
-          ctx.beginPath();
-          ctx.arc(sx, sy, radius, 0, Math.PI * 2);
-          ctx.fill();
-        });
-      }
-
-      // Scene 2: 3D Undulating Particle Wave & Flare
-      if (waveAlpha > 0.02) {
-        const flareX = canvas.width * 0.55;
-        const flareY = canvas.height * 0.5;
-        const flareGrad = ctx.createRadialGradient(flareX, flareY, 2, flareX, flareY, 240);
-        flareGrad.addColorStop(0, `rgba(255, 255, 255, ${0.85 * waveAlpha})`);
-        flareGrad.addColorStop(0.2, `rgba(56, 189, 248, ${0.55 * waveAlpha})`);
-        flareGrad.addColorStop(0.55, `rgba(79, 70, 229, ${0.22 * waveAlpha})`);
-        flareGrad.addColorStop(1, 'rgba(2, 6, 23, 0)');
-        ctx.fillStyle = flareGrad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        waveParticles.forEach(wp => {
-          const waveZ = 1.35 + Math.sin(wp.phase + time * 1.8) * 0.35 + Math.cos(wp.gy * 3 + time) * 0.25;
-          const scale = fov / waveZ;
-          const sx = flareX + wp.gx * scale * 0.65;
-          const sy = cy + wp.gy * scale * 0.55;
-          const dotSize = Math.max(1, (2.3 / waveZ));
-
-          ctx.fillStyle = `rgba(96, 165, 250, ${0.88 * waveAlpha})`;
-          ctx.beginPath();
-          ctx.arc(sx, sy, dotSize, 0, Math.PI * 2);
-          ctx.fill();
-        });
-      }
-
-      requestAnimationFrame(renderFrame);
+    .subtitle {
+      color: #cbd5e1;
+      font-size: 1.05rem;
+      max-width: 640px;
+      margin: 0 auto 2rem;
     }
-    renderFrame();
-
-    // --- CHECKOUT & RENDER BACKEND LOGIC (Extended 75s Wake-up Retry) ---
-    const BACKEND_URL = 'https://revenue-engine-dx5d.onrender.com';
-    const banner = document.getElementById('status-banner');
-
-    fetch(`${BACKEND_URL}/`).catch(() => {});
-
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('success') === 'true') {
-      banner.style.display = 'block';
-      banner.className = 'status-success';
-      banner.textContent = '✅ Payment confirmed! Check your email for your Launch Velocity provisioning receipt.';
-    } else if (params.get('canceled') === 'true') {
-      banner.style.display = 'block';
-      banner.className = 'status-error';
-      banner.textContent = '⚠️ Checkout was canceled. Select a plan below whenever you are ready.';
+    .email-box { margin-bottom: 1.75rem; }
+    .email-box input {
+      padding: 0.9rem 1.1rem;
+      width: 100%;
+      max-width: 380px;
+      border-radius: 10px;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      background: rgba(15, 23, 42, 0.82);
+      color: #fff;
+      font-size: 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
     }
-
-    async function fetchWithWakeupRetry(url, options, retries = 5) {
-      for (let i = 0; i < retries; i++) {
-        try {
-          const res = await fetch(url, options);
-          return res;
-        } catch (err) {
-          if (i === retries - 1) throw err;
-          banner.textContent = `⏳ Engine is waking up from cold sleep... retrying (${i + 2}/${retries})...`;
-          await new Promise(r => setTimeout(r, 15000));
-        }
-      }
+    .email-box input:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .card {
+      background: rgba(9, 15, 32, 0.8);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 16px;
+      padding: 2rem 1.6rem;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
     }
-
-    async function startCheckout(plan, btnElement) {
-      const email = document.getElementById('customer-email').value.trim();
-      const allButtons = document.querySelectorAll('button');
-      
-      allButtons.forEach(b => b.disabled = true);
-      const originalText = btnElement.textContent;
-      btnElement.textContent = 'Connecting...';
-
-      banner.style.display = 'block';
-      banner.className = 'status-info';
-      banner.textContent = '⏳ Connecting to Launch Velocity engine & generating Stripe session...';
-
-      try {
-        const response = await fetchWithWakeupRetry(`${BACKEND_URL}/create-checkout-session`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan, email })
-        });
-
-        const data = await response.json();
-
-        if (data.url) {
-          banner.textContent = '🚀 Redirecting to Stripe Checkout...';
-          window.location.href = data.url;
-        } else {
-          throw new Error(data.error || 'No checkout URL returned from server.');
-        }
-      } catch (err) {
-        console.error(err);
-        banner.className = 'status-error';
-        banner.textContent = '❌ Server is still waking up or offline on Render. Check Render dashboard status and try again in 30 seconds.';
-        allButtons.forEach(b => b.disabled = false);
-        btnElement.textContent = originalText;
-      }
+    .card:hover { transform: translateY(-4px); border-color: #38bdf8; box-shadow: 0 16px 35px rgba(56, 189, 248, 0.22); }
+    .card.featured { border: 2px solid #38bdf8; background: rgba(13, 22, 46, 0.88); }
+    .tier { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: #38bdf8; font-weight: 700; }
+    .price { font-size: 2.5rem; font-weight: 800; color: #ffffff; margin: 0.4rem 0 0.8rem; }
+    .price span { font-size: 1rem; color: #94a3b8; font-weight: 500; }
+    ul { list-style: none; margin-bottom: 1.75rem; color: #e2e8f0; font-size: 0.95rem; }
+    ul li { margin-bottom: 0.65rem; padding-left: 1.4rem; position: relative; }
+    ul li::before { content: "✓"; position: absolute; left: 0; color: #38bdf8; font-weight: bold; }
+    button {
+      width: 100%;
+      padding: 0.95rem;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb, #38bdf8);
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.45);
     }
-  </script>
+    button:hover { opacity: 0.92; transform: scale(1.01); }
+    button:disabled { background: #475569; cursor: not-allowed; box-shadow: none; }
+    #status-banner { margin: 1rem auto; max-width: 640px; padding: 1rem; border-radius: 10px; display: none; font-weight: 600; font-size: 0.95rem; }
+    .status-info { background: rgba(30, 41, 59, 0.92); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.45); backdrop-filter: blur(8px); }
+    .status-success { background: rgba(6, 78, 59, 0.92); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.45); backdrop-filter: blur(8px); }
+    .status-error { background: rgba(127, 29, 29, 0.92);
