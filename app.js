@@ -21,9 +21,11 @@ const pool = process.env.DATABASE_URL
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
+// Updated Pricing Tiers ($99 / $299 / $999)
 const TIERS = {
-  starter: { name: 'Starter Engine', priceCents: 4900, priceId: process.env.STRIPE_PRICE_STARTER },
-  growth: { name: 'Growth Suite', priceCents: 14900, priceId: process.env.STRIPE_PRICE_GROWTH }
+  starter: { name: 'Starter Engine', priceCents: 9900, priceId: process.env.STRIPE_PRICE_STARTER },
+  growth: { name: 'Growth Suite', priceCents: 29900, priceId: process.env.STRIPE_PRICE_GROWTH },
+  enterprise: { name: 'Enterprise Core', priceCents: 99900, priceId: process.env.STRIPE_PRICE_ENTERPRISE }
 };
 
 // 1. STRIPE WEBHOOK (Must use express.raw BEFORE express.json)
