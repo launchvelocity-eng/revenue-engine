@@ -92,4 +92,18 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 });
 
-app.get('/api/subscription-status
+app.get('/api/subscription-status', async (req, res) => {
+  try {
+    const email = String(req.query?.email || '').trim().toLowerCase();
+    if (!email || !pool) return res.json({ registered: false });
+    const result = await pool.query('SELECT tier, created_at FROM customers WHERE email = $1 LIMIT 1', [email]);
+    if (result.rows.length === 0) return res.json({ registered: false });
+    res.json({ registered: true, tier: result.rows[0].tier, activatedAt: result.rows[0].created_at });
+  } catch (err) {
+    res.status(500).json({ registered: false, error: err.message });
+  }
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log('Launch Velocity API live on port ' + PORT);
+});
