@@ -1,11 +1,14 @@
-console.log("Starting Launch Velocity server initialization...");
+try {
+  console.log("Setting up Express middleware...");
+  const app = express();
+  const PORT = Number(process.env.PORT) || 10000;
+  
+  // ... middleware and routes ...
 
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import pg from 'pg';
-import Stripe from 'stripe';
-import { Resend } from 'resend';
-
-console.log("Modules imported successfully.");
+  console.log("Attempting to bind port " + PORT + "...");
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log("Launch Velocity API live on port " + PORT);
+  });
+} catch (err) {
+  console.error("Fatal startup error:", err);
+}
