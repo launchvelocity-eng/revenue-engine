@@ -1,5 +1,9 @@
-const TIERS = {
-  starter: { name: 'Starter Engine', priceDollars: 199, priceCents: 199 * 100 },
-  growth: { name: 'Growth Suite', priceDollars: 499, priceCents: 499 * 100 },
-  enterprise: { name: 'Enterprise Core', priceDollars: 999, priceCents: 999 * 100 }
-};
+// Server Listen with Full Error Trapping
+try {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log('Launch Velocity API live on port ' + PORT);
+  });
+} catch (err) {
+  console.error('CRITICAL STARTUP ERROR:', err);
+  process.exit(1);
+}
