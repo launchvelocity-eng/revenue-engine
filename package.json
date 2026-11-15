@@ -8,9 +8,11 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "pg": "^8.11.3",
-    "stripe": "^14.25.0",
-    "zod": "^3.22.4"
+    "express": "^4.21.1",
+    "express-rate-limit": "^7.4.1",
+    "helmet": "^8.0.0",
+    "pg": "^8.13.1",
+    "resend": "^4.0.1",
+    "stripe": "^17.3.1"
   }
 }
