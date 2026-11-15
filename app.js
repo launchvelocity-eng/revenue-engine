@@ -1,20 +1,11 @@
-async function startCheckout(tierKey) {
-  const emailInput = document.querySelector('input[type="email"]');
-  const email = emailInput ? emailInput.value.trim() : '';
+console.log("Starting Launch Velocity server initialization...");
 
-  try {
-    const res = await fetch('https://revenue-engine-dx5d.onrender.com/api/create-checkout-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tier: tierKey, email })
-    });
-    const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      alert(data.error || 'Checkout initialization failed');
-    }
-  } catch (err) {
-    alert('Failed to connect to Render backend.');
-  }
-}
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import pg from 'pg';
+import Stripe from 'stripe';
+import { Resend } from 'resend';
+
+console.log("Modules imported successfully.");
