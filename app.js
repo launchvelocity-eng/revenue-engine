@@ -7,7 +7,6 @@ import Stripe from 'stripe';
 import { Resend } from 'resend';
 
 const app = express();
-
 const PORT = Number(process.env.PORT) || 10000;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://launchvelocity-eng.github.io/revenue-engine';
 
@@ -20,18 +19,25 @@ const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SEC
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 const TIERS = {
-  starter: { name: 'Starter Engine', priceCents: 19900, priceId: process.env.STRIPE_PRICE_STARTER },
-  growth: { name: 'Growth Suite', priceCents: 49900, priceId: process.env.STRIPE_PRICE_GROWTH },
-  enterprise: { name: 'Enterprise Core', priceCents: 99900, priceId: process.env.STRIPE_PRICE_ENTERPRISE }
+  starter: { name: 'Starter Engine', priceCents: 19900 },
+  growth: { name: 'Growth Suite', priceCents: 49900 },
+  enterprise: { name: 'Enterprise Core', priceCents: 99900 }
 };
 
-app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  try {
-    if (!stripe) return res.status(503).send('Stripe not configured');
-    const sig = req.headers['stripe-signature'];
-    const event = process.env.STRIPE_WEBHOOK_SECRET ? stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET) : JSON.parse(req.body.toString());
+app.use(express.json());
 
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object;
-      if (session.payment_status === 'paid') {
-        const email = (session.
+app.get(['/', '/health'], (_req, res) => {
+  res.status(200).json({ status: 'ok', service: 'Launch Velocity Revenue Engine', db: Boolean(pool) });
+});
+
+app.post('/api/create-checkout-session', async (req, res) => {
+  try {
+    if (!stripe) return res.status(503).json({ error: 'Stripe not configured' });
+    const tierKey = String(req.body?.tier || 'starter').toLowerCase();
+    const tier = TIERS[tierKey] || TIERS.starter;
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      customer_email: req.body?.email ? String(req.body.email).trim() : undefined,
+      metadata: { tierKey, tierName: tier.name },
+      line_items: [{ price_data: { currency: 'usd', product_data: { name: 'Launch Velocity ' + tier.name }, unit_amount: tier.priceCents, recurring: { interval: '
