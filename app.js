@@ -34,4 +34,22 @@ app.post('/api/create-checkout-session', async (req, res) => {
   try {
     if (!stripe) return res.status(503).json({ error: 'Stripe not configured' });
     const tierKey = String(req.body?.tier || 'starter').toLowerCase();
-    const tier
+    const tier = TIERS[tierKey] || TIERS.starter;
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      customer_email: req.body?.email ? String(req.body.email).trim() : undefined,
+      metadata: { tierKey, tierName: tier.name },
+      line_items: [{ price_data: { currency: 'usd', product_data: { name: 'Launch Velocity ' + tier.name }, unit_amount: tier.priceCents, recurring: { interval: 'month' } }, quantity: 1 }],
+      success_url: FRONTEND_URL + '?checkout=success&tier=' + tierKey,
+      cancel_url: FRONTEND_URL + '?checkout=cancel'
+    });
+    res.json({ url: session.url });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log('Launch Velocity API live on port ' + PORT);
+});
