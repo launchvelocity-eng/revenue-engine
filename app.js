@@ -34,10 +34,4 @@ app.post('/api/create-checkout-session', async (req, res) => {
   try {
     if (!stripe) return res.status(503).json({ error: 'Stripe not configured' });
     const tierKey = String(req.body?.tier || 'starter').toLowerCase();
-    const tier = TIERS[tierKey] || TIERS.starter;
-
-    const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
-      customer_email: req.body?.email ? String(req.body.email).trim() : undefined,
-      metadata: { tierKey, tierName: tier.name },
-      line_items: [{ price_data: { currency: 'usd', product_data: { name: 'Launch Velocity ' + tier.name }, unit_amount: tier.priceCents, recurring: { interval: '
+    const tier
