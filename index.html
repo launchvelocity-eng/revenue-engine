@@ -1,42 +1,35 @@
-<script>
-  // Replace with your actual Render service URL (e.g., https://revenue-engine.onrender.com)
-  const RENDER_BACKEND_URL = 'https://YOUR-RENDER-SERVICE-NAME.onrender.com';
-
-  // Silent pre-warm ping to wake up Render free instance immediately upon page load
-  window.addEventListener('DOMContentLoaded', () => {
-    fetch(`${RENDER_BACKEND_URL}/health`, { method: 'GET' }).catch(() => {});
-  });
-
-  async function handleCheckout(tierId, customerEmail = '') {
-    try {
-      const response = await fetch(`${RENDER_BACKEND_URL}/api/billing/create-checkout`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tierId, customerEmail })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`HTTP Error Status: ${response.status}`, errorText);
-        alert('Failed to connect to backend API. Check Render dashboard.');
-        return;
-      }
-
-      const data = await response.json();
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else {
-        console.error('Invalid response payload:', data);
-        alert('Checkout URL not returned from server.');
-      }
-    } catch (err) {
-      console.error('Network or fetch connection error:', err);
-      alert('Failed to connect to backend API. Check Render dashboard.');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Launch Velocity | Revenue Engine</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #090d16;
+      color: #f8fafc;
+      line-height: 1.6;
+      padding: 2rem 1rem;
     }
-  }
-
-  // Example binding to your tier buttons:
-  // document.getElementById('starter-btn').addEventListener('click', () => handleCheckout('starter'));
-  // document.getElementById('growth-btn').addEventListener('click', () => handleCheckout('growth'));
-  // document.getElementById('enterprise-btn').addEventListener('click', () => handleCheckout('enterprise'));
-</script>
+    .container { max-width: 1100px; margin: 0 auto; text-align: center; }
+    header { margin-bottom: 3rem; }
+    h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+    .subtitle { color: #94a3b8; font-size: 1.1rem; max-width: 600px; margin: 0 auto 1.5rem; }
+    .email-box {
+      max-width: 420px;
+      margin: 0 auto 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      text-align: left;
+    }
+    .email-box label { font-size: 0.875rem; color: #cbd5e1; font-weight: 600; }
+    .email-box input {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #fff;
+      font-size: 
