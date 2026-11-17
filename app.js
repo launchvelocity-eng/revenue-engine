@@ -8,17 +8,25 @@ import { Resend } from 'resend';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 10000;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://launchvelocity-eng.github.io/revenue-engine';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://launchvelocity-eng.github.io';
 
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://launchvelocity-eng.github.io',
+    'https://github.io',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+  ],
+  credentials: true
+}));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 
 const pool = process.env.DATABASE_URL ? new pg.Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } }) : null;
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-const TIERS = {
+const PRICING_TIERS = {
   starter: { name: 'Starter Engine', priceCents: 19900 },
   growth: { name: 'Growth Suite', priceCents: 49900 },
   enterprise: { name: 'Enterprise Core', priceCents: 99900 }
@@ -26,30 +34,46 @@ const TIERS = {
 
 app.use(express.json());
 
-app.get(['/', '/health'], (_req, res) => {
-  res.status(200).json({ status: 'ok', service: 'Launch Velocity Revenue Engine', db: Boolean(pool) });
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'OPERATIONAL', service: 'Launch Velocity Revenue Engine', db: Boolean(pool) });
 });
 
-app.post('/api/create-checkout-session', async (req, res) => {
+app.get('/', (_req, res) => {
+  res.status(200).json({ status: 'OPERATIONAL', service: 'Launch Velocity Revenue Engine' });
+});
+
+app.post('/api/billing/create-checkout', async (req, res) => {
   try {
     if (!stripe) return res.status(503).json({ error: 'Stripe not configured' });
-    const tierKey = String(req.body?.tier || 'starter').toLowerCase();
-    const tier = TIERS[tierKey] || TIERS.starter;
+    
+    const tierId = String(req.body?.tierId || req.body?.tier || 'starter').toLowerCase();
+    const tier = PRICING_TIERS[tierId] || PRICING_TIERS.starter;
+    const customerEmail = req.body?.customerEmail ? String(req.body.customerEmail).trim() : undefined;
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
-      customer_email: req.body?.email ? String(req.body.email).trim() : undefined,
-      metadata: { tierKey, tierName: tier.name },
-      line_items: [{ price_data: { currency: 'usd', product_data: { name: 'Launch Velocity ' + tier.name }, unit_amount: tier.priceCents, recurring: { interval: 'month' } }, quantity: 1 }],
-      success_url: FRONTEND_URL + '?checkout=success&tier=' + tierKey,
-      cancel_url: FRONTEND_URL + '?checkout=cancel'
+      customer_email: customerEmail,
+      metadata: { tierId, tierName: tier.name },
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Launch Velocity ' + tier.name },
+          unit_amount: tier.priceCents,
+          recurring: { interval: 'month' }
+        },
+        quantity: 1
+      }],
+      success_url: FRONTEND_URL + '/revenue-engine/?checkout=success&tier=' + tierId,
+      cancel_url: FRONTEND_URL + '/revenue-engine/?checkout=cancel'
     });
-    res.json({ url: session.url });
+
+    res.json({ checkoutUrl: session.url });
   } catch (err) {
+    console.error('Checkout error:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log('Launch Velocity API live on port ' + PORT);
+  console.log('[LAUNCH VELOCITY] API live on port ' + PORT);
 });
