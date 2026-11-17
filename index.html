@@ -8,7 +8,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      /* Restoring the immersive custom background design */
       background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #090d16 70%), #090d16;
       color: #f8fafc;
       min-height: 100vh;
@@ -162,7 +161,6 @@
   <script>
     const RENDER_BACKEND_URL = 'https://revenue-engine-de8d.onrender.com';
 
-    // Silent pre-warm ping to wake up Render instance on page load
     window.addEventListener('DOMContentLoaded', () => {
       fetch(`${RENDER_BACKEND_URL}/health`).catch(() => {});
 
