@@ -6,59 +6,14 @@
 <title>Launch Velocity | Revenue Engine</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:sans-serif;background:#090d16;color:#f8fafc;padding:2rem 1rem;text-align:center}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#090d16;color:#f8fafc;padding:2rem 1rem;text-align:center}
   .wrap{max-width:960px;margin:0 auto}
-  h1{font-size:2.2rem;margin-bottom:.5rem}
+  h1{font-size:2.2rem;margin-bottom:.5rem;font-weight:800}
   .sub{color:#94a3b8;margin-bottom:1.5rem}
-  input{width:100%;max-width:360px;padding:.75rem;border-radius:8px;border:1px solid #334155;background:#1e293b;color:#fff;margin-bottom:2rem}
+  input{width:100%;max-width:360px;padding:.75rem;border-radius:8px;border:1px solid #334155;background:#1e293b;color:#fff;margin-bottom:2rem;font-size:1rem}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;text-align:left}
-  .card{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:1.5rem}
+  .card{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:1.5rem;display:flex;flex-direction:column;justify-content:space-between}
   .price{font-size:2rem;font-weight:700;margin:.75rem 0}
-  button{width:100%;padding:.8rem;border:none;border-radius:8px;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;margin-top:1rem}
-  #msg{display:none;padding:1rem;border-radius:8px;margin-bottom:1.5rem;background:#064e3b;color:#a7f3d0}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div id="msg"></div>
-  <h1>Launch Velocity</h1>
-  <p class="sub">Automated revenue infrastructure and secure digital storage.</p>
-  <input type="email" id="email" placeholder="Enter account email (optional)" />
-  <div class="grid">
-    <div class="card">
-      <h3>Starter Engine</h3>
-      <div class="price">$199/mo</div>
-      <p>Core Storage &amp; Automated Verification</p>
-      <button onclick="go('starter',this)">Deploy Starter</button>
-    </div>
-    <div class="card">
-      <h3>Growth Suite</h3>
-      <div class="price">$499/mo</div>
-      <p>High-Speed Storage &amp; Priority Routing</p>
-      <button onclick="go('growth',this)">Deploy Growth</button>
-    </div>
-    <div class="card">
-      <h3>Enterprise Core</h3>
-      <div class="price">$999/mo</div>
-      <p>Dedicated Capacity &amp; Custom Retention</p>
-      <button onclick="go('enterprise',this)">Deploy Enterprise</button>
-    </div>
-  </div>
-</div>
-<script>
-const API='https://revenue-engine-de8d.onrender.com';
-fetch(API+'/health').catch(()=>{});
-const q=new URLSearchParams(location.search).get('checkout');
-if(q==='success'){const m=document.getElementById('msg');m.style.display='block';m.textContent='Payment verified! Subscription active.';}
-async function go(tierId,btn){
-  const txt=btn.textContent;btn.disabled=true;btn.textContent='Connecting...';
-  try{
-    const r=await fetch(API+'/api/billing/create-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tierId,customerEmail:document.getElementById('email').value.trim()})});
-    const d=await r.json();
-    if(d.checkoutUrl)location.href=d.checkoutUrl;
-    else{alert(d.error||'Checkout failed');btn.disabled=false;btn.textContent=txt;}
-  }catch(e){alert('Connection failed. Wait 30s for server wake-up and retry.');btn.disabled=false;btn.textContent=txt;}
-}
-</script>
-</body>
-</html>
+  button{width:100%;padding:.8rem;border:none;border-radius:8px;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;margin-top:1.0rem;font-size:1rem}
+  button:hover{background:#1d4ed8}
+  button:disabled{background:#47556
