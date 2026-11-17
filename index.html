@@ -1,152 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Launch Velocity Infrastructure</title>
-  <style>
-    body {
-      background: linear-gradient(135deg, #0b132b, #1c2541, #0b132b);
-      color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .header {
-      text-align: center;
-      max-width: 600px;
-      margin-bottom: 40px;
-    }
-    .badge {
-      background: rgba(0, 180, 216, 0.15);
-      color: #48cae4;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: bold;
-      border: 1px solid rgba(72, 202, 228, 0.3);
-    }
-    h1 { font-size: 32px; margin: 20px 0 10px; }
-    p { color: #94a3b8; font-size: 14px; line-height: 1.5; }
-    input {
-      width: 100%;
-      max-width: 400px;
-      padding: 14px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 8px;
-      color: white;
-      font-size: 14px;
-      margin-top: 20px;
-      outline: none;
-    }
-    .pricing-container {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      width: 100%;
-      max-width: 450px;
-    }
-    .card {
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(56, 189, 248, 0.2);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
-    .tier-title { font-size: 12px; font-weight: bold; color: #38bdf8; letter-spacing: 1px; margin-bottom: 8px; }
-    .price { font-size: 36px; font-weight: bold; margin-bottom: 20px; }
-    .price span { font-size: 14px; color: #94a3b8; font-weight: normal; }
-    ul { list-style: none; padding: 0; margin: 0 0 24px 0; }
-    ul li { font-size: 13px; color: #cbd5e1; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-    ul li::before { content: "✓"; color: #38bdf8; font-weight: bold; }
-    .btn {
-      width: 100%;
-      background: linear-gradient(135deg, #0284c7, #2563eb);
-      color: white;
-      border: none;
-      padding: 14px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 14px;
-      transition: opacity 0.2s;
-    }
-    .btn:hover { opacity: 0.9; }
-  </style>
-</head>
-<body>
+<script>
+  // Replace with your actual Render service URL (e.g., https://revenue-engine.onrender.com)
+  const RENDER_BACKEND_URL = 'https://YOUR-RENDER-SERVICE-NAME.onrender.com';
 
-  <div class="header">
-    <span class="badge">⚡ Launch Velocity Infrastructure</span>
-    <h1>Deploy revenue-ready software at wire speed.</h1>
-    <p>Turnkey subscription billing, automated Resend telemetry, Zero-Trust payload security, and Digital Declutter sanitation.</p>
-    <input type="email" id="email" placeholder="Enter your email for provisioning & receipts...">
-  </div>
+  // Silent pre-warm ping to wake up Render free instance immediately upon page load
+  window.addEventListener('DOMContentLoaded', () => {
+    fetch(`${RENDER_BACKEND_URL}/health`, { method: 'GET' }).catch(() => {});
+  });
 
-  <div class="pricing-container">
-    <!-- STARTER ENGINE -->
-    <div class="card">
-      <div class="tier-title">STARTER ENGINE</div>
-      <div class="price">$199<span>/month</span></div>
-      <ul>
-        <li>Automated Stripe Subscription Billing</li>
-        <li>Instant Customer Receipts & Admin Alerts</li>
-        <li>Managed REST API & Webhook Endpoints</li>
-        <li>Basic Storage Audit Telemetry</li>
-      </ul>
-      <button class="btn" onclick="startCheckout('starter')">Deploy Starter →</button>
-    </div>
+  async function handleCheckout(tierId, customerEmail = '') {
+    try {
+      const response = await fetch(`${RENDER_BACKEND_URL}/api/billing/create-checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tierId, customerEmail })
+      });
 
-    <!-- GROWTH SUITE -->
-    <div class="card">
-      <div class="tier-title">GROWTH SUITE</div>
-      <div class="price">$499<span>/month</span></div>
-      <ul>
-        <li>Everything in Starter Engine</li>
-        <li>Dedicated PostgreSQL Persistence</li>
-        <li>Digital Declutter Assistant (SHA-256 & Stale Log Scans)</li>
-      </ul>
-      <button class="btn" onclick="startCheckout('growth')">Deploy Growth →</button>
-    </div>
-
-    <!-- ENTERPRISE CORE -->
-    <div class="card">
-      <div class="tier-title">ENTERPRISE CORE</div>
-      <div class="price">$999<span>/month</span></div>
-      <ul>
-        <li>Everything in Growth Suite</li>
-        <li>Zero-Trust Gatekeeper Shield & Binary Inspection</li>
-        <li>Priority 24/7 Webhook & Telemetry Routing</li>
-      </ul>
-      <button class="btn" onclick="startCheckout('enterprise')">Deploy Enterprise →</button>
-    </div>
-  </div>
-
-  <script>
-    const API_URL = 'https://revenue-engine-dx5d.onrender.com';
-
-    async function startCheckout(tier) {
-      const email = document.getElementById('email').value.trim();
-      try {
-        const res = await fetch(`${API_URL}/api/create-checkout-session`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tier, email })
-        });
-        const data = await res.json();
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          alert('Error: ' + (data.error || 'Could not initiate checkout'));
-        }
-      } catch (err) {
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`HTTP Error Status: ${response.status}`, errorText);
         alert('Failed to connect to backend API. Check Render dashboard.');
+        return;
       }
+
+      const data = await response.json();
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        console.error('Invalid response payload:', data);
+        alert('Checkout URL not returned from server.');
+      }
+    } catch (err) {
+      console.error('Network or fetch connection error:', err);
+      alert('Failed to connect to backend API. Check Render dashboard.');
     }
-  </script>
-</body>
-</html>
+  }
+
+  // Example binding to your tier buttons:
+  // document.getElementById('starter-btn').addEventListener('click', () => handleCheckout('starter'));
+  // document.getElementById('growth-btn').addEventListener('click', () => handleCheckout('growth'));
+  // document.getElementById('enterprise-btn').addEventListener('click', () => handleCheckout('enterprise'));
+</script>
