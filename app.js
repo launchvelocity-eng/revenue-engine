@@ -14,9 +14,7 @@ app.use(helmet());
 app.use(cors({
   origin: [
     'https://launchvelocity-eng.github.io',
-    'https://github.io',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000'
+    'http://localhost:3000'
   ],
   credentials: true
 }));
@@ -34,12 +32,8 @@ const PRICING_TIERS = {
 
 app.use(express.json());
 
-app.get('/health', (_req, res) => {
+app.get(['/', '/health'], (_req, res) => {
   res.status(200).json({ status: 'OPERATIONAL', service: 'Launch Velocity Revenue Engine', db: Boolean(pool) });
-});
-
-app.get('/', (_req, res) => {
-  res.status(200).json({ status: 'OPERATIONAL', service: 'Launch Velocity Revenue Engine' });
 });
 
 app.post('/api/billing/create-checkout', async (req, res) => {
