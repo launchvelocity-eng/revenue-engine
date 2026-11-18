@@ -1,78 +1,58 @@
-import express from 'express';
-// ... any other imports (like pg, cors, etc.) ...
+import Stripe from 'stripe';
 
-const app = express();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// ==========================================
-// 1. Strict CORS & Security Headers Middleware
-// ==========================================
-const ALLOWED_ORIGIN = 'https://launchvelocity-eng.github.io';
+const PRICE_MAP = {
+  starter: process.env.STRIPE_PRICE_STARTER,
+  growth: process.env.STRIPE_PRICE_GROWTH,
+  enterprise: process.env.STRIPE_PRICE_ENTERPRISE
+};
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin === ALLOWED_ORIGIN) {
-    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-tenant-id');
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-  res.setHeader('X-Engine-Signature', 'Launch-Velocity-Core-v1');
+// MUST come BEFORE app.use(express.json()) so Stripe signature verification gets raw bytes
+app.post('/api/v1/webhooks/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
 
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
-  }
-  next();
-});
-
-// Middleware to parse JSON bodies if needed
-app.use(express.json());
-
-// ==========================================
-// 2. Telemetry & Health Routes
-// ==========================================
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'ONLINE',
-    engine: 'Launch Velocity',
-    port: process.env.PORT || 10000,
-    timestamp: new Date().toISOString()
-  });
-});
-
-app.get('/api/v1/telemetry', async (req, res) => {
   try {
-    const tenantId = req.headers['x-tenant-id'] || 'enterprise-default';
-    let dbStatus = '0ms Drift';
-    let webhookCount = 14820;
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error('[Stripe Webhook Signature Error]:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
 
-    if (typeof pool !== 'undefined') {
-      const start = Date.now();
-      await pool.query('SELECT 1');
-      dbStatus = `${Date.now() - start}ms Drift`;
+  try {
+    if (event.type === 'checkout.session.completed' || event.type === 'invoice.paid') {
+      const session = event.data.object;
+      const tenantId = session.client_reference_id || session.metadata?.tenantId || 'enterprise-default';
+      const tier = session.metadata?.tier || 'enterprise';
+
+      if (typeof pool !== 'undefined') {
+        await pool.query(
+          `INSERT INTO subscriptions (tenant_id, tier, status, stripe_customer_id, updated_at)
+           VALUES ($1, $2, 'ACTIVE', $3, NOW())
+           ON CONFLICT (tenant_id) DO UPDATE
+           SET tier = EXCLUDED.tier, status = 'ACTIVE', stripe_customer_id = EXCLUDED.stripe_customer_id, updated_at = NOW()`,
+          [tenantId, tier, session.customer || null]
+        );
+      }
+      console.log(`[Launch Velocity] Subscription ACTIVE for tenant=${tenantId} tier=${tier}`);
     }
 
-    res.status(200).json({
-      tenantId,
-      tier: 'Enterprise Core',
-      rate: '$999/mo',
-      vaultUsedTB: 1.2,
-      vaultLimitTB: 5.0,
-      pipelineThroughput: '99.98%',
-      nodeStatus: `Render Node Port ${process.env.PORT || 10000} Online`,
-      webhookEvents: webhookCount,
-      pgSync: dbStatus
-    });
-  } catch (err) {
-    res.status(500).json({ error: 'TELEMETRY_FAULT', message: 'Database sync interrupted' });
-  }
-});
+    if (event.type === 'customer.subscription.deleted' || event.type === 'invoice.payment_failed') {
+      const sub = event.data.object;
+      const customerId = sub.customer;
+      if (typeof pool !== 'undefined' && customerId) {
+        await pool.query(
+          `UPDATE subscriptions SET status = 'LOCKED', updated_at = NOW() WHERE stripe_customer_id = $1`,
+          [customerId]
+        );
+      }
+      console.warn(`[Launch Velocity] Vault LOCKED due to payment failure/cancellation for customer=${customerId}`);
+    }
 
-// ==========================================
-// 3. Server Listener (Bottom of file)
-// ==========================================
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-  console.log(`Launch Velocity engine listening on port ${PORT}`);
+    res.status(200).json({ received: true });
+  } catch (err) {
+    console.error('[Stripe Lifecycle DB Error]:', err);
+    res.status(500).json({ error: 'WEBHOOK_PROCESSING_FAILED' });
+  }
 });
