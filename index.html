@@ -4,10 +4,65 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Launch Velocity // Portal</title>
-  <!-- Your CSS / Stylesheets here -->
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: #131b2e;
+      --border-color: #1e293b;
+      --accent-green: #10b981;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; }
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
+    .logo-area { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: 1px; font-size: 1.1rem; }
+    .status-dot { width: 10px; height: 10px; background-color: var(--accent-green); border-radius: 50%; box-shadow: 0 0 8px var(--accent-green); }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; max-width: 600px; margin: 0 auto; }
+    .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+    .card-title { font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 8px; }
+    .card-value { font-size: 1.8rem; font-weight: 700; margin-bottom: 6px; }
+    .card-sub { font-size: 0.9rem; color: var(--accent-green); }
+  </style>
 </head>
 <body>
-  <!-- Your portal UI elements here -->
+
+  <div class="grid">
+    <div class="header">
+      <div class="logo-area">
+        <div class="status-dot"></div>
+        <span>LAUNCH VELOCITY // PORTAL</span>
+      </div>
+    </div>
+
+    <!-- Active Subscription Card -->
+    <div class="card">
+      <div class="card-title">Active Subscription</div>
+      <div class="card-value">$999/mo</div>
+      <div class="card-sub" data-engine-sync="tier">Enterprise Core • Stripe Verified</div>
+    </div>
+
+    <!-- Encrypted Vault Allocation -->
+    <div class="card">
+      <div class="card-title">Encrypted Vault Allocation</div>
+      <div class="card-value"><span data-engine-sync="vaultUsedTB">1.2</span> TB / <span data-engine-sync="vaultLimitTB">5.0</span> TB</div>
+      <div class="card-sub">AES-256 Partition Active</div>
+    </div>
+
+    <!-- Revenue Pipeline Throughput -->
+    <div class="card">
+      <div class="card-title">Revenue Pipeline Throughput</div>
+      <div class="card-value" data-engine-sync="pipelineThroughput">99.98%</div>
+      <div class="card-sub" data-engine-sync="nodeStatus">Render Node Port 10000 Online</div>
+    </div>
+
+    <!-- Automated Webhook Events -->
+    <div class="card">
+      <div class="card-title">Automated Webhook Events</div>
+      <div class="card-value" data-engine-sync="webhookEvents">14,820</div>
+      <div class="card-sub" data-engine-sync="pgSync">PostgreSQL Sync: 0ms Drift</div>
+    </div>
+  </div>
 
   <!-- Safe Live Engine Telemetry Script -->
   <script>
@@ -27,10 +82,12 @@
         const data = await response.json();
 
         console.log('[Launch Velocity] Live Engine Synced:', data);
-        const statusBadges = document.querySelectorAll('[data-engine-sync]');
-        statusBadges.forEach(el => {
+        const statusElements = document.querySelectorAll('[data-engine-sync]');
+        statusElements.forEach(el => {
           const key = el.getAttribute('data-engine-sync');
-          if (data[key] !== undefined) el.textContent = data[key];
+          if (data[key] !== undefined) {
+            el.textContent = data[key];
+          }
         });
       } catch (err) {
         console.warn('[Launch Velocity] Engine syncing in background:', err.message);
