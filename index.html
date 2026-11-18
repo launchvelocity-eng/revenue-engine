@@ -106,4 +106,88 @@
 
     function draw() {
       // Trail fade effect for smooth motion blur
-      ctx.fillStyle = "rgba(5, 7, 13, 0.28
+      ctx.fillStyle = "rgba(5, 7, 13, 0.28)";
+      ctx.fillRect(0, 0, width, height);
+
+      // Core singularity glow at vanishing point
+      const coreGlow = ctx.createRadialGradient(cx, cy, 2, cx, cy, Math.max(width, height) * 0.45);
+      coreGlow.addColorStop(0, "rgba(125, 211, 252, 0.35)");
+      coreGlow.addColorStop(0.25, "rgba(56, 189, 248, 0.08)");
+      coreGlow.addColorStop(1, "rgba(5, 7, 13, 0)");
+      ctx.fillStyle = coreGlow;
+      ctx.fillRect(0, 0, width, height);
+
+      globalTwist += ROTATION_SPEED;
+
+      // Sort rings back-to-front so closer rings draw cleanly over distant ones
+      rings.sort((a, b) => b.z - a.z);
+
+      for (let i = 0; i < rings.length; i++) {
+        const ring = rings[i];
+        ring.z -= SPEED;
+        ring.angle += ROTATION_SPEED;
+
+        // Recycle ring back into the deep core once it passes the camera
+        if (ring.z <= 0.01) {
+          ring.z = 1;
+        }
+
+        // Perspective projection (1 / z)
+        const perspective = 1 / ring.z;
+        const radius = perspective * Math.min(width, height) * 0.14;
+        const alpha = Math.min(1, (1 - ring.z) * 1.4);
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(ring.angle + Math.sin(globalTwist + ring.z * 4) * 0.35);
+
+        // Alternate between crisp cyan and deep electric indigo
+        ctx.strokeStyle = i % 2 === 0
+          ? `rgba(56, 189, 248, ${alpha * 0.75})`
+          : `rgba(129, 140, 248, ${alpha * 0.55})`;
+        ctx.lineWidth = Math.max(0.6, perspective * 0.45);
+
+        ctx.beginPath();
+        for (let s = 0; s <= SIDES; s++) {
+          const theta = (s / SIDES) * Math.PI * 2;
+          const px = Math.cos(theta) * radius;
+          const py = Math.sin(theta) * radius;
+          if (s === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Draw streaking warp particles
+      for (let p of particles) {
+        const prevZ = p.z;
+        p.z -= SPEED * 1.6;
+        if (p.z <= 0.01) {
+          p.z = 1;
+          p.x = (Math.random() - 0.5) * 2;
+          p.y = (Math.random() - 0.5) * 2;
+          continue;
+        }
+
+        const sx = cx + (p.x / p.z) * (width * 0.4);
+        const sy = cy + (p.y / p.z) * (height * 0.4);
+        const px = cx + (p.x / prevZ) * (width * 0.4);
+        const py = cy + (p.y / prevZ) * (height * 0.4);
+
+        const pAlpha = (1 - p.z) * 0.9;
+        ctx.strokeStyle = `rgba(186, 230, 253, ${pAlpha})`;
+        ctx.lineWidth = (1 - p.z) * 2.2;
+        ctx.beginPath();
+        ctx.moveTo(px, py);
+        ctx.lineTo(sx, sy);
+        ctx.stroke();
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  </script>
+</body>
+</html>
