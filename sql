@@ -1,14 +1,31 @@
-CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
-  first_name VARCHAR(100) NOT NULL,
-  last_name VARCHAR(100) NOT NULL,
-  enterprise_name VARCHAR(150) NOT NULL,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  username VARCHAR(100) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+-- Core users and client organizations
+CREATE TABLE IF NOT EXISTS tenants (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    company_name VARCHAR(255),
+    stripe_customer_id VARCHAR(255),
+    tier VARCHAR(50) DEFAULT 'starter', -- starter, growth, enterprise
+    status VARCHAR(50) DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Index for fast authentication lookups
-CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+-- Zero-trust encrypted vault metadata tracking
+CREATE TABLE IF NOT EXISTS vault_assets (
+    id SERIAL PRIMARY KEY,
+    tenant_id INT REFERENCES tenants(id) ON DELETE CASCADE,
+    file_name VARCHAR(255) NOT NULL,
+    file_size_bytes BIGINT NOT NULL,
+    storage_path VARCHAR(512) NOT NULL,
+    sha256_hash VARCHAR(64) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Stripe billing & webhook ledger
+CREATE TABLE IF NOT EXISTS billing_events (
+    id SERIAL PRIMARY KEY,
+    tenant_id INT REFERENCES tenants(id),
+    stripe_event_id VARCHAR(255) UNIQUE NOT NULL,
+    event_type VARCHAR(100) NOT NULL,
+    amount_paid INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
