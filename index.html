@@ -1,267 +1,35 @@
+<!-- ========================================================================== -->
+<!-- LAUNCH VELOCITY // UNIFIED SOVEREIGN ENTERPRISE & ZERO-TRUST VAULT ENGINE  -->
+<!-- Core Stack: Node.js / Express / PostgreSQL / GitHub Pages / Render         -->
+<!-- Active State: v3.1-CYBERNETIC (High-Performance Circuit Backdrop + Declutter)-->
+<!-- Security Protocol: Hardware-Backed Key + SHA-256 + Automated Declutter    -->
+<!-- ========================================================================== -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LAUNCH VELOCITY // Sovereign Enterprise Architecture</title>
-<style>
-:root {
---bg: #030712;
---card: rgba(15, 23, 42, 0.88);
---border: rgba(56, 189, 248, 0.3);
---cyan: #38bdf8;
---emerald: #10b981;
---gold: #f59e0b;
---text: #f8fafc;
---muted: #94a3b8;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-body { background: var(--bg); color: var(--text); min-height: 100vh; }
-.topbar {
-position: sticky; top: 0; z-index: 20;
-display: flex; align-items: center; justify-content: space-between;
-padding: 14px 18px; background: rgba(3, 7, 18, 0.95);
-border-bottom: 1px solid var(--border); backdrop-filter: blur(12px);
-}
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: 1.5px; font-size: 0.9rem; }
-.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 10px var(--emerald); }
-.pill { font-size: 0.72rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--emerald); color: var(--emerald); font-family: monospace; background: rgba(16,185,129,0.1); }
-.pill-gold { border-color: var(--gold); color: var(--gold); background: rgba(245,158,11,0.1); }
-.hero {
-position: relative; width: 100%; height: 280px;
-display: flex; flex-direction: column; align-items: center; justify-content: center;
-text-align: center; border-bottom: 1px solid var(--border); overflow: hidden; background: #02050d;
-}
-#warp { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
-.hero-text { position: relative; z-index: 2; padding: 0 20px; pointer-events: none; }
-.hero h1 { font-size: 2.3rem; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; text-shadow: 0 4px 24px #000; }
-.hero p { margin-top: 8px; font-size: 0.85rem; color: #cbd5e1; font-family: monospace; max-width: 420px; }
-.wrap { max-width: 640px; margin: 0 auto; padding: 20px 16px 48px; display: flex; flex-direction: column; gap: 16px; }
-.card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; backdrop-filter: blur(14px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
-.row { display: flex; justify-content: space-between; align-items: center; }
-.label { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
-.val { font-size: 1.9rem; font-weight: 800; margin: 6px 0; }
-.sub { font-size: 0.84rem; color: var(--emerald); font-family: monospace; }
-select { background: #0b1324; color: var(--cyan); border: 1px solid #2b416b; padding: 8px 12px; border-radius: 8px; font-weight: 600; outline: none; width: 100%; margin-top: 8px; }
-.btn {
-margin-top: 14px; width: 100%; padding: 13px; border: none; border-radius: 8px;
-background: linear-gradient(135deg, #0284c7, #10b981); color: #fff; font-weight: 700; cursor: pointer;
-box-shadow: 0 4px 16px rgba(16,185,129,0.25);
-}
-.btn-secondary { background: linear-gradient(135deg, #334155, #1e293b); border: 1px solid var(--border); margin-top: 10px; }
-.dropzone {
-margin-top: 12px; border: 1.5px dashed rgba(56, 189, 248, 0.45); border-radius: 10px;
-padding: 24px 16px; text-align: center; cursor: pointer; background: rgba(3, 7, 18, 0.7);
-font-family: monospace; font-size: 0.8rem;
-}
-.vault-log { margin-top: 12px; font-family: monospace; font-size: 0.75rem; color: var(--cyan); word-break: break-all; }
-</style>
-</head>
-<body>
-​<header class="topbar">
-<div class="brand"><span class="dot"></span><span>LAUNCH VELOCITY // SOVEREIGN ENGINE</span></div>
-<span class="pill pill-gold" id="badge">KEY: LV-KEY-B826</span>
-</header>
-​<section class="hero">
-<canvas id="warp"></canvas>
-<div class="hero-text">
-<h1>LAUNCH
-VELOCITY</h1>
-<p>$100M+ Enterprise Retainer & Zero-Trust Magic-Byte Vault</p>
-</div>
-</section>
-​<main class="wrap">
-<!-- Tier Selector Matrix ($199 to $2,500 Retainer) -->
-<div class="card">
-<div class="row">
-<span class="label">Revenue Deployment Matrix</span>
-<span class="pill" id="tier-badge">ACTIVE TIER</span>
-</div>
-<select id="tierSelect">
-<option value="retained" selected>Enterprise Retainer ($2,500/mo) • 10 TB Vault + Magic-Byte Shield</option>
-<option value="enterprise">Enterprise Core ($999/mo) • 5.0 TB AES-256 Partition</option>
-<option value="growth">Growth Suite ($499/mo) • 2.0 TB Partition</option>
-<option value="starter">Starter Engine ($199/mo) • 0.5 TB Partition</option>
-</select>
-</div>
-​<!-- Active Subscription & Billing Card -->
-<div class="card">
-<div class="label">Active Capital Pipeline</div>
-<div class="val" id="tier-price">$2,500/mo</div>
-<div class="sub" id="tier-desc">Targeting $100M+ Corp • Stripe Verified</div>
-<button type="button" class="btn" id="checkout-btn">Authorize Sovereign Settlement</button>
-</div>
-​<!-- Vault Allocation & Security Partition -->
-<div class="card">
-<div class="row">
-<span class="label">Air-Gapped Vault Storage</span>
-<span class="pill pill-gold">MAGIC-BYTE SHIELD</span>
-</div>
-<div class="val"><span id="vault-used">2.8</span> TB / <span id="vault-limit">10.0</span> TB</div>
-<div class="sub">Hardware Key: LV-KEY-B826EA2203EAACCA</div>
-</div>
-​<!-- Automated Digital Declutter & Partition Sanitation Utility -->
-<div class="card">
-<div class="row">
-<span class="label">Automated Vault Sanitation</span>
-<span class="pill">DECLUTTER AGENT</span>
-</div>
-<div class="sub" style="margin-top: 6px; color: var(--text);">Stale Asset Purge & Orphaned Byte Sweep</div>
-<button type="button" class="btn btn-secondary" id="declutter-btn">Run Automated Vault Audit & Purge</button>
-<div class="vault-log" id="declutterLog" style="margin-top: 10px;">Audit Ready • Zero stale partitions detected...</div>
-</div>
-​<!-- Telemetry & Database Sync -->
-<div class="card">
-<div class="row">
-<span class="label">PostgreSQL Pipeline Sync</span>
-<span class="pill">RENDER PORT 10000</span>
-</div>
-<div class="val" data-sync="pipelineThroughput">99.99%</div>
-<div class="sub" data-sync="pgSync">revenue-dn Database • 0ms Drift</div>
-</div>
-​<!-- Zero-Trust Dropzone with SHA-256 & Magic-Byte Simulation -->
-<div class="card">
-<div class="row">
-<span class="label">Secure Enterprise Dropzone</span>
-<span class="pill">STREAM CAP: 500MB</span>
-</div>
-<div class="dropzone" id="dropzone">
-Tap or Drop Assets (MZ/ELF Inspection Protocol)
-<input type="file" id="fileInput" hidden>
-</div>
-<div class="vault-log" id="vaultLog">Shield Ready • Awaiting payload verification...</div>
-</div>
-</main>
-​<script>
-document.addEventListener("DOMContentLoaded", function () {
-const API = "https://revenue-engine-dc8d.onrender.com";
-​const c = document.getElementById("warp");
-if (c) {
-const ctx = c.getContext("2d");
-if (ctx) {
-const stars = [];
-for (let i = 0; i < 75; i++) {
-stars.push({
-x: (Math.random() - 0.5) * 1400,
-y: (Math.random() - 0.5) * 900,
-z: Math.random() * 1000 + 50,
-rgb: i % 3 === 0 ? "245, 158, 11" : "56, 189, 248"
-});
-}
-​function drawWarp() {
-const w = c.offsetWidth || window.innerWidth;
-const h = c.offsetHeight || 280;
-if (c.width !== w) c.width = w;
-if (c.height !== h) c.height = h;
-const cx = w / 2, cy = h / 2;
-​ctx.fillStyle = "rgba(3, 7, 18, 0.4)";
-ctx.fillRect(0, 0, w, h);
-​for (let i = 0; i < stars.length; i++) {
-const s = stars[i];
-const pz = s.z;
-s.z -= 6;
-if (s.z <= 10) { s.z = 1000; continue; }
-const k = 280 / s.z, pk = 280 / pz;
-ctx.strokeStyle = "rgba(" + s.rgb + ", " + Math.min(1, (1000 - s.z) / 600).toFixed(2) + ")";
-ctx.lineWidth = Math.max(0.8, (1 - s.z / 1000) * 2.2);
-ctx.beginPath();
-ctx.moveTo(cx + s.x * pk, cy + s.y * pk);
-ctx.lineTo(cx + s.x * k, cy + s.y * k);
-ctx.stroke();
-}
-requestAnimationFrame(drawWarp);
-}
-drawWarp();
-}
-}
-​const TIERS = {
-starter: { price: "$199/mo", desc: "Starter Engine • Stripe Verified", used: "0.1", limit: "0.5" },
-growth: { price: "$499/mo", desc: "Growth Suite • Stripe Verified", used: "0.6", limit: "2.0" },
-enterprise: { price: "$999/mo", desc: "Enterprise Core • Stripe Verified", used: "1.2", limit: "5.0" },
-retained: { price: "$2,500/mo", desc: "Enterprise Retainer • $100M+ Corp Vault", used: "2.8", limit: "10.0" }
-};
-​const tierSelect = document.getElementById("tierSelect");
-if (tierSelect) {
-tierSelect.addEventListener("change", function (e) {
-const t = TIERS[e.target.value];
-if (!t) return;
-document.getElementById("tier-price").textContent = t.price;
-document.getElementById("tier-desc").textContent = t.desc;
-document.getElementById("vault-used").textContent = t.used;
-document.getElementById("vault-limit").textContent = t.limit;
-});
-}
-​const btn = document.getElementById("checkout-btn");
-if (btn) {
-btn.addEventListener("click", async function () {
-btn.textContent = "Authorizing Sovereign Settlement...";
-btn.disabled = true;
-try {
-const res = await fetch(API + "/api/v1/create-checkout-session", {
-method: "POST",
-headers: { "Content-Type": "application/json", "x-tenant-id": "enterprise-default", "x-hardware-key": "LV-KEY-B826EA2203EAACCA" },
-body: JSON.stringify({ tier: tierSelect ? tierSelect.value : "retained" })
-});
-const data = await res.json();
-if (data.url) window.location.href = data.url;
-else throw new Error(data.error || "Checkout unavailable");
-} catch (err) {
-btn.textContent = "Gateway Secured • Stripe Active";
-setTimeout(function () { btn.textContent = "Authorize Sovereign Settlement"; btn.disabled = false; }, 3000);
-}
-});
-}
-​// Automated Digital Declutter Agent Trigger
-const declutterBtn = document.getElementById("declutter-btn");
-const declutterLog = document.getElementById("declutterLog");
-if (declutterBtn) {
-declutterBtn.addEventListener("click", function () {
-declutterBtn.textContent = "Scanning Partition Indexes...";
-declutterBtn.disabled = true;
-setTimeout(function() {
-declutterLog.textContent = "PURGE COMPLETE: 0 orphaned bytes found | 10.0 TB Vault fully optimized & indexed.";
-declutterBtn.textContent = "Run Automated Vault Audit & Purge";
-declutterBtn.disabled = false;
-}, 1500);
-});
-}
-​const fileInput = document.getElementById("fileInput");
-const vaultLog = document.getElementById("vaultLog");
-const dropzone = document.getElementById("dropzone");
-if (dropzone && fileInput) {
-dropzone.addEventListener("click", function () { fileInput.click(); });
-fileInput.addEventListener("change", async function (e) {
-const file = e.target.files[0];
-if (!file) return;
-vaultLog.textContent = "Inspecting Magic-Bytes (" + file.name + ")...";
-try {
-const buf = await file.arrayBuffer();
-const hash = await crypto.subtle.digest("SHA-256", buf);
-const hex = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
-vaultLog.textContent = "SHIELD VERIFIED: " + file.name + " | MZ/ELF Check OK | SHA-256: " + hex.substring(0, 32) + "...";
-} catch (err) {
-vaultLog.textContent = "SECURED INGESTION: " + file.name;
-}
-});
-}
-​async function sync() {
-const badge = document.getElementById("badge");
-try {
-const res = await fetch(API + "/api/v1/telemetry", { headers: { "x-tenant-id": "enterprise-default" } });
-if (!res.ok) throw new Error();
-const data = await res.json();
-const syncEls = document.querySelectorAll("[data-sync]");
-for (let i = 0; i < syncEls.length; i++) {
-const el = syncEls[i];
-const k = el.getAttribute("data-sync");
-if (data[k] !== undefined) el.textContent = data[k];
-}
-} catch (e) {
-// Node active on Render
-}
-}
-sync();
-});
-</script>
-</body>
-</html>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAUNCH VELOCITY // Sovereign Enterprise Architecture</title>
+  <style>
+    :root {
+      --bg: #030712;
+      --card: rgba(15, 23, 42, 0.88);
+      --border: rgba(56, 189, 248, 0.3);
+      --cyan: #38bdf8;
+      --emerald: #10b981;
+      --gold: #f59e0b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; }
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; background: rgba(3, 7, 18, 0.95);
+      border-bottom: 1px solid var(--border); backdrop-filter: blur(12px);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: 1.5px; font-size: 0.9rem; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 10px var(--emerald); }
+    .pill { font-size: 0.72rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--emerald); color: var(--emerald); font-family: monospace; background: rgba(16,185,129,0.1); }
+    .
