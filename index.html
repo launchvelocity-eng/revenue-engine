@@ -5,243 +5,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Launch Velocity | Revenue Engine</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      /* Immersive cyber/circuit background design matching your vision */
-      background: linear-gradient(135deg, rgba(9, 13, 22, 0.92) 0%, rgba(15, 23, 42, 0.88) 100%),
-                  radial-gradient(circle at 50% 30%, rgba(37, 99, 235, 0.18) 0%, transparent 70%);
-      background-color: #090d16;
-      color: #f8fafc;
-      min-height: 100vh;
-      padding: 3rem 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
+      background-color: #05070d;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
       overflow-x: hidden;
+      min-height: 100vh;
     }
-    /* Cyber grid and ambient glow effect */
-    body::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-image: linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
-      background-size: 40px 40px;
+
+    /* Full-screen fixed 3D warp canvas behind everything */
+    #warp-tunnel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       z-index: -1;
+      display: block;
     }
 
-    .container { max-width: 1100px; width: 100%; text-align: center; position: relative; z-index: 1; }
-    header { margin-bottom: 3rem; }
-    h1 { 
-      font-size: 2.75rem; 
-      font-weight: 800; 
-      letter-spacing: -0.03em; 
-      margin-bottom: 0.75rem; 
-      background: linear-gradient(to right, #60a5fa, #38bdf8, #c084fc); 
-      -webkit-background-clip: text; 
-      -webkit-text-fill-color: transparent; 
-      text-shadow: 0 0 30px rgba(56, 189, 248, 0.2);
+    /* Example overlay container for your tiers & vault UI */
+    .ui-layer {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem;
+      text-align: center;
     }
-    .subtitle { color: #94a3b8; font-size: 1.15rem; max-width: 650px; margin: 0 auto 2rem; }
-    
-    .status-banner {
-      display: none;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 2rem;
-      font-weight: 600;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .status-success { display: block; background: rgba(6, 78, 59, 0.85); border: 1px solid #10b981; color: #a7f3d0; }
-    .status-cancel { display: block; background: rgba(69, 26, 3, 0.85); border: 1px solid #f59e0b; color: #fde68a; }
 
-    .email-box {
-      max-width: 440px;
-      margin: 0 auto 3rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      text-align: left;
+    h1 {
+      font-size: 2.5rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+      margin-bottom: 0.5rem;
     }
-    .email-box label { font-size: 0.875rem; color: #cbd5e1; font-weight: 600; }
-    .email-box input {
-      padding: 0.85rem 1rem;
-      border-radius: 10px;
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      background: rgba(15, 23, 42, 0.8);
-      color: #fff;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .email-box input:focus { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.25); }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      text-align: left;
+    p.subtitle {
+      color: #94a3b8;
+      margin-bottom: 3rem;
     }
-    .card {
-      background: rgba(17, 24, 39, 0.75);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      border-radius: 16px;
-      padding: 2.25rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
-    .card:hover { transform: translateY(-4px); border-color: rgba(56, 189, 248, 0.6); box-shadow: 0 12px 40px rgba(56, 189, 248, 0.15); }
-    .card.featured { border-color: #38bdf8; box-shadow: 0 10px 35px rgba(56, 189, 248, 0.2); }
-    
-    .tier-name { font-size: 1.35rem; font-weight: 700; color: #e2e8f0; }
-    .price { font-size: 2.75rem; font-weight: 800; margin: 1rem 0; color: #fff; text-shadow: 0 0 20px rgba(255, 255, 255, 0.1); }
-    .price span { font-size: 1rem; font-weight: 400; color: #94a3b8; }
-    
-    ul { list-style: none; margin-bottom: 2.5rem; color: #cbd5e1; font-size: 0.95rem; }
-    ul li { margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
-    ul li::before { content: "⚡"; color: #38bdf8; font-size: 0.85rem; }
-
-    button {
-      width: 100%;
-      padding: 1rem;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #2563eb, #38bdf8);
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
-    }
-    button:hover { opacity: 0.9; box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5); }
-    button:disabled { background: #475569; cursor: not-allowed; box-shadow: none; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div id="checkout-banner" class="status-banner"></div>
 
-    <header>
-      <h1>Launch Velocity</h1>
-      <p class="subtitle">Automated revenue infrastructure and secure digital storage engineered for high-scale operations.</p>
-    </header>
+  <canvas id="warp-tunnel"></canvas>
 
-    <div class="email-box">
-      <label for="customerEmail">Account Provisioning Email</label>
-      <input type="email" id="customerEmail" placeholder="you@company.com" />
-    </div>
-
-    <div class="grid">
-      <!-- Starter Engine -->
-      <div class="card">
-        <div>
-          <div class="tier-name">Starter Engine</div>
-          <div class="price">$199<span>/mo</span></div>
-          <ul>
-            <li>Core Storage &amp; Vault Access</li>
-            <li>Automated Payment Verification</li>
-            <li>Standard API Throughput</li>
-          </ul>
-        </div>
-        <button onclick="startCheckout('starter', this)">Deploy Starter</button>
-      </div>
-
-      <!-- Growth Suite -->
-      <div class="card featured">
-        <div>
-          <div class="tier-name">Growth Suite</div>
-          <div class="price">$499<span>/mo</span></div>
-          <ul>
-            <li>Expanded High-Speed Storage</li>
-            <li>Priority Webhook Routing</li>
-            <li>Dedicated Analytics &amp; Alerts</li>
-          </ul>
-        </div>
-        <button onclick="startCheckout('growth', this)">Deploy Growth</button>
-      </div>
-
-      <!-- Enterprise Core -->
-      <div class="card">
-        <div>
-          <div class="tier-name">Enterprise Core</div>
-          <div class="price">$999<span>/mo</span></div>
-          <ul>
-            <li>Maximum Dedicated Capacity</li>
-            <li>Custom SLA &amp; Retention Rules</li>
-            <li>Direct Engineering Support</li>
-          </ul>
-        </div>
-        <button onclick="startCheckout('enterprise', this)">Deploy Enterprise</button>
-      </div>
-    </div>
-  </div>
+  <main class="ui-layer">
+    <h1>Launch Velocity</h1>
+    <p class="subtitle">Enterprise Revenue Engine &amp; Encrypted Vault Architecture</p>
+    <!-- Your existing $199 / $499 / $999 tier cards & Stripe triggers sit right here -->
+  </main>
 
   <script>
-    const RENDER_BACKEND_URL = 'https://revenue-engine-de8d.onrender.com';
+    const canvas = document.getElementById("warp-tunnel");
+    const ctx = canvas.getContext("2d");
 
-    window.addEventListener('DOMContentLoaded', () => {
-      fetch(`${RENDER_BACKEND_URL}/health`).catch(() => {});
+    let width, height, cx, cy;
 
-      const params = new URLSearchParams(window.location.search);
-      const status = params.get('checkout');
-      const banner = document.getElementById('checkout-banner');
-      if (status === 'success') {
-        banner.textContent = 'Payment verified! Your Launch Velocity subscription is active.';
-        banner.classList.add('status-success');
-      } else if (status === 'cancel') {
-        banner.textContent = 'Checkout canceled. Select a tier below whenever you are ready.';
-        banner.classList.add('status-cancel');
-      }
-    });
-
-    async function startCheckout(tierId, btn) {
-      const originalText = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = 'Connecting to Stripe...';
-
-      const customerEmail = document.getElementById('customerEmail').value.trim();
-
-      try {
-        const response = await fetch(`${RENDER_BACKEND_URL}/api/billing/create-checkout`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tierId, customerEmail })
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`HTTP Error Status: ${response.status}`, errorText);
-          alert('Failed to connect to backend API. Check Render dashboard.');
-          btn.disabled = false;
-          btn.textContent = originalText;
-          return;
-        }
-
-        const data = await response.json();
-        if (data.checkoutUrl) {
-          window.location.href = data.checkoutUrl;
-        } else {
-          console.error('Invalid response payload:', data);
-          alert('Checkout URL not returned from server.');
-          btn.disabled = false;
-          btn.textContent = originalText;
-        }
-      } catch (err) {
-        console.error('Connection failed:', err);
-        alert('Failed to connect to backend API. Check Render dashboard.');
-        btn.disabled = false;
-        btn.textContent = originalText;
-      }
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      cx = width / 2;
+      cy = height / 2;
     }
-  </script>
-</body>
-</html>
+    window.addEventListener("resize", resize);
+    resize();
+
+    // Tunnel configuration
+    const RING_COUNT = 38;
+    const SIDES = 8; // Octagonal geometric tech rings
+    const SPEED = 0.008;
+    const ROTATION_SPEED = 0.004;
+
+    const rings = [];
+    for (let i = 0; i < RING_COUNT; i++) {
+      rings.push({
+        z: i / RING_COUNT, // Depth from 0 (camera) to 1 (far core)
+        angle: i * 0.15
+      });
+    }
+
+    // High-speed star/data-node particles
+    const PARTICLES = 90;
+    const particles = Array.from({ length: PARTICLES }, () => ({
+      x: (Math.random() - 0.5) * 2,
+      y: (Math.random() - 0.5) * 2,
+      z: Math.random()
+    }));
+
+    let globalTwist = 0;
+
+    function draw() {
+      // Trail fade effect for smooth motion blur
+      ctx.fillStyle = "rgba(5, 7, 13, 0.28
