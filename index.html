@@ -1,30 +1,41 @@
-<script>
-  const ENGINE_URL = 'https://revenue-engine-dc8d.onrender.com';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Launch Velocity // Portal</title>
+  <!-- Your CSS / Stylesheets here -->
+</head>
+<body>
+  <!-- Your portal UI elements here -->
 
-  async function syncLaunchVelocityEngine() {
-    try {
-      const response = await fetch(`${ENGINE_URL}/api/v1/telemetry`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-tenant-id': 'enterprise-default'
-        }
-      });
+  <!-- Safe Live Engine Telemetry Script -->
+  <script>
+    const ENGINE_URL = 'https://revenue-engine-dc8d.onrender.com';
 
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const response = await fetch(`${ENGINE_URL}/api/v1/telemetry`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-tenant-id': 'enterprise-default'
+          }
+        });
 
-      // Update live status indicators if matching elements exist
-      console.log('[Launch Velocity] Live Engine Synced:', data);
-      const statusBadges = document.querySelectorAll('[data-engine-sync]');
-      statusBadges.forEach(el => {
-        const key = el.getAttribute('data-engine-sync');
-        if (data[key] !== undefined) el.textContent = data[key];
-      });
-    } catch (err) {
-      console.warn('[Launch Velocity] Engine waking up or unreachable:', err.message);
-    }
-  }
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
 
-  document.addEventListener('DOMContentLoaded', syncLaunchVelocityEngine);
-</script>
+        console.log('[Launch Velocity] Live Engine Synced:', data);
+        const statusBadges = document.querySelectorAll('[data-engine-sync]');
+        statusBadges.forEach(el => {
+          const key = el.getAttribute('data-engine-sync');
+          if (data[key] !== undefined) el.textContent = data[key];
+        });
+      } catch (err) {
+        console.warn('[Launch Velocity] Engine syncing in background:', err.message);
+      }
+    });
+  </script>
+</body>
+</html>
