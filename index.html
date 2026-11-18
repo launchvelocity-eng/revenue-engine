@@ -1,115 +1,34 @@
-  <script>
-    (function () {
-      const API = "https://revenue-engine-dc8d.onrender.com";
-
-      // 3D Warp Starfield (Standard loop for 100% mobile engine compatibility)
-      const c = document.getElementById("warp");
-      const ctx = c.getContext("2d");
-      const stars = [];
-      for (let i = 0; i < 85; i++) {
-        stars.push({
-          x: (Math.random() - 0.5) * 1600,
-          y: (Math.random() - 0.5) * 1000,
-          z: Math.random() * 1000 + 50,
-          rgb: i % 3 === 0 ? "16, 185, 129" : "56, 189, 248"
-        });
-      }
-
-      function drawWarp() {
-        const w = c.offsetWidth || window.innerWidth;
-        const h = c.offsetHeight || 290;
-        if (c.width !== w) c.width = w;
-        if (c.height !== h) c.height = h;
-        const cx = w / 2, cy = h / 2;
-
-        ctx.fillStyle = "rgba(2, 5, 13, 0.35)";
-        ctx.fillRect(0, 0, w, h);
-
-        for (let i = 0; i < stars.length; i++) {
-          const s = stars[i];
-          const pz = s.z;
-          s.z -= 7;
-          if (s.z <= 10) { s.z = 1000; continue; }
-          const k = 280 / s.z, pk = 280 / pz;
-          ctx.strokeStyle = "rgba(" + s.rgb + ", " + Math.min(1, (1000 - s.z) / 600).toFixed(2) + ")";
-          ctx.lineWidth = Math.max(0.8, (1 - s.z / 1000) * 2.5);
-          ctx.beginPath();
-          ctx.moveTo(cx + s.x * pk, cy + s.y * pk);
-          ctx.lineTo(cx + s.x * k, cy + s.y * k);
-          ctx.stroke();
-        }
-        requestAnimationFrame(drawWarp);
-      }
-      drawWarp();
-
-      // Tier Switcher
-      const TIERS = {
-        starter: { price: "$199/mo", desc: "Starter Engine • Stripe Verified", used: "0.1", limit: "0.5" },
-        growth: { price: "$499/mo", desc: "Growth Suite • Stripe Verified", used: "0.6", limit: "2.0" },
-        enterprise: { price: "$999/mo", desc: "Enterprise Core • Stripe Verified", used: "1.2", limit: "5.0" }
-      };
-      const tierSelect = document.getElementById("tierSelect");
-      tierSelect.addEventListener("change", function (e) {
-        const t = TIERS[e.target.value];
-        document.getElementById("tier-price").textContent = t.price;
-        document.getElementById("tier-desc").textContent = t.desc;
-        document.getElementById("vault-used").textContent = t.used;
-        document.getElementById("vault-limit").textContent = t.limit;
-      });
-
-      // Stripe Checkout Trigger
-      const btn = document.getElementById("checkout-btn");
-      btn.addEventListener("click", async function () {
-        btn.textContent = "Initializing Stripe Checkout...";
-        btn.disabled = true;
-        try {
-          const res = await fetch(API + "/api/v1/create-checkout-session", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "x-tenant-id": "enterprise-default" },
-            body: JSON.stringify({ tier: tierSelect.value })
-          });
-          const data = await res.json();
-          if (data.url) window.location.href = data.url;
-          else throw new Error(data.error || "Checkout unavailable");
-        } catch (err) {
-          btn.textContent = "Stripe Error: " + err.message;
-          setTimeout(function () { btn.textContent = "Activate / Manage Stripe Billing"; btn.disabled = false; }, 3000);
-        }
-      });
-
-      // SHA-256 Vault Hashing
-      const fileInput = document.getElementById("fileInput");
-      const vaultLog = document.getElementById("vaultLog");
-      document.getElementById("dropzone").addEventListener("click", function () { fileInput.click(); });
-      fileInput.addEventListener("change", async function (e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        vaultLog.textContent = "Hashing " + file.name + "...";
-        const buf = await file.arrayBuffer();
-        const hash = await crypto.subtle.digest("SHA-256", buf);
-        const hex = Array.from(new Uint8Array(hash)).map(function(b) { return b.toString(16).padStart(2, "0"); }).join("");
-        vaultLog.textContent = "VERIFIED: " + file.name + " (" + (file.size / 1024).toFixed(1) + " KB) | SHA-256: " + hex;
-      });
-
-      // Live Telemetry Sync
-      async function sync() {
-        const badge = document.getElementById("badge");
-        try {
-          const res = await fetch(API + "/api/v1/telemetry", { headers: { "x-tenant-id": "enterprise-default" } });
-          if (!res.ok) throw new Error();
-          const data = await res.json();
-          badge.textContent = "LIVE SYNC";
-          const syncEls = document.querySelectorAll("[data-sync]");
-          for (let i = 0; i < syncEls.length; i++) {
-            const el = syncEls[i];
-            const k = el.getAttribute("data-sync");
-            if (data[k] !== undefined) el.textContent = data[k];
-          }
-        } catch (e) {
-          badge.textContent = "WAKING NODE...";
-          setTimeout(sync, 5000);
-        }
-      }
-      sync();
-    })();
-  </script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAUNCH VELOCITY // Enterprise Revenue &amp; Vault Portal</title>
+  <style>
+    :root {
+      --bg: #030712;
+      --card: rgba(15, 23, 42, 0.78);
+      --border: rgba(56, 189, 248, 0.25);
+      --cyan: #38bdf8;
+      --emerald: #10b981;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: radial-gradient(circle at 50% 0%, #0c192c 0%, #030712 70%); color: var(--text); min-height: 100vh; }
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; background: rgba(3, 7, 18, 0.88);
+      border-bottom: 1px solid var(--border); backdrop-filter: blur(12px);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: 1.5px; font-size: 0.9rem; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 10px var(--emerald); }
+    .pill { font-size: 0.72rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--emerald); color: var(--emerald); font-family: monospace; }
+    .hero {
+      position: relative; width: 100%; height: 290px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; border-bottom: 1px solid var(--border); overflow: hidden; background: #02050d;
+    }
+    #warp { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+    .hero-text { position: relative; z-index: 2; padding: 0 
