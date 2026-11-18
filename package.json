@@ -2,17 +2,12 @@
   "name": "revenue-engine",
   "version": "1.0.0",
   "type": "module",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node server.js"
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "express-rate-limit": "^7.5.0",
-    "helmet": "^8.0.0",
-    "pg": "^8.13.1",
-    "resend": "^4.0.0",
-    "stripe": "^17.5.0"
+    "express": "^4.19.2",
+    "pg": "^8.11.3"
   }
 }
