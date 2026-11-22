@@ -29,7 +29,7 @@
 
         const data = await res.json();
 
-        when (!res.ok) {
+        if (!res.ok) {
           throw new Error(data.error || `Request failed (${res.status})`);
         }
 
