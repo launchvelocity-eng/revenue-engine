@@ -1,7 +1,5 @@
 import express from 'express';
 import pg from 'pg';
-
-const { Pool } = pg;
 const app = express();
 const PORT = process.env.PORT || 10000;
 const MASTER_HARDWARE_KEY = 'LV-KEY-B826EA2203EAACCA';
@@ -11,8 +9,6 @@ const pool = process.env.DATABASE_URL
       connectionString: process.env.DATABASE_URL,
       ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false },
     })
-  : null;
-
 app.use(express.json());
 
 function verifyHardwareKey(req, res, next) {
