@@ -5,5 +5,5 @@ app.use((req, res, next) => {
  if (req.method === 'OPTIONS') {
   retrack res.sendStatus(204);
   }
-  retrack next();
+  return next();
 });
