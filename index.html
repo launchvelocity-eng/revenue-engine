@@ -61,3 +61,126 @@
       color: #34d399;
       font-weight: 600;
     }
+    select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      background: #091120;
+      color: #f8fafc;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      font-size: 15px;
+    }
+    .price { font-size: 40px; font-weight: 700; margin: 8px 0; }
+    .price span { font-size: 18px; color: #94a3b8; font-weight: 400; }
+    .meta { font-size: 13px; color: #94a3b8; margin-bottom: 16px; }
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #0ea5e9, #10b981);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.7; cursor: not-allowed; }
+    .vault-num { font-size: 28px; font-weight: 700; margin-bottom: 10px; }
+    .vault-num span { font-size: 16px; color: #94a3b8; font-weight: 400; }
+    .bar { height: 6px; border-radius: 999px; background: rgba(148, 163, 184, 0.2); overflow: hidden; margin-bottom: 12px; }
+    .bar-fill { width: 28%; height: 100%; background: linear-gradient(90deg, #0ea5e9, #10b981); }
+    .hw-key { font-size: 12px; color: #38bdf8; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <div>LAUNCH VELOCITY // SOVEREIGN ENGINE</div>
+      <div class="key-pill">KEY: LV-KEY-B826</div>
+    </div>
+
+    <h1>LAUNCH VELOCITY</h1>
+    <p class="subtitle">$100M+ Enterprise Retainer &amp; Zero-Trust Magic-Byte Vault</p>
+
+    <div class="card">
+      <div class="card-header">
+        <span>REVENUE DEPLOYMENT MATRIX</span>
+        <span class="badge">ACTIVE TIER</span>
+      </div>
+      <select id="tierSelect" onchange="updateTier()">
+        <option value="starter" data-price="$199" data-vault="0.5 TB">Starter Engine ($199/mo) &bull; 0.5 TB Vault</option>
+        <option value="growth" data-price="$499" data-vault="2.0 TB">Growth Suite ($499/mo) &bull; 2.0 TB Vault</option>
+        <option value="enterprise" data-price="$999" data-vault="5.0 TB">Enterprise Core ($999/mo) &bull; 5.0 TB Vault</option>
+        <option value="retained" data-price="$2,500" data-vault="10.0 TB" selected>Enterprise Retainer ($2,500/mo) &bull; 10.0 TB Vault</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span>ACTIVE CAPITAL PIPELINE</span>
+        <span style="color:#34d399;">&bull; STRIPE VERIFIED</span>
+      </div>
+      <div id="priceDisplay" class="price">$2,500<span>/mo</span></div>
+      <p class="meta">Targeting $100M+ Corp &bull; Sovereign Security Enforced</p>
+      <button id="settleBtn" onclick="authorizeSettlement()">Authorize Sovereign Settlement</button>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span>AIR-GAPPED VAULT STORAGE</span>
+        <span class="key-pill">MAGIC-BYTE SHIELD</span>
+      </div>
+      <div id="vaultDisplay" class="vault-num">2.8 TB <span>/ 10.0 TB</span></div>
+      <div class="bar"><div class="bar-fill"></div></div>
+      <div class="hw-key">Hardware Key: LV-KEY-B826EA2203EAACCA</div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE_URL = 'https://revenue-engine-ds8d.onrender.com';
+    const HARDWARE_KEY = 'LV-KEY-B826EA2203EAACCA';
+
+    function updateTier() {
+      const sel = document.getElementById('tierSelect');
+      const opt = sel.options[sel.selectedIndex];
+      document.getElementById('priceDisplay').innerHTML = opt.dataset.price + '<span>/mo</span>';
+      document.getElementById('vaultDisplay').innerHTML = '2.8 TB <span>/ ' + opt.dataset.vault + '</span>';
+    }
+
+    async function authorizeSettlement() {
+      const btn = document.getElementById('settleBtn');
+      const tier = document.getElementById('tierSelect').value;
+
+      btn.disabled = true;
+      btn.textContent = 'Establishing Secure Gateway...';
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/create-checkout-session`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-hardware-key': HARDWARE_KEY,
+            'x-tenant-id': 'enterprise-default'
+          },
+          body: JSON.stringify({ tier })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || `Request failed (${res.status})`);
+        }
+
+        btn.textContent = `Authorized (${data.allocatedVault}) // Ready`;
+        btn.style.background = '#10b981';
+      } catch (err) {
+        console.error('Settlement error:', err);
+        btn.textContent = 'Gateway Retry // Check CORS or Logs';
+        btn.style.background = '#e11d48';
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
