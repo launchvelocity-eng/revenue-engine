@@ -1,4 +1,16 @@
-      background-color: #060b14;
-      background-image:
-        linear-gradient(180deg, rgba(6, 11, 20, 0.72), rgba(6, 11, 20, 0.86)),
-        url('./824.jpg');
+.bg-lock-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.16;
+  overflow: hidden;
+}
+.bg-lock-svg {
+  width: min(88vw, 520px);
+  height: auto;
+  color: #38bdf8;
+}
