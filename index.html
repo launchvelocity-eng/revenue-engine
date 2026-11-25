@@ -10,37 +10,59 @@
       min-height: 100vh;
       background-color: #060b14;
       background-image:
-        linear-gradient(to right, rgba(56, 189, 248, 0.06) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(56, 189, 248, 0.06) 1px, transparent 1px);
-      background-size: 32px 32px;
+        linear-gradient(180deg, rgba(6, 11, 20, 0.72), rgba(6, 11, 20, 0.86)),
+        url('./824.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
       color: #f8fafc;
       font-family: system-ui, -apple-system, sans-serif;
       padding: 20px;
     }
-    .container { max-width: 520px; margin: 0 auto; }
+    .container { max-width: 520px; margin: 0 auto; position: relative; z-index: 1; }
     .topbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       font-size: 12px;
       letter-spacing: 0.08em;
     }
     .key-pill {
       border: 1px solid rgba(56, 189, 248, 0.35);
-      background: rgba(15, 23, 42, 0.75);
+      background: rgba(15, 23, 42, 0.78);
       padding: 6px 10px;
       border-radius: 8px;
       color: #7dd3fc;
       white-space: nowrap;
     }
     h1 { text-align: center; font-size: 32px; letter-spacing: 0.06em; margin-bottom: 8px; }
-    .subtitle { text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 24px; }
+    .subtitle { text-align: center; color: #cbd5e1; font-size: 14px; margin-bottom: 18px; }
+    .bg-switcher {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .bg-btn {
+      width: auto;
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      color: #e2e8f0;
+    }
+    .bg-btn.active {
+      border-color: #38bdf8;
+      color: #7dd3fc;
+    }
     .card {
-      background: rgba(15, 23, 42, 0.72);
+      background: rgba(15, 23, 42, 0.74);
       backdrop-filter: blur(14px);
-      border: 1px solid rgba(148, 163, 184, 0.18);
+      border: 1px solid rgba(148, 163, 184, 0.2);
       border-radius: 16px;
       padding: 20px;
       margin-bottom: 18px;
@@ -57,7 +79,7 @@
     .badge {
       padding: 4px 8px;
       border-radius: 6px;
-      background: rgba(16, 185, 129, 0.15);
+      background: rgba(16, 185, 129, 0.16);
       color: #34d399;
       font-weight: 600;
     }
@@ -65,15 +87,15 @@
       width: 100%;
       padding: 14px;
       border-radius: 10px;
-      background: #091120;
+      background: rgba(9, 17, 32, 0.9);
       color: #f8fafc;
       border: 1px solid rgba(148, 163, 184, 0.25);
       font-size: 15px;
     }
     .price { font-size: 40px; font-weight: 700; margin: 8px 0; }
     .price span { font-size: 18px; color: #94a3b8; font-weight: 400; }
-    .meta { font-size: 13px; color: #94a3b8; margin-bottom: 16px; }
-    button {
+    .meta { font-size: 13px; color: #cbd5e1; margin-bottom: 16px; }
+    button.primary-btn {
       width: 100%;
       padding: 15px;
       border: none;
@@ -87,7 +109,7 @@
     button:disabled { opacity: 0.7; cursor: not-allowed; }
     .vault-num { font-size: 28px; font-weight: 700; margin-bottom: 10px; }
     .vault-num span { font-size: 16px; color: #94a3b8; font-weight: 400; }
-    .bar { height: 6px; border-radius: 999px; background: rgba(148, 163, 184, 0.2); overflow: hidden; margin-bottom: 12px; }
+    .bar { height: 6px; border-radius: 999px; background: rgba(148, 163, 184, 0.22); overflow: hidden; margin-bottom: 12px; }
     .bar-fill { width: 28%; height: 100%; background: linear-gradient(90deg, #0ea5e9, #10b981); }
     .hw-key { font-size: 12px; color: #38bdf8; word-break: break-all; }
   </style>
@@ -101,6 +123,14 @@
 
     <h1>LAUNCH VELOCITY</h1>
     <p class="subtitle">$100M+ Enterprise Retainer &amp; Zero-Trust Magic-Byte Vault</p>
+
+    <div class="bg-switcher">
+      <button type="button" class="bg-btn active" onclick="setBg('./824.jpg', this)">Chip Lock</button>
+      <button type="button" class="bg-btn" onclick="setBg('./820.jpg', this)">Wave Lock</button>
+      <button type="button" class="bg-btn" onclick="setBg('./821.jpg', this)">Mesh Lock</button>
+      <button type="button" class="bg-btn" onclick="setBg('./822.jpg', this)">Circuit Lock</button>
+      <button type="button" class="bg-btn" onclick="setBg('./823.jpg', this)">Pulse Lock</button>
+    </div>
 
     <div class="card">
       <div class="card-header">
@@ -122,7 +152,7 @@
       </div>
       <div id="priceDisplay" class="price">$2,500<span>/mo</span></div>
       <p class="meta">Targeting $100M+ Corp &bull; Sovereign Security Enforced</p>
-      <button id="settleBtn" onclick="authorizeSettlement()">Authorize Sovereign Settlement</button>
+      <button id="settleBtn" type="button" class="primary-btn" onclick="authorizeSettlement()">Authorize Sovereign Settlement</button>
     </div>
 
     <div class="card">
@@ -139,6 +169,13 @@
   <script>
     const API_BASE_URL = 'https://revenue-engine-ds8d.onrender.com';
     const HARDWARE_KEY = 'LV-KEY-B826EA2203EAACCA';
+
+    function setBg(imgPath, el) {
+      document.body.style.backgroundImage =
+        `linear-gradient(180deg, rgba(6, 11, 20, 0.72), rgba(6, 11, 20, 0.86)), url('${imgPath}')`;
+      document.querySelectorAll('.bg-btn').forEach(b => b.classList.remove('active'));
+      if (el) el.classList.add('active');
+    }
 
     function updateTier() {
       const sel = document.getElementById('tierSelect');
@@ -175,7 +212,7 @@
         btn.style.background = '#10b981';
       } catch (err) {
         console.error('Settlement error:', err);
-        btn.textContent = 'Gateway Retry // Check CORS or Logs';
+        btn.textContent = `Error: ${err.message}`;
         btn.style.background = '#e11d48';
       } finally {
         btn.disabled = false;
