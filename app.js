@@ -1,79 +1,13 @@
-import express from 'express';
-import pg from 'pg';
+const bgLockGraphic = document.getElementById('bgLockGraphic');
 
-const app = express();
-const PORT = process.env.PORT || 10000;
-const KEY = 'LV-KEY-B826EA2203EAACCA';
-
-process.on('uncaughtException', (err) => {
-  console.error('UNCAUGHT_EXCEPTION:', err);
-});
-
-process.on('unhandledRejection', (err) => {
-  console.error('UNHANDLED_REJECTION:', err);
-});
-
-const pool = process.env.DATABASE_URL
-  ? new pg.Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false }
-    })
-  : null;
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://launchvelocity-eng.github.io');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, x-hardware-key, x-tenant-id');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
-  }
-  return next();
-});
-
-app.use(express.json());
-
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', service: 'revenue-engine' });
-});
-
-app.post('/api/v1/create-checkout-session', async (req, res) => {
-  if (req.header('x-hardware-key') !== KEY) {
-    return res.status(403).json({ error: 'Invalid Hardware Key' });
-  }
-
-  const tier = req.body?.tier || 'retained';
-  const tiers = {
-    starter: [19900, '0.5 TB'],
-    growth: [49900, '2.0 TB'],
-    enterprise: [99900, '5.0 TB'],
-    retained: [250000, '10.0 TB']
-  };
-  const [amount, allocatedVault] = tiers[tier] || tiers.retained;
-  const tenantId = req.header('x-tenant-id') || 'enterprise-default';
-
-  try {
-    if (pool) {
-      await pool.query(
-        'CREATE TABLE IF NOT EXISTS revenue_audit (id SERIAL PRIMARY KEY, tenant_id TEXT, tier TEXT, amount INT, status TEXT, created_at TIMESTAMPTZ DEFAULT NOW())'
-      );
-      await pool.query(
-        'INSERT INTO revenue_audit (tenant_id, tier, amount, status) VALUES ($1, $2, $3, $4)',
-        [tenantId, tier, amount, 'PENDING_SETTLEMENT']
-      );
+document.querySelectorAll('.lock-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lock-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (bgLockGraphic) {
+      bgLockGraphic.src = btn.dataset.img;
     }
-
-    return res.json({
-      url: 'https://checkout.stripe.com/pay/lv-session',
-      status: 'AUTHORIZED',
-      tier,
-      allocatedVault
-    });
-  } catch (err) {
-    console.error('CHECKOUT_ERROR:', err);
-    return res.status(500).json({ error: err.message });
-  }
-});
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log('Listening on ' + PORT);
+    document.body.style.backgroundImage =
+      `linear-gradient(180deg, rgba(6, 11, 20, 0.78), rgba(6, 11, 20, 0.9)), url('${btn.dataset.img}')`;
+  });
 });
