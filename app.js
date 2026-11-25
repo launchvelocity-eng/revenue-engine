@@ -1,31 +1,29 @@
 import express from 'express';
 import pg from 'pg';
 
-const { Pool } = pg;
 const app = express();
 const PORT = process.env.PORT || 10000;
-const MASTER_HARDWARE_KEY = 'LV-KEY-B826EA2203EAACCA';
-
+const KEY = 'LV-KEY-B826EA2203EAACCA';
 const pool = process.env.DATABASE_URL
-  ? new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false },
-    })
+  ? new pg.Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
   : null;
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://launchvelocity-eng.github.io');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, x-hardware-key, x-tenant-id');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
-  }
-  return next();
+  return req.method === 'OPTIONS' ? res.sendStatus(204) : next();
 });
-
 app.use(express.json());
 
-function verifyHardwareKey(req, res, next) {
-  const clientKey = req.header('x-hardware-key');
-  if (!clientKey || clientKey !== MASTER_HARDWARE_KEY) {
-    return res.status(403).json({ error: 'Sovereign Access Denied: Invalid Hardware Key'
+app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+
+app.post('/api/v1/create-checkout-session', async (req, res) => {
+  if (req.header('x-hardware-key') !== KEY) return res.status(403).json({ error: 'Invalid Hardware Key' });
+  const tier = req.body?.tier || 'retained';
+  const map = { starter: [19900, '0.5 TB'], growth: [49900, '2.0 TB'], enterprise: [99900, '5.0 TB'], retained: [250000, '10.0 TB'] };
+  const [amount, allocatedVault] = map[tier] || map.retained;
+  try {
+    if (pool) {
+      await pool.query('CREATE TABLE IF NOT EXISTS revenue_audit (id SERIAL PRIMARY KEY, tenant_id TEXT, tier TEXT, amount INT, status TEXT, created_at TIMESTAMPTZ DEFAULT NOW())');
+      await pool.query('INSERT INTO revenue_audit (tenant_id, tier, amount, status) VALUES ($1,$2,$3,$4)',
