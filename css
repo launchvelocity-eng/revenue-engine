@@ -1,3 +1,4 @@
-background-image:824.jpg, 820.jpg, 821.jpg, 822.jpg,823.jpg;
-  linear-gradient(180deg, rgba(6, 11, 20, 0.72), rgba(6, 11, 20, 0.86)),
-  url('./824.jpg');
+      background-color: #060b14;
+      background-image:
+        linear-gradient(180deg, rgba(6, 11, 20, 0.72), rgba(6, 11, 20, 0.86)),
+        url('./824.jpg');
