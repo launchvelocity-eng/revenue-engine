@@ -38,15 +38,4 @@ async function ensureAuditTable() {
 
 function setCorsHeaders(res, origin) {
   const allowOrigin = origin === ALLOWED_ORIGIN ? origin : ALLOWED_ORIGIN;
-  res.setHeader('Access-Control-Allow-Origin', allowOrigin);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-hardware-key, x-tenant-id');
-  res.setHeader('Vary', 'Origin');
-}
-
-function sendJson(res, statusCode, payload) {
-  res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
-  res.end(JSON.stringify(payload));
-}
-
-function readBody(req
+  res.setHeader('Access-Control
