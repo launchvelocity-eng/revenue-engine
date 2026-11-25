@@ -1,16 +1,40 @@
 .bg-lock-layer {
   position: fixed;
-  inset: 0;
+  inset: -6%;
   z-index: 0;
   pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.16;
-  overflow: hidden;
+  opacity: 0.24;
+  animation: lockDrift 12s ease-in-out infinite alternate;
 }
+
+.bg-lock-layer img,
 .bg-lock-svg {
-  width: min(88vw, 520px);
-  height: auto;
-  color: #38bdf8;
+  width: min(92vw, 540px);
+  max-height: 75vh;
+  object-fit: contain;
+  filter: drop-shadow(0 0 28px rgba(56, 189, 248, 0.35));
+  animation: lockPulse 5s ease-in-out infinite;
+}
+
+@keyframes lockDrift {
+  0% {
+    transform: translate3d(-12px, -8px, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(12px, 10px, 0) scale(1.04);
+  }
+}
+
+@keyframes lockPulse {
+  0%, 100% {
+    opacity: 0.72;
+    filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.28));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 36px rgba(56, 189, 248, 0.55));
+  }
 }
