@@ -28,21 +28,4 @@ app.use(express.json());
 function verifyHardwareKey(req, res, next) {
   const clientKey = req.header('x-hardware-key');
   if (!clientKey || clientKey !== MASTER_HARDWARE_KEY) {
-    return res.status(403).json({ error: 'Sovereign Access Denied: Invalid Hardware Key' });
-  }
-  return next();
-}
-
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', service: 'revenue-engine' });
-});
-
-app.post('/api/v1/create-checkout-session', verifyHardwareKey, async (req, res) => {
-  const tier = req.body?.tier || 'retained';
-  const tenantId = req.header('x-tenant-id') || 'enterprise-default';
-
-  const tierMap = {
-    starter: { price: 19900, storage: '0.5 TB' },
-    growth: { price: 49900, storage: '2.0 TB' },
-    enterprise: { price: 99900, storage: '5.0 TB' },
-    retained: { price: 250000, storage: '10.0 TB' },
+    return res.status(403).json({ error: 'Sovereign Access Denied: Invalid Hardware Key'
