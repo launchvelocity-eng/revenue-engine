@@ -41,17 +41,39 @@ const server = http.createServer(async (req, res) => {
 
     let raw = '';
     for await (const chunk of req) raw += chunk;
-    const body = raw ? JSON.parse(raw) : {};
+    let body = {};
+    try {
+      body = raw ? JSON.parse(raw) : {};
+    } catch {
+      return send(res, 400, { error: 'Invalid JSON body' });
+    }
+
     const tierKey = String(body.tier || 'retained').toLowerCase();
     const tier = TIERS[tierKey] || TIERS.retained;
     const tenantId = String(req.headers['x-tenant-id'] || 'enterprise-default');
 
-    if (pool) {
-      await pool.query('CREATE TABLE IF NOT EXISTS revenue_audit (id SERIAL PRIMARY KEY, tier TEXT NOT NULL, amount_cents INTEGER NOT NULL, allocated_vault TEXT NOT NULL, tenant_id TEXT NOT NULL, hardware_key_prefix TEXT NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW())');
-      await pool.query('INSERT INTO revenue_audit (tier, amount_cents, allocated_vault, tenant_id, hardware_key_prefix) VALUES ($1, $2, $3, $4, $5)', [tierKey, tier.amountCents, tier.vault, tenantId, hwKey.slice(0, 12)]);
-    }
+    try {
+      if (pool) {
+        await pool.query(
+          'CREATE TABLE IF NOT EXISTS revenue_audit (id SERIAL PRIMARY KEY, tier TEXT NOT NULL, amount_cents INTEGER NOT NULL, allocated_vault TEXT NOT NULL, tenant_id TEXT NOT NULL, hardware_key_prefix TEXT NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW())'
+        );
+        await pool.query(
+          'INSERT INTO revenue_audit (tier, amount_cents, allocated_vault, tenant_id, hardware_key_prefix) VALUES ($1, $2, $3, $4, $5)',
+          [tierKey, tier.amountCents, tier.vault, tenantId, hwKey.slice(0, 12)]
+        );
+      }
 
-    return send(res, 200, { ok: true, tier: tierKey, tierLabel: tier.label, amountCents: tier.amountCents, allocatedVault: tier.vault, tenantId });
+      return send(res, 200, {
+        ok: true,
+        tier: tierKey,
+        tierLabel: tier.label,
+        amountCents: tier.amountCents,
+        allocatedVault: tier.vault,
+        tenantId
+      });
+    } catch (err) {
+      return send(res, 500, { error: err.message || 'Database error' });
+    }
   }
 
   return send(res, 404, { error: 'Not found' });
